@@ -25,7 +25,7 @@
 <body class="bg-gray-100 h-screen flex flex-col font-sans antialiased overflow-hidden">
 
     <!-- ==================== LOGIN ==================== -->
-    <div id="vista-login" class="flex flex-col h-full bg-teal-900 text-white justify-center px-8 relative z-50">
+    <div id="vista-login" class="flex-col h-full bg-teal-900 text-white justify-center px-8 relative z-50" style="display: flex;">
         <div class="text-center mb-10">
             <i class="fa-solid fa-microscope text-5xl mb-4 text-teal-400"></i>
             <h1 class="text-4xl font-bold tracking-wide">Mavrogeni</h1>
@@ -39,7 +39,7 @@
     </div>
 
     <!-- ==================== APP PRINCIPAL ==================== -->
-    <div id="app-principal" class="hidden flex-col h-full relative">
+    <div id="app-principal" class="flex-col h-full relative" style="display: none;">
         
         <!-- TOPBAR -->
         <header class="bg-teal-700 text-white shadow-md sticky top-0 z-30">
@@ -243,7 +243,7 @@
         </div>
     </div>
 
-    <!-- Modales Restantes (Notificaciones, Posts, Calendario, Bitácora) -->
+    <!-- Modales Restantes (Notificaciones, Posts, Calendario, Bitácora, Reactivos) -->
     <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
 
     <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg text-gray-800">Nueva Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Destino:</label><select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Todos</option><option>Supervisión</option><option>Encargados</option><option>Tecnólogos</option><option>TENS</option><option>Secretaría</option></select></div><div id="campo-fecha-evento" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Fecha y Hora:</label><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none"><textarea id="post-cuerpo" rows="4" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea><div id="div-img-post"><label class="text-xs font-bold text-gray-500"><i class="fa-solid fa-image"></i> URL de Imagen</label><input type="text" id="post-img" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50"></div><button id="btn-submit-post" onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
@@ -298,12 +298,9 @@
         }
 
         function entrarApp() {
-            const vLogin = document.getElementById('vista-login');
-            const vApp = document.getElementById('app-principal');
-            vLogin.classList.remove('flex');
-            vLogin.classList.add('hidden');
-            vApp.classList.remove('hidden');
-            vApp.classList.add('flex');
+            // FORZAR VISIBILIDAD DE PANTALLAS CON ESTILOS EN LÍNEA
+            document.getElementById('vista-login').style.display = 'none';
+            document.getElementById('app-principal').style.display = 'flex';
 
             actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); actualizarCampana();
         }
@@ -351,9 +348,9 @@
                 const ev = calendarioData[`dia_${i}`];
                 let bg = 'bg-gray-50 text-gray-700', icon = '';
                 if(ev) {
-                    if(ev === 'Eliminación') { bg = 'bg-red-100 text-red-800'; icon='<i class="fa-solid fa-trash-can text-[8px]"></i>'; }
-                    else if(ev === 'Relleno') { bg = 'bg-teal-100 text-teal-800'; icon='<i class="fa-solid fa-fill-drip text-[8px]"></i>'; }
-                    else { bg = 'bg-purple-100 text-purple-800'; icon='<i class="fa-solid fa-star text-[8px]"></i>'; }
+                    if(ev === 'Eliminación') { bg = 'bg-red-100 text-red-800 border-red-300'; icon='<i class="fa-solid fa-trash-can text-[8px] mt-1"></i>'; }
+                    else if(ev === 'Relleno') { bg = 'bg-teal-100 text-teal-800 border-teal-300'; icon='<i class="fa-solid fa-fill-drip text-[8px] mt-1"></i>'; }
+                    else { bg = 'bg-purple-100 text-purple-800 border-purple-300'; icon='<i class="fa-solid fa-star text-[8px] mt-1"></i>'; }
                 }
                 html += `<button onclick="abrirOpcionesCalendario(${i})" class="p-1 rounded flex flex-col items-center justify-center font-bold border border-gray-200 hover:border-teal-400 ${bg}">${i}${icon}</button>`;
             }
@@ -483,7 +480,7 @@
             if(n) { n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); if(n.targetV) cambiarVista(n.targetV); if(n.targetS) cambiarSubForo(n.targetS); actualizarCampana(); }
         }
 
-        // CARGA INICIAL
+        // CARGA INICIAL ROBUSTA
         window.onload = function() {
             try {
                 let s = localStorage.getItem('mvrg_sesion');
@@ -501,15 +498,13 @@
                     usuarioActual = JSON.parse(s); 
                     entrarApp(); 
                 } else {
-                    document.getElementById('vista-login').classList.remove('hidden');
-                    document.getElementById('vista-login').classList.add('flex');
-                    document.getElementById('app-principal').classList.remove('flex');
-                    document.getElementById('app-principal').classList.add('hidden');
+                    document.getElementById('vista-login').style.display = 'flex';
+                    document.getElementById('app-principal').style.display = 'none';
                 }
             } catch (e) {
                 console.error("Error cargando memoria", e);
-                document.getElementById('vista-login').classList.remove('hidden');
-                document.getElementById('vista-login').classList.add('flex');
+                document.getElementById('vista-login').style.display = 'flex';
+                document.getElementById('app-principal').style.display = 'none';
             }
         };
     </script>
