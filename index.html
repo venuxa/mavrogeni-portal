@@ -35,11 +35,6 @@
             <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition-all">Ingresar</button>
             <p id="error-login" class="text-xs text-red-500 text-center mt-4 hidden">Usuario incorrecto.</p>
         </div>
-        <div class="mt-6 text-xs text-teal-400/70 text-center space-y-1">
-            <p>Usuarios: <b>super</b> (Supervisión) | <b>encargado</b> (Encargado)</p>
-            <p><b>tm</b> (Tecnólogo) | <b>tens</b> (Técnico) | <b>sec</b> (Secretaria)</p>
-            <p>Clave para todos: <b>1234</b></p>
-        </div>
     </div>
 
     <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
@@ -48,12 +43,19 @@
         <!-- TOPBAR -->
         <header class="bg-teal-700 text-white shadow-md sticky top-0 z-30">
             <div class="flex justify-between items-center px-4 h-14">
-                <div class="flex items-center gap-3">
-                    <div id="header-avatar" class="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center font-bold text-xs border border-teal-400"></div>
-                    <h1 class="text-sm font-bold tracking-wide" id="header-nombre">Mavrogeni App</h1>
-                </div>
-                <button class="relative p-2" onclick="alert('Notificaciones al día')">
+                <!-- Botón de Perfil -->
+                <button onclick="abrirModalPerfil()" class="flex items-center gap-3 hover:bg-teal-600 p-1 rounded-lg transition-colors">
+                    <div id="header-avatar" class="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center font-bold text-xs border border-teal-400 overflow-hidden"></div>
+                    <div class="text-left">
+                        <h1 class="text-sm font-bold tracking-wide leading-tight" id="header-nombre">Usuario</h1>
+                        <p class="text-[9px] text-teal-200 uppercase" id="header-rol">Rol</p>
+                    </div>
+                </button>
+                
+                <!-- Botón de Notificaciones -->
+                <button onclick="abrirModalNotificaciones()" class="relative p-2 hover:bg-teal-600 rounded-full transition-colors">
                     <i class="fa-regular fa-bell text-xl"></i>
+                    <span id="badge-notif" class="absolute top-2 right-2 bg-red-500 rounded-full w-2.5 h-2.5 border-2 border-teal-700 hidden"></span>
                 </button>
             </div>
         </header>
@@ -70,81 +72,93 @@
                 </div>
                 
                 <div class="p-4 flex-1 overflow-y-auto">
-                    <!-- Botón Flotante/Superior para publicar -->
                     <button id="btn-abrir-modal-post" onclick="abrirModalPost()" class="w-full bg-white border border-teal-200 text-teal-700 rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-sm mb-4">
                         <i class="fa-solid fa-pen"></i> <span id="txt-btn-publicar">Crear Publicación</span>
                     </button>
-                    
-                    <!-- Contenedor dinámico de Posts -->
                     <div id="contenedor-posts" class="space-y-4"></div>
                 </div>
             </div>
 
-            <!-- VISTA: SISTEMAS (Citodiagnóstico) -->
+            <!-- VISTA: SISTEMAS (Jerarquía de Unidades) -->
             <div id="vista-sistemas" class="hidden flex flex-col h-full bg-gray-50">
-                <div class="bg-white border-b flex text-sm font-bold shadow-sm px-4 py-3 text-gray-700 items-center justify-between">
-                    <span><i class="fa-solid fa-microscope text-teal-600 mr-2"></i> Citodiagnóstico</span>
-                    <span class="text-[10px] bg-teal-100 text-teal-800 px-2 py-1 rounded-full">Área Activa</span>
-                </div>
                 
-                <div class="p-4 flex-1 overflow-y-auto space-y-4">
-                    <!-- Calendario de Recambio -->
-                    <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-                        <h3 class="font-bold text-gray-800 text-sm mb-3 border-b pb-2"><i class="fa-regular fa-calendar-check text-teal-600 mr-1"></i> Cronograma de Batería</h3>
-                        <div class="flex flex-col gap-3">
-                            <div>
-                                <label class="text-xs text-gray-500 font-bold uppercase">Próximo Recambio Programado:</label>
-                                <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mt-1 focus:outline-none focus:border-teal-500">
+                <!-- Nivel 1: Lista de Unidades -->
+                <div id="sistemas-lista-unidades" class="block p-4">
+                    <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Unidades de Anatomía Patológica</h2>
+                    <div class="grid grid-cols-1 gap-3">
+                        <button onclick="abrirUnidad('citodiagnostico')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between hover:border-teal-400">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center"><i class="fa-solid fa-microscope"></i></div>
+                                <span class="font-bold text-gray-800 text-left">Citodiagnóstico</span>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 mt-2">
-                                <button onclick="alert('Eliminación registrada en bitácora.')" class="bg-red-50 text-red-600 border border-red-200 text-xs font-bold py-2 rounded-lg hover:bg-red-100"><i class="fa-solid fa-trash-can mr-1"></i> Eliminación</button>
-                                <button onclick="abrirModalReactivos()" class="bg-teal-50 text-teal-700 border border-teal-200 text-xs font-bold py-2 rounded-lg hover:bg-teal-100"><i class="fa-solid fa-fill-drip mr-1"></i> Rellenar Reactivos</button>
+                            <i class="fa-solid fa-chevron-right text-gray-300"></i>
+                        </button>
+                        <button class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between opacity-60">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-vial"></i></div>
+                                <span class="font-bold text-gray-800 text-left">Histopatología</span>
                             </div>
-                        </div>
+                            <span class="text-[9px] bg-gray-200 px-2 py-1 rounded">Próximamente</span>
+                        </button>
+                        <button class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between opacity-60">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-eye"></i></div>
+                                <span class="font-bold text-gray-800 text-left">Macroscopía</span>
+                            </div>
+                            <span class="text-[9px] bg-gray-200 px-2 py-1 rounded">Próximamente</span>
+                        </button>
                     </div>
+                </div>
 
-                    <!-- Panel Visual de Stock -->
-                    <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-                        <div class="flex justify-between items-center border-b pb-2 mb-3">
-                            <h3 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-vials text-teal-600 mr-1"></i> Nivel de Reactivos</h3>
-                            <button onclick="renderReactivos()" class="text-gray-400 hover:text-teal-600"><i class="fa-solid fa-rotate-right"></i></button>
+                <!-- Nivel 2: Citodiagnóstico -->
+                <div id="sistemas-citodiagnostico" class="hidden flex-col h-full">
+                    <div class="bg-white border-b flex text-sm font-bold shadow-sm px-4 py-3 text-gray-700 items-center gap-3 sticky top-0 z-10">
+                        <button onclick="cerrarUnidad()" class="text-gray-400 hover:text-teal-600"><i class="fa-solid fa-arrow-left"></i></button>
+                        <span>Citodiagnóstico</span>
+                    </div>
+                    
+                    <div class="p-4 flex-1 overflow-y-auto space-y-4">
+                        <!-- Calendario de Recambio -->
+                        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
+                            <h3 class="font-bold text-gray-800 text-sm mb-3 border-b pb-2"><i class="fa-regular fa-calendar-check text-teal-600 mr-1"></i> Cronograma de Batería</h3>
+                            <p class="text-xs text-gray-500 mb-2">Selecciona la fecha para registrar una acción:</p>
+                            <input type="date" id="input-fecha-bateria" onchange="gestionarFechaBateria(this.value)" class="w-full bg-gray-50 border border-teal-300 text-teal-800 font-bold rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-inner">
                         </div>
-                        <div id="contenedor-reactivos" class="space-y-3">
-                            <!-- Se generan con JS -->
+
+                        <!-- Panel Visual de Stock -->
+                        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
+                            <div class="flex justify-between items-center border-b pb-2 mb-3">
+                                <h3 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-vials text-teal-600 mr-1"></i> Nivel de Reactivos</h3>
+                                <button onclick="renderReactivos()" class="text-gray-400 hover:text-teal-600"><i class="fa-solid fa-rotate-right"></i></button>
+                            </div>
+                            <div id="contenedor-reactivos" class="space-y-3"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VISTA: CHAT (En construcción) -->
+            <!-- VISTA: CHAT -->
             <div id="vista-chat" class="hidden flex flex-col h-full absolute inset-0 bg-gray-50">
                 <div class="flex-1 p-4 flex items-center justify-center text-gray-400 flex-col">
-                    <i class="fa-regular fa-comments text-4xl mb-2"></i><p class="text-sm">Chat Global</p>
+                    <i class="fa-regular fa-comments text-4xl mb-2"></i><p class="text-sm">Chat Global en construcción</p>
                 </div>
             </div>
 
             <!-- VISTA: EVENTOS -->
             <div id="vista-eventos" class="hidden flex flex-col h-full bg-gray-50">
                 <div class="p-4">
-                    <button onclick="alert('Función de agregar evento en desarrollo')" class="w-full bg-teal-600 text-white rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-md mb-4">
-                        <i class="fa-solid fa-calendar-plus"></i> Agendar Evento
+                    <button onclick="abrirModalEvento()" class="w-full bg-teal-600 text-white rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-md mb-4 hover:bg-teal-700">
+                        <i class="fa-solid fa-calendar-plus"></i> Agendar Nuevo Evento
                     </button>
-                    <div class="space-y-3">
-                        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-pink-500">
-                            <div class="flex justify-between"><h4 class="font-bold text-gray-800">Cumpleaños Carlos P.</h4><span class="text-xs font-bold text-pink-500">HOY</span></div>
-                            <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-cake-candles"></i> TENS Citodiagnóstico</p>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-teal-500">
-                            <div class="flex justify-between"><h4 class="font-bold text-gray-800">Reunión Calidad</h4><span class="text-xs text-gray-500">Viernes 15:00</span></div>
-                            <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-users"></i> Obligatoria para Tecnólogos</p>
-                        </div>
+                    <div id="contenedor-eventos" class="space-y-3">
+                        <!-- Eventos dinámicos aquí -->
                     </div>
                 </div>
             </div>
 
         </main>
 
-        <!-- BARRA NAVEGACIÓN INFERIOR (4 Botones) -->
+        <!-- BARRA NAVEGACIÓN INFERIOR -->
         <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full z-20" style="padding-bottom: env(safe-area-inset-bottom);">
             <div class="flex justify-around items-center h-16 px-1">
                 <button id="btn-foros" onclick="cambiarVista('foros')" class="flex flex-col items-center justify-center w-full text-teal-700"><i class="fa-solid fa-users-rectangle text-xl mb-1"></i><span class="text-[10px] font-bold">Foros</span></button>
@@ -155,13 +169,44 @@
         </nav>
     </div>
 
-    <!-- ==================== MODALES (Ventanas Emergentes) ==================== -->
+    <!-- ==================== MODALES ==================== -->
     
-    <!-- Modal Nueva Publicación -->
-    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
-        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto transform transition-transform animate-slide-up">
+    <!-- Modal PERFIL -->
+    <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl transform transition-transform animate-slide-up">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 id="titulo-modal-post" class="font-bold text-lg text-gray-800">Nueva Publicación</h2>
+                <h2 class="font-bold text-lg text-gray-800">Mi Perfil</h2>
+                <button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div class="flex justify-center">
+                    <div id="preview-foto-perfil" class="w-20 h-20 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center text-2xl font-bold border-2 border-teal-500 overflow-hidden"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500">Nombre</label>
+                        <input type="text" id="perfil-nombre" class="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-teal-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500">Apellido</label>
+                        <input type="text" id="perfil-apellido" class="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-teal-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">URL Foto de Perfil (Opcional)</label>
+                    <input type="text" id="perfil-foto" placeholder="https://..." class="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-teal-500 text-xs text-gray-600">
+                </div>
+                <button onclick="guardarPerfil()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md mt-2">Guardar Cambios</button>
+                <button onclick="cerrarSesion()" class="w-full bg-red-50 text-red-600 font-bold py-3 rounded-lg border border-red-200 mt-2">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal POST -->
+    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
+        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 class="font-bold text-lg text-gray-800">Nueva Publicación</h2>
                 <button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button>
             </div>
             <div class="space-y-4">
@@ -169,257 +214,260 @@
                     <label class="text-xs font-bold text-gray-500 uppercase">Publicar para:</label>
                     <select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50">
                         <option value="Todos">Todos los roles</option>
-                        <option value="Tecnólogos">Solo Tecnólogos Médicos</option>
-                        <option value="TENS">Solo Técnicos (TENS)</option>
-                        <option value="Secretaría">Solo Secretaría</option>
+                        <option value="Supervisión">Supervisión</option>
+                        <option value="Encargados">Encargados</option>
+                        <option value="Tecnólogos">Tecnólogos Médicos</option>
+                        <option value="TENS">Técnicos (TENS)</option>
+                        <option value="Secretaría">Secretaría</option>
                     </select>
                 </div>
-                <div>
-                    <input type="text" id="post-titulo" placeholder="Título de la publicación..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none focus:border-teal-500">
-                </div>
-                <div>
-                    <textarea id="post-cuerpo" rows="4" placeholder="Escribe los detalles aquí..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500"></textarea>
-                </div>
+                <input type="text" id="post-titulo" placeholder="Título de la publicación..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none focus:border-teal-500">
+                <textarea id="post-cuerpo" rows="4" placeholder="Escribe los detalles aquí..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500"></textarea>
                 <div>
                     <label class="text-xs font-bold text-gray-500"><i class="fa-solid fa-image"></i> URL de Imagen (Opcional)</label>
-                    <input type="text" id="post-img" placeholder="https://ejemplo.com/foto.jpg" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50">
+                    <input type="text" id="post-img" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50">
                 </div>
                 <button onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Rellenar Reactivos -->
+    <!-- Modal ACCIÓN BATERÍA -->
+    <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center">
+            <h2 class="font-bold text-lg text-gray-800 mb-2">Acción de Batería</h2>
+            <p class="text-sm text-gray-500 mb-6">Fecha seleccionada: <span id="txt-fecha-accion" class="font-bold text-teal-700"></span></p>
+            
+            <div class="space-y-3">
+                <button onclick="registrarEliminacion()" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-red-100">
+                    <i class="fa-solid fa-trash-can text-xl"></i> Registrar Eliminación
+                </button>
+                <button onclick="abrirRellenoReactivos()" class="w-full bg-teal-50 text-teal-700 border border-teal-200 font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-teal-100">
+                    <i class="fa-solid fa-fill-drip text-xl"></i> Rellenar Reactivos
+                </button>
+            </div>
+            <button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal RELLENAR REACTIVOS -->
     <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-5 overflow-hidden">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
                 <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-fill-drip text-teal-600 mr-1"></i> Rellenar Reactivos</h2>
                 <button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button>
             </div>
-            <p class="text-xs text-gray-500 mb-4">Ingresa el nivel actual aproximado (0-100%) tras el relleno.</p>
-            
-            <div id="form-reactivos" class="space-y-3 max-h-[50vh] overflow-y-auto px-1">
-                <!-- Se generan inputs dinámicamente -->
-            </div>
-            
-            <button onclick="guardarReactivos()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md mt-4">Actualizar Sistema</button>
+            <div id="form-reactivos" class="space-y-3 max-h-[50vh] overflow-y-auto px-1"></div>
+            <button onclick="guardarReactivos()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg mt-4">Actualizar Sistema</button>
         </div>
     </div>
 
-    <!-- ==================== SCRIPT PRINCIPAL ==================== -->
+    <!-- Modal EVENTO -->
+    <div id="modal-evento" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
+        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 class="font-bold text-lg text-gray-800">Agendar Evento</h2>
+                <button onclick="cerrarModal('modal-evento')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Nombre del Evento</label>
+                    <input type="text" id="ev-nombre" class="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-teal-500">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Fecha y Hora</label>
+                    <input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Roles Asignados</label>
+                    <select id="ev-roles" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50">
+                        <option value="Todos los roles">Todos los roles</option>
+                        <option value="Solo Tecnólogos Médicos">Solo Tecnólogos Médicos</option>
+                        <option value="Solo TENS">Solo TENS</option>
+                        <option value="Jefatura y Encargados">Jefatura y Encargados</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500">Descripción</label>
+                    <textarea id="ev-desc" rows="3" class="w-full border rounded-lg p-2 text-sm bg-gray-50"></textarea>
+                </div>
+                <button onclick="guardarEvento()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg">Agendar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal NOTIFICACIONES -->
+    <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b pb-2">
+                <h2 class="font-bold text-gray-800"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2>
+                <button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button>
+            </div>
+            
+            <div class="flex text-xs font-bold mb-3 border-b">
+                <button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button>
+                <button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button>
+            </div>
+            
+            <div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPT ==================== -->
     <script>
-        // 1. BASES DE DATOS SIMULADAS
-        const roles = {
-            'supervision': { nombre: 'Supervisión', color: 'bg-purple-100 text-purple-800' },
-            'encargado': { nombre: 'Encargado Área', color: 'bg-blue-100 text-blue-800' },
-            'tecnologo': { nombre: 'Tecnólogo Médico', color: 'bg-teal-100 text-teal-800' },
-            'tecnico': { nombre: 'Técnico (TENS)', color: 'bg-orange-100 text-orange-800' },
-            'secretaria': { nombre: 'Secretaría', color: 'bg-pink-100 text-pink-800' }
+        // --- DATOS Y ESTADO ---
+        const configRoles = {
+            'supervision': { nombre: 'Supervisión', badge: 'bg-purple-100 text-purple-800' },
+            'encargado': { nombre: 'Encargado Área', badge: 'bg-blue-100 text-blue-800' },
+            'tecnologo': { nombre: 'Tecnólogo Médico', badge: 'bg-teal-100 text-teal-800' },
+            'tecnico': { nombre: 'Técnico (TENS)', badge: 'bg-orange-100 text-orange-800' },
+            'secretaria': { nombre: 'Secretaría', badge: 'bg-pink-100 text-pink-800' }
         };
 
         const baseUsuarios = {
-            'super': { pass: '1234', nombre: 'Dra. Silva', iniciales: 'DS', rol: 'supervision' },
-            'encargado': { pass: '1234', nombre: 'Jefe Citología', iniciales: 'JC', rol: 'encargado' },
-            'tm': { pass: '1234', nombre: 'Tecnólogo Central', iniciales: 'TM', rol: 'tecnologo' },
-            'tens': { pass: '1234', nombre: 'Carlos P.', iniciales: 'CP', rol: 'tecnico' },
-            'sec': { pass: '1234', nombre: 'Recepción', iniciales: 'RC', rol: 'secretaria' }
+            'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'supervision' },
+            'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'encargado' },
+            'tm': { pass: '1234', n: 'Tecnólogo', a: 'Central', rol: 'tecnologo' },
+            'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'tecnico' },
+            'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'secretaria' }
         };
-
-        // Estado del stock (En porcentajes)
-        let reactivosStock = {
-            'EA50': 20, 'ORANGE': 45, 'HEMATOXILINA': 80, 
-            'OH70': 95, 'OH95': 15, 'OH100': 60, 'HISTOCLEAR': 30
-        };
-
-        // Foros
-        let foroActual = 'Avisos';
-        let publicaciones = [
-            { id: 1, foro: 'Avisos', audiencia: 'Todos', autor: baseUsuarios['super'], titulo: 'Nueva Normativa Minsal', cuerpo: 'Se adjunta nueva norma para toma de muestra PAP.', likes: 2, comentarios: [] },
-            { id: 2, foro: 'Offtopic', audiencia: 'Todos', autor: baseUsuarios['tens'], titulo: '¿Almuerzo?', cuerpo: '¿Quién se suma a pedir colaciones hoy?', likes: 5, comentarios: [{autor: 'TM', txt: 'Yo!'}] }
-        ];
 
         let usuarioActual = null;
+        let foroActual = 'Avisos';
+        let tabNotifActual = 'nuevas';
 
-        // 2. LÓGICA DE SESIÓN
+        // Estructuras guardadas en LocalStorage
+        let publicaciones = JSON.parse(localStorage.getItem('mvrg_posts')) || [];
+        let reactivosStock = JSON.parse(localStorage.getItem('mvrg_stock')) || {'EA50': 20, 'ORANGE': 45, 'HEMATOXILINA': 80, 'OH70': 95, 'OH95': 15, 'OH100': 60, 'HISTOCLEAR': 30};
+        let eventosData = JSON.parse(localStorage.getItem('mvrg_eventos')) || [{titulo:'Reunión Mensual', roles:'Todos los roles', fecha:'2026-08-15T15:00', desc:'Revisión de indicadores 2026.'}];
+        let notificaciones = JSON.parse(localStorage.getItem('mvrg_notif')) || [];
+
+        // --- SESIÓN Y PERFIL ---
         function iniciarSesion() {
             const user = document.getElementById('login-user').value.toLowerCase().trim();
             const pass = document.getElementById('login-pass').value;
             if (baseUsuarios[user] && baseUsuarios[user].pass === pass) {
-                usuarioActual = baseUsuarios[user];
-                document.getElementById('vista-login').classList.replace('block', 'hidden');
-                document.getElementById('app-principal').classList.replace('hidden', 'flex');
-                
-                document.getElementById('header-nombre').innerText = usuarioActual.nombre;
-                document.getElementById('header-avatar').innerText = usuarioActual.iniciales;
-                
-                // Configurar permisos del botón "Crear Publicación"
-                evaluarPermisosForo();
-                renderPosts();
+                const u = baseUsuarios[user];
+                usuarioActual = {
+                    id: user, nombre: u.n, apellido: u.a, rol: u.rol, foto: '',
+                    iniciales: (u.n.charAt(0) + u.a.charAt(0)).toUpperCase()
+                };
+                localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
+                entrarApp();
             } else {
                 document.getElementById('error-login').classList.remove('hidden');
             }
         }
 
-        function cerrarSesion() { location.reload(); }
+        function entrarApp() {
+            document.getElementById('vista-login').classList.replace('block', 'hidden');
+            document.getElementById('app-principal').classList.replace('hidden', 'flex');
+            actualizarUIUsuario();
+            evaluarPermisosForo();
+            renderPosts();
+            renderEventos();
+            actualizarCampana();
+        }
 
-        // 3. NAVEGACIÓN
+        function actualizarUIUsuario() {
+            const nCompleto = `${usuarioActual.nombre} ${usuarioActual.apellido}`;
+            document.getElementById('header-nombre').innerText = nCompleto;
+            document.getElementById('header-rol').innerText = configRoles[usuarioActual.rol].nombre;
+            
+            const avatarHtml = usuarioActual.foto ? `<img src="${usuarioActual.foto}" class="w-full h-full object-cover">` : usuarioActual.iniciales;
+            document.getElementById('header-avatar').innerHTML = avatarHtml;
+            document.getElementById('preview-foto-perfil').innerHTML = avatarHtml;
+        }
+
+        function abrirModalPerfil() {
+            document.getElementById('perfil-nombre').value = usuarioActual.nombre;
+            document.getElementById('perfil-apellido').value = usuarioActual.apellido;
+            document.getElementById('perfil-foto').value = usuarioActual.foto || '';
+            document.getElementById('modal-perfil').classList.add('modal-abierto');
+        }
+
+        function guardarPerfil() {
+            usuarioActual.nombre = document.getElementById('perfil-nombre').value;
+            usuarioActual.apellido = document.getElementById('perfil-apellido').value;
+            usuarioActual.foto = document.getElementById('perfil-foto').value;
+            usuarioActual.iniciales = (usuarioActual.nombre.charAt(0) + usuarioActual.apellido.charAt(0)).toUpperCase();
+            
+            localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
+            actualizarUIUsuario();
+            renderPosts(); // Refrescar avatars
+            cerrarModal('modal-perfil');
+        }
+
+        // --- NAVEGACIÓN ---
         function cambiarVista(vista) {
             ['foros', 'sistemas', 'chat', 'eventos'].forEach(v => {
                 document.getElementById('vista-' + v).classList.add('hidden');
                 document.getElementById('vista-' + v).classList.remove('block', 'flex');
                 document.getElementById('btn-' + v).classList.replace('text-teal-700', 'text-gray-400');
             });
-            const vistaActiva = document.getElementById('vista-' + vista);
-            vistaActiva.classList.remove('hidden');
-            vistaActiva.classList.add(vista === 'foros' ? 'block' : 'flex');
+            document.getElementById('vista-' + vista).classList.remove('hidden');
+            document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex');
             document.getElementById('btn-' + vista).classList.replace('text-gray-400', 'text-teal-700');
-            
-            if(vista === 'sistemas') renderReactivos();
         }
 
-        function cambiarSubForo(foro) {
-            foroActual = foro;
-            ['Avisos', 'Offtopic', 'Ventas'].forEach(f => {
-                const tab = document.getElementById('tab-' + f);
-                if(f === foro) {
-                    tab.classList.replace('text-gray-500', 'text-teal-700');
-                    tab.classList.replace('border-transparent', 'border-teal-700');
-                } else {
-                    tab.classList.replace('text-teal-700', 'text-gray-500');
-                    tab.classList.replace('border-teal-700', 'border-transparent');
-                }
-            });
-            evaluarPermisosForo();
-            renderPosts();
+        // --- SISTEMAS (Jerarquía) ---
+        function abrirUnidad(unidad) {
+            document.getElementById('sistemas-lista-unidades').classList.replace('block', 'hidden');
+            document.getElementById('sistemas-citodiagnostico').classList.replace('hidden', 'flex');
+            renderReactivos();
+        }
+        function cerrarUnidad() {
+            document.getElementById('sistemas-citodiagnostico').classList.replace('flex', 'hidden');
+            document.getElementById('sistemas-lista-unidades').classList.replace('hidden', 'block');
         }
 
-        function evaluarPermisosForo() {
-            const btn = document.getElementById('btn-abrir-modal-post');
-            if (foroActual === 'Avisos') {
-                if (usuarioActual.rol === 'supervision' || usuarioActual.rol === 'encargado') {
-                    btn.style.display = 'flex';
-                    document.getElementById('txt-btn-publicar').innerText = 'Publicar Aviso Oficial';
-                } else {
-                    btn.style.display = 'none'; // Ocultar para otros roles en Avisos
-                }
-            } else {
-                btn.style.display = 'flex'; // Mostrar para todos en Offtopic/Ventas
-                document.getElementById('txt-btn-publicar').innerText = 'Crear Publicación';
-            }
+        // --- BATERÍA Y REACTIVOS ---
+        let fechaBateriaTemp = '';
+        function gestionarFechaBateria(fechaStr) {
+            if(!fechaStr) return;
+            fechaBateriaTemp = fechaStr;
+            const f = new Date(fechaStr + 'T12:00:00'); // Evitar desfase horario
+            document.getElementById('txt-fecha-accion').innerText = f.toLocaleDateString('es-CL', {weekday:'long', day:'numeric', month:'long'});
+            document.getElementById('modal-accion-bateria').classList.add('modal-abierto');
         }
-
-        // 4. LÓGICA DE FOROS (POSTS, LIKES, COMENTARIOS)
-        function abrirModalPost() {
-            document.getElementById('post-titulo').value = '';
-            document.getElementById('post-cuerpo').value = '';
-            document.getElementById('post-img').value = '';
-            
-            const divAudiencia = document.getElementById('campo-roles-destino');
-            if (foroActual === 'Avisos') divAudiencia.classList.remove('hidden');
-            else divAudiencia.classList.add('hidden');
-            
-            document.getElementById('modal-post').classList.add('modal-abierto');
+        function registrarEliminacion() {
+            alert('Se registró la eliminación de reactivos para la fecha seleccionada.');
+            document.getElementById('input-fecha-bateria').value = '';
+            cerrarModal('modal-accion-bateria');
         }
-
-        function guardarPost() {
-            const titulo = document.getElementById('post-titulo').value;
-            const cuerpo = document.getElementById('post-cuerpo').value;
-            const img = document.getElementById('post-img').value;
-            const audiencia = foroActual === 'Avisos' ? document.getElementById('post-audiencia').value : 'Todos';
-
-            if(!titulo || !cuerpo) return alert("Título y cuerpo son obligatorios.");
-
-            publicaciones.unshift({
-                id: Date.now(), foro: foroActual, audiencia: audiencia,
-                autor: usuarioActual, titulo: titulo, cuerpo: cuerpo, img: img,
-                likes: 0, comentarios: []
-            });
-            cerrarModal('modal-post');
-            renderPosts();
-        }
-
-        function renderPosts() {
-            const contenedor = document.getElementById('contenedor-posts');
-            contenedor.innerHTML = '';
-            
-            const postsFiltrados = publicaciones.filter(p => p.foro === foroActual);
-            
-            if(postsFiltrados.length === 0) {
-                contenedor.innerHTML = '<p class="text-center text-gray-400 mt-10 text-sm">No hay publicaciones aquí aún.</p>';
-                return;
-            }
-
-            postsFiltrados.forEach(p => {
-                const rolInfo = roles[p.autor.rol];
-                let audienciaBadge = p.foro === 'Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : '';
-                let imgHtml = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : '';
-                
-                // HTML de Comentarios
-                let comsHtml = '';
-                p.comentarios.forEach(c => {
-                    comsHtml += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><span class="font-bold text-gray-700">${c.autor}:</span> ${c.txt}</div>`;
-                });
-
-                const html = `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs">${p.autor.iniciales}</div>
-                            <div>
-                                <p class="text-xs font-bold text-gray-800">${p.autor.nombre}</p>
-                                <span class="text-[9px] ${rolInfo.color} px-1.5 rounded">${rolInfo.nombre}</span>
-                            </div>
-                        </div>
-                        ${audienciaBadge}
-                    </div>
-                    <h4 class="font-bold text-gray-900 text-sm">${p.titulo}</h4>
-                    <p class="text-sm text-gray-600 mt-1">${p.cuerpo}</p>
-                    ${imgHtml}
-                    
-                    <div class="border-t border-gray-100 mt-3 pt-3 flex gap-4">
-                        <button onclick="darLike(${p.id})" class="text-xs font-bold text-gray-500 hover:text-pink-500 transition-colors"><i class="fa-solid fa-heart mr-1"></i> ${p.likes}</button>
-                        <button class="text-xs font-bold text-gray-500"><i class="fa-solid fa-comment mr-1"></i> ${p.comentarios.length}</button>
-                    </div>
-                    
-                    <div class="mt-3">
-                        ${comsHtml}
-                        <div class="flex gap-2 mt-2">
-                            <input type="text" id="input-com-${p.id}" placeholder="Escribe un comentario..." class="flex-1 bg-gray-100 border-none rounded-full px-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-teal-500">
-                            <button onclick="agregarComentario(${p.id})" class="bg-teal-600 text-white rounded-full w-6 h-6 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-[10px]"></i></button>
-                        </div>
+        function abrirRellenoReactivos() {
+            cerrarModal('modal-accion-bateria');
+            const cont = document.getElementById('form-reactivos');
+            cont.innerHTML = '';
+            for (const [nombre, nivel] of Object.entries(reactivosStock)) {
+                cont.innerHTML += `
+                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                    <label class="text-xs font-bold text-gray-700">${nombre}</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="inp-reac-${nombre}" value="${nivel}" min="0" max="100" class="w-16 border rounded p-1 text-xs text-center font-bold">
+                        <span class="text-xs text-gray-500">%</span>
                     </div>
                 </div>`;
-                contenedor.innerHTML += html;
-            });
-        }
-
-        function darLike(id) {
-            const p = publicaciones.find(x => x.id === id);
-            if(p) { p.likes++; renderPosts(); }
-        }
-
-        function agregarComentario(id) {
-            const input = document.getElementById('input-com-' + id);
-            if(input.value.trim() !== '') {
-                const p = publicaciones.find(x => x.id === id);
-                p.comentarios.push({ autor: usuarioActual.iniciales, txt: input.value });
-                renderPosts();
             }
+            document.getElementById('modal-reactivos').classList.add('modal-abierto');
         }
-
-        // 5. LÓGICA DE SISTEMAS (CITODIAGNÓSTICO)
+        function guardarReactivos() {
+            for (const k of Object.keys(reactivosStock)) {
+                const val = document.getElementById('inp-reac-' + k).value;
+                reactivosStock[k] = Math.min(100, Math.max(0, parseInt(val) || 0));
+            }
+            localStorage.setItem('mvrg_stock', JSON.stringify(reactivosStock));
+            document.getElementById('input-fecha-bateria').value = '';
+            cerrarModal('modal-reactivos');
+            renderReactivos();
+        }
         function renderReactivos() {
             const cont = document.getElementById('contenedor-reactivos');
-            const modalForm = document.getElementById('form-reactivos');
-            cont.innerHTML = ''; modalForm.innerHTML = '';
-
+            cont.innerHTML = '';
             for (const [nombre, nivel] of Object.entries(reactivosStock)) {
-                // Color según nivel
-                let bgBar = 'bg-teal-500'; let txtColor = 'text-teal-700';
+                let bgBar = 'bg-teal-500', txtColor = 'text-teal-700';
                 if (nivel < 25) { bgBar = 'bg-red-500'; txtColor = 'text-red-600'; }
                 else if (nivel < 50) { bgBar = 'bg-yellow-400'; txtColor = 'text-yellow-600'; }
-
-                // Generar Barras para Dashboard
                 cont.innerHTML += `
                 <div>
                     <div class="flex justify-between text-xs font-bold mb-1 ${txtColor}">
@@ -429,36 +477,221 @@
                         <div class="barra-nivel ${bgBar} h-2.5 rounded-full" style="width: ${nivel}%"></div>
                     </div>
                 </div>`;
+            }
+        }
 
-                // Generar Inputs para el Modal de Relleno
-                modalForm.innerHTML += `
-                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border">
-                    <label class="text-xs font-bold text-gray-700">${nombre}</label>
-                    <div class="flex items-center gap-2">
-                        <input type="number" id="input-reac-${nombre}" value="${nivel}" min="0" max="100" class="w-16 border rounded p-1 text-xs text-center font-bold">
-                        <span class="text-xs text-gray-500">%</span>
+        // --- EVENTOS ---
+        function abrirModalEvento() {
+            document.getElementById('ev-nombre').value = '';
+            document.getElementById('ev-fecha').value = '';
+            document.getElementById('ev-desc').value = '';
+            document.getElementById('modal-evento').classList.add('modal-abierto');
+        }
+        function guardarEvento() {
+            const nom = document.getElementById('ev-nombre').value;
+            const fec = document.getElementById('ev-fecha').value;
+            if(!nom || !fec) return alert('Nombre y Fecha son obligatorios');
+            
+            eventosData.push({
+                titulo: nom, fecha: fec, 
+                roles: document.getElementById('ev-roles').value,
+                desc: document.getElementById('ev-desc').value
+            });
+            // Ordenar por fecha
+            eventosData.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+            localStorage.setItem('mvrg_eventos', JSON.stringify(eventosData));
+            
+            generarNotificacion(`Nuevo evento agendado: ${nom}`);
+            cerrarModal('modal-evento');
+            renderEventos();
+        }
+        function renderEventos() {
+            const cont = document.getElementById('contenedor-eventos');
+            cont.innerHTML = '';
+            if(eventosData.length === 0) cont.innerHTML = '<p class="text-xs text-gray-500 text-center">No hay eventos próximos.</p>';
+            
+            eventosData.forEach(e => {
+                const f = new Date(e.fecha);
+                const fechaFormat = f.toLocaleDateString('es-CL', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+                cont.innerHTML += `
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-teal-500">
+                    <div class="flex justify-between items-start mb-1">
+                        <h4 class="font-bold text-gray-800 leading-tight">${e.titulo}</h4>
+                        <span class="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded whitespace-nowrap ml-2">${fechaFormat}</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-2"><i class="fa-solid fa-users mr-1"></i>${e.roles}</p>
+                    <p class="text-xs text-gray-600">${e.desc}</p>
+                </div>`;
+            });
+        }
+
+        // --- FOROS ---
+        function cambiarSubForo(foro) {
+            foroActual = foro;
+            ['Avisos', 'Offtopic', 'Ventas'].forEach(f => {
+                const t = document.getElementById('tab-'+f);
+                if(f === foro) { t.classList.replace('text-gray-500', 'text-teal-700'); t.classList.replace('border-transparent', 'border-teal-700'); }
+                else { t.classList.replace('text-teal-700', 'text-gray-500'); t.classList.replace('border-teal-700', 'border-transparent'); }
+            });
+            evaluarPermisosForo(); renderPosts();
+        }
+        function evaluarPermisosForo() {
+            const btn = document.getElementById('btn-abrir-modal-post');
+            if (foroActual === 'Avisos') {
+                if (usuarioActual.rol === 'supervision' || usuarioActual.rol === 'encargado') {
+                    btn.style.display = 'flex'; document.getElementById('txt-btn-publicar').innerText = 'Publicar Aviso Oficial';
+                } else btn.style.display = 'none';
+            } else {
+                btn.style.display = 'flex'; document.getElementById('txt-btn-publicar').innerText = 'Crear Publicación';
+            }
+        }
+        function abrirModalPost() {
+            document.getElementById('post-titulo').value = ''; document.getElementById('post-cuerpo').value = ''; document.getElementById('post-img').value = '';
+            document.getElementById('campo-roles-destino').style.display = foroActual === 'Avisos' ? 'block' : 'none';
+            document.getElementById('modal-post').classList.add('modal-abierto');
+        }
+        function guardarPost() {
+            const tit = document.getElementById('post-titulo').value;
+            if(!tit) return alert("El título es obligatorio.");
+            
+            const nuevoPost = {
+                id: Date.now(), foro: foroActual,
+                audiencia: foroActual==='Avisos' ? document.getElementById('post-audiencia').value : 'Todos',
+                autor: usuarioActual, titulo: tit,
+                cuerpo: document.getElementById('post-cuerpo').value,
+                img: document.getElementById('post-img').value,
+                likes: [], comentarios: [] // likes ahora es un array con los IDs de quienes dieron like
+            };
+            publicaciones.unshift(nuevoPost);
+            localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones));
+            generarNotificacion(`${usuarioActual.nombre} publicó: ${tit}`);
+            cerrarModal('modal-post'); renderPosts();
+        }
+        function renderPosts() {
+            const cont = document.getElementById('contenedor-posts');
+            cont.innerHTML = '';
+            const filtrados = publicaciones.filter(p => p.foro === foroActual);
+            
+            if(filtrados.length === 0) { cont.innerHTML = '<p class="text-center text-gray-400 text-sm">No hay publicaciones aquí.</p>'; return; }
+
+            filtrados.forEach(p => {
+                const confRol = configRoles[p.autor.rol] || configRoles['tecnologo'];
+                const av = p.autor.foto ? `<img src="${p.autor.foto}" class="w-full h-full object-cover">` : p.autor.iniciales;
+                const aud = p.foro === 'Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : '';
+                const img = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : '';
+                
+                const yaDioLike = p.likes.includes(usuarioActual.id);
+                const colorCorazon = yaDioLike ? 'text-pink-500' : 'text-gray-500 hover:text-pink-400';
+
+                let comsHtml = '';
+                p.comentarios.forEach(c => { comsHtml += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><span class="font-bold text-teal-800">${c.autor}:</span> ${c.txt}</div>`; });
+
+                cont.innerHTML += `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs overflow-hidden border border-gray-300">${av}</div>
+                            <div class="leading-tight">
+                                <p class="text-xs font-bold text-gray-800">${p.autor.nombre} ${p.autor.apellido}</p>
+                                <span class="text-[9px] ${confRol.badge} px-1.5 rounded">${confRol.nombre}</span>
+                            </div>
+                        </div>${aud}
+                    </div>
+                    <h4 class="font-bold text-gray-900 text-sm">${p.titulo}</h4>
+                    <p class="text-sm text-gray-600 mt-1">${p.cuerpo}</p> ${img}
+                    <div class="border-t border-gray-100 mt-3 pt-3 flex gap-4">
+                        <button onclick="toggleLike(${p.id})" class="text-xs font-bold transition-colors ${colorCorazon}"><i class="fa-solid fa-heart mr-1"></i> ${p.likes.length}</button>
+                        <span class="text-xs font-bold text-gray-400"><i class="fa-solid fa-comment mr-1"></i> ${p.comentarios.length}</span>
+                    </div>
+                    <div class="mt-3">
+                        ${comsHtml}
+                        <div class="flex gap-2 mt-2">
+                            <input type="text" id="inp-com-${p.id}" placeholder="Comentar..." class="flex-1 bg-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none">
+                            <button onclick="comentar(${p.id})" class="bg-teal-600 text-white rounded-full w-7 h-7 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-[10px]"></i></button>
+                        </div>
                     </div>
                 </div>`;
+            });
+        }
+        function toggleLike(id) {
+            const p = publicaciones.find(x => x.id === id);
+            if(p) {
+                const idx = p.likes.indexOf(usuarioActual.id);
+                if(idx === -1) p.likes.push(usuarioActual.id); else p.likes.splice(idx, 1);
+                localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones));
+                renderPosts();
+            }
+        }
+        function comentar(id) {
+            const inp = document.getElementById('inp-com-' + id);
+            if(inp.value.trim() !== '') {
+                const p = publicaciones.find(x => x.id === id);
+                p.comentarios.push({ autor: usuarioActual.nombre, txt: inp.value });
+                localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones));
+                renderPosts();
             }
         }
 
-        function abrirModalReactivos() {
-            renderReactivos(); // Cargar valores actuales en inputs
-            document.getElementById('modal-reactivos').classList.add('modal-abierto');
+        // --- NOTIFICACIONES ---
+        function generarNotificacion(texto) {
+            notificaciones.unshift({ id: Date.now(), txt: texto, leida: false });
+            localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones));
+            actualizarCampana();
         }
-
-        function guardarReactivos() {
-            for (const nombre of Object.keys(reactivosStock)) {
-                const val = document.getElementById('input-reac-' + nombre).value;
-                reactivosStock[nombre] = Math.min(100, Math.max(0, parseInt(val) || 0));
+        function actualizarCampana() {
+            const sinLeer = notificaciones.filter(n => !n.leida).length;
+            const badge = document.getElementById('badge-notif');
+            if(sinLeer > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+        }
+        function abrirModalNotificaciones() {
+            document.getElementById('modal-notificaciones').classList.add('modal-abierto');
+            renderNotificaciones();
+        }
+        function cambiarTabNotif(tab) {
+            tabNotifActual = tab;
+            const tN = document.getElementById('tab-notif-nuevas');
+            const tL = document.getElementById('tab-notif-leidas');
+            if(tab === 'nuevas') {
+                tN.classList.replace('text-gray-400', 'text-teal-700'); tN.classList.replace('border-transparent', 'border-teal-700');
+                tL.classList.replace('text-teal-700', 'text-gray-400'); tL.classList.replace('border-teal-700', 'border-transparent');
+            } else {
+                tL.classList.replace('text-gray-400', 'text-teal-700'); tL.classList.replace('border-transparent', 'border-teal-700');
+                tN.classList.replace('text-teal-700', 'text-gray-400'); tN.classList.replace('border-teal-700', 'border-transparent');
             }
-            cerrarModal('modal-reactivos');
-            renderReactivos(); // Refrescar dashboard visual
+            renderNotificaciones();
+        }
+        function renderNotificaciones() {
+            const cont = document.getElementById('lista-notificaciones');
+            cont.innerHTML = '';
+            const filtro = notificaciones.filter(n => tabNotifActual === 'nuevas' ? !n.leida : n.leida);
+            
+            if(filtro.length === 0) {
+                cont.innerHTML = `<p class="text-xs text-gray-400 text-center mt-4">No hay notificaciones ${tabNotifActual}.</p>`; return;
+            }
+            filtro.forEach(n => {
+                let btnAccion = tabNotifActual === 'nuevas' 
+                    ? `<button onclick="marcarNotifLeida(${n.id})" class="text-[10px] text-teal-600 bg-teal-50 px-2 py-1 rounded font-bold">Marcar leída</button>` 
+                    : '';
+                cont.innerHTML += `
+                <div class="bg-gray-50 p-3 rounded-lg border flex justify-between items-center gap-2">
+                    <p class="text-xs text-gray-700">${n.txt}</p> ${btnAccion}
+                </div>`;
+            });
+        }
+        function marcarNotifLeida(id) {
+            const n = notificaciones.find(x => x.id === id);
+            if(n) n.leida = true;
+            localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones));
+            renderNotificaciones(); actualizarCampana();
         }
 
-        // 6. UTILIDADES
+        // --- UTILIDADES ---
         function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
 
+        window.onload = function() {
+            const g = localStorage.getItem('mvrg_sesion');
+            if(g) { usuarioActual = JSON.parse(g); entrarApp(); }
+        };
     </script>
 </body>
 </html>
