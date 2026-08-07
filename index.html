@@ -4,98 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mavrogeni App</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         body { touch-action: manipulation; }
         button { user-select: none; }
         ::-webkit-scrollbar { display: none; }
-        #menu-lateral { transition: transform 0.3s ease-in-out; }
-        .menu-abierto { transform: translateX(0%); }
-        .menu-cerrado { transform: translateX(-100%); }
+        .modal-abierto { display: flex !important; }
+        .barra-nivel { transition: width 0.5s ease-in-out, background-color 0.5s; }
     </style>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col font-sans antialiased overflow-hidden">
 
-    <!-- ==================== VISTA: LOGIN (Por Usuario y Clave) ==================== -->
-    <div id="vista-login" class="flex flex-col h-full bg-teal-800 text-white justify-center px-8 relative block z-50">
+    <!-- ==================== VISTA: LOGIN ==================== -->
+    <div id="vista-login" class="flex flex-col h-full bg-teal-900 text-white justify-center px-8 relative block z-50">
         <div class="text-center mb-10">
-            <i class="fa-solid fa-microscope text-5xl mb-4 text-teal-300"></i>
+            <i class="fa-solid fa-microscope text-5xl mb-4 text-teal-400"></i>
             <h1 class="text-4xl font-bold tracking-wide">Mavrogeni</h1>
-            <p class="text-teal-200 mt-2 text-sm uppercase tracking-widest">Portal Interno</p>
+            <p class="text-teal-300 mt-2 text-sm uppercase tracking-widest">Portal del Laboratorio</p>
         </div>
-
         <div class="bg-white rounded-2xl p-6 shadow-2xl text-gray-800">
-            <h2 class="text-lg font-bold mb-6 text-center text-gray-700">Acceso de Personal</h2>
-            
             <div class="mb-4">
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Usuario</label>
-                <div class="relative">
-                    <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400"></i>
-                    <input type="text" id="login-user" placeholder="Ej: admin" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-3 pl-10 pr-3 focus:outline-none focus:border-teal-500">
-                </div>
+                <input type="text" id="login-user" placeholder="Ej: admin" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-3 px-3 focus:outline-none focus:border-teal-500">
             </div>
-
             <div class="mb-6">
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Contraseña</label>
-                <div class="relative">
-                    <i class="fa-solid fa-lock absolute left-3 top-3.5 text-gray-400"></i>
-                    <input type="password" id="login-pass" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-3 pl-10 pr-3 focus:outline-none focus:border-teal-500">
-                </div>
+                <input type="password" id="login-pass" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-3 px-3 focus:outline-none focus:border-teal-500">
             </div>
-
-            <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 shadow-md transition-all active:scale-95">Ingresar</button>
-            <p id="error-login" class="text-xs text-red-500 text-center mt-4 hidden">Usuario o contraseña incorrectos.</p>
+            <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition-all">Ingresar</button>
+            <p id="error-login" class="text-xs text-red-500 text-center mt-4 hidden">Usuario incorrecto.</p>
         </div>
-        
-        <div class="mt-8 text-center text-xs text-teal-400">
-            <p>Usuarios de prueba:</p>
-            <p>admin / 1234 (Rol Jefatura)</p>
-            <p>tm1 / 1234 (Rol Normal)</p>
+        <div class="mt-6 text-xs text-teal-400/70 text-center space-y-1">
+            <p>Usuarios: <b>super</b> (Supervisión) | <b>encargado</b> (Encargado)</p>
+            <p><b>tm</b> (Tecnólogo) | <b>tens</b> (Técnico) | <b>sec</b> (Secretaria)</p>
+            <p>Clave para todos: <b>1234</b></p>
         </div>
     </div>
 
     <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
     <div id="app-principal" class="hidden flex flex-col h-full relative">
         
-        <!-- BARRA SUPERIOR -->
+        <!-- TOPBAR -->
         <header class="bg-teal-700 text-white shadow-md sticky top-0 z-30">
             <div class="flex justify-between items-center px-4 h-14">
-                <button onclick="toggleMenu()" class="text-xl p-2 -ml-2 hover:bg-teal-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-                <h1 class="text-lg font-bold tracking-wide">Mavrogeni App</h1>
-                <button class="relative p-2 -mr-2 hover:bg-teal-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" onclick="alert('No hay notificaciones nuevas')">
+                <div class="flex items-center gap-3">
+                    <div id="header-avatar" class="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center font-bold text-xs border border-teal-400"></div>
+                    <h1 class="text-sm font-bold tracking-wide" id="header-nombre">Mavrogeni App</h1>
+                </div>
+                <button class="relative p-2" onclick="alert('Notificaciones al día')">
                     <i class="fa-regular fa-bell text-xl"></i>
-                    <span class="absolute top-2 right-2 bg-red-500 rounded-full w-2.5 h-2.5 border-2 border-teal-700"></span>
                 </button>
             </div>
         </header>
-
-        <!-- MENÚ LATERAL -->
-        <div id="overlay-menu" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleMenu()"></div>
-        <nav id="menu-lateral" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 menu-cerrado flex flex-col">
-            <div class="bg-teal-700 p-6 text-white">
-                <div id="menu-avatar" class="w-16 h-16 bg-white text-teal-700 rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-3">TM</div>
-                <h2 id="menu-nombre" class="font-bold text-lg">Cargando...</h2>
-                <p id="menu-rol-badge" class="text-xs text-teal-200 mt-1 uppercase tracking-wider">Cargando...</p>
-            </div>
-            <div class="flex-1 py-4 flex flex-col gap-1 px-3">
-                <button class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 text-left">
-                    <i class="fa-solid fa-user w-5 text-center text-teal-600"></i> Mi Perfil
-                </button>
-                <button class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 text-left">
-                    <i class="fa-solid fa-gear w-5 text-center text-teal-600"></i> Configuración
-                </button>
-                <div class="mt-auto border-t pt-4">
-                    <button onclick="cerrarSesion()" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-600 text-left font-medium">
-                        <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i> Cerrar Sesión
-                    </button>
-                </div>
-            </div>
-        </nav>
 
         <!-- ÁREA DE CONTENIDO -->
         <main class="flex-1 overflow-y-auto bg-gray-100 pb-20 relative">
@@ -103,189 +64,224 @@
             <!-- VISTA: FOROS -->
             <div id="vista-foros" class="block h-full flex flex-col">
                 <div class="bg-white border-b flex text-sm font-medium shadow-sm sticky top-0 z-20">
-                    <button onclick="cambiarSubForo('avisos')" id="tab-avisos" class="flex-1 py-3 text-teal-700 border-b-2 border-teal-700">Avisos</button>
-                    <button onclick="cambiarSubForo('offtopic')" id="tab-offtopic" class="flex-1 py-3 text-gray-500 border-b-2 border-transparent">OffTopic</button>
-                    <button onclick="cambiarSubForo('ventas')" id="tab-ventas" class="flex-1 py-3 text-gray-500 border-b-2 border-transparent">Ventas</button>
+                    <button onclick="cambiarSubForo('Avisos')" id="tab-Avisos" class="flex-1 py-3 text-teal-700 border-b-2 border-teal-700">Avisos</button>
+                    <button onclick="cambiarSubForo('Offtopic')" id="tab-Offtopic" class="flex-1 py-3 text-gray-500 border-b-2 border-transparent">OffTopic</button>
+                    <button onclick="cambiarSubForo('Ventas')" id="tab-Ventas" class="flex-1 py-3 text-gray-500 border-b-2 border-transparent">Ventas</button>
                 </div>
-
+                
                 <div class="p-4 flex-1 overflow-y-auto">
-                    <!-- FORO AVISOS -->
-                    <div id="foro-avisos" class="block space-y-4">
-                        <div id="btn-crear-aviso" class="hidden mb-4">
-                            <button class="w-full bg-teal-50 border border-teal-600 text-teal-700 rounded-lg p-3 font-bold flex items-center justify-center gap-2 border-dashed hover:bg-teal-100">
-                                <i class="fa-solid fa-bullhorn"></i> Publicar Nuevo Aviso Oficial
-                            </button>
-                        </div>
-                        <div class="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-sm border border-blue-100 overflow-hidden relative">
-                            <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-                            <div class="p-4 pl-5">
-                                <div class="flex justify-between items-start mb-2">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">JEF</div>
-                                        <div>
-                                            <p class="text-xs font-bold text-gray-800">Dra. Jefatura</p>
-                                            <p class="text-[10px] text-gray-500">Hace 1 hora</p>
-                                        </div>
-                                    </div>
-                                    <span class="bg-blue-100 text-blue-800 text-[9px] font-bold px-2 py-1 rounded-full uppercase"><i class="fa-solid fa-thumbtack mr-1"></i>Importante</span>
-                                </div>
-                                <h4 class="font-bold text-gray-900 mb-1">Reunión de Calidad</h4>
-                                <p class="text-sm text-gray-600">Se cita a todo el personal a revisión de indicadores este viernes a las 15:00 hrs.</p>
+                    <!-- Botón Flotante/Superior para publicar -->
+                    <button id="btn-abrir-modal-post" onclick="abrirModalPost()" class="w-full bg-white border border-teal-200 text-teal-700 rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-sm mb-4">
+                        <i class="fa-solid fa-pen"></i> <span id="txt-btn-publicar">Crear Publicación</span>
+                    </button>
+                    
+                    <!-- Contenedor dinámico de Posts -->
+                    <div id="contenedor-posts" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- VISTA: SISTEMAS (Citodiagnóstico) -->
+            <div id="vista-sistemas" class="hidden flex flex-col h-full bg-gray-50">
+                <div class="bg-white border-b flex text-sm font-bold shadow-sm px-4 py-3 text-gray-700 items-center justify-between">
+                    <span><i class="fa-solid fa-microscope text-teal-600 mr-2"></i> Citodiagnóstico</span>
+                    <span class="text-[10px] bg-teal-100 text-teal-800 px-2 py-1 rounded-full">Área Activa</span>
+                </div>
+                
+                <div class="p-4 flex-1 overflow-y-auto space-y-4">
+                    <!-- Calendario de Recambio -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
+                        <h3 class="font-bold text-gray-800 text-sm mb-3 border-b pb-2"><i class="fa-regular fa-calendar-check text-teal-600 mr-1"></i> Cronograma de Batería</h3>
+                        <div class="flex flex-col gap-3">
+                            <div>
+                                <label class="text-xs text-gray-500 font-bold uppercase">Próximo Recambio Programado:</label>
+                                <input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mt-1 focus:outline-none focus:border-teal-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                <button onclick="alert('Eliminación registrada en bitácora.')" class="bg-red-50 text-red-600 border border-red-200 text-xs font-bold py-2 rounded-lg hover:bg-red-100"><i class="fa-solid fa-trash-can mr-1"></i> Eliminación</button>
+                                <button onclick="abrirModalReactivos()" class="bg-teal-50 text-teal-700 border border-teal-200 text-xs font-bold py-2 rounded-lg hover:bg-teal-100"><i class="fa-solid fa-fill-drip mr-1"></i> Rellenar Reactivos</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- FORO OFFTOPIC -->
-                    <div id="foro-offtopic" class="hidden space-y-4">
-                        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xs">CP</div>
-                                <p class="text-xs font-bold text-gray-800">Carlos P. <span class="text-gray-400 font-normal">hace 3 horas</span></p>
-                            </div>
-                            <p class="text-sm text-gray-700">¿Alguien sabe si van a pedir almuerzo juntos hoy?</p>
+                    <!-- Panel Visual de Stock -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
+                        <div class="flex justify-between items-center border-b pb-2 mb-3">
+                            <h3 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-vials text-teal-600 mr-1"></i> Nivel de Reactivos</h3>
+                            <button onclick="renderReactivos()" class="text-gray-400 hover:text-teal-600"><i class="fa-solid fa-rotate-right"></i></button>
                         </div>
-                    </div>
-
-                    <!-- FORO VENTAS -->
-                    <div id="foro-ventas" class="hidden space-y-4">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex">
-                            <div class="w-24 bg-gray-200 flex items-center justify-center text-gray-400">
-                                <i class="fa-solid fa-image text-3xl"></i>
-                            </div>
-                            <div class="p-3 flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h4 class="font-bold text-gray-800 text-sm leading-tight mb-1">Uniforme Talla M</h4>
-                                    <span class="text-teal-700 font-bold text-sm bg-teal-50 px-2 py-0.5 rounded">$15.000</span>
-                                </div>
-                                <p class="text-xs text-gray-500 line-clamp-1 mb-2">Poco uso, Cherokee.</p>
-                            </div>
+                        <div id="contenedor-reactivos" class="space-y-3">
+                            <!-- Se generan con JS -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VISTA: CHAT -->
+            <!-- VISTA: CHAT (En construcción) -->
             <div id="vista-chat" class="hidden flex flex-col h-full absolute inset-0 bg-gray-50">
                 <div class="flex-1 p-4 flex items-center justify-center text-gray-400 flex-col">
-                    <i class="fa-regular fa-comments text-4xl mb-2"></i>
-                    <p class="text-sm">Área de chat en construcción</p>
+                    <i class="fa-regular fa-comments text-4xl mb-2"></i><p class="text-sm">Chat Global</p>
                 </div>
             </div>
 
-            <!-- VISTA: SISTEMAS -->
-            <div id="vista-sistemas" class="hidden flex flex-col h-full absolute inset-0 bg-gray-50">
-                <div class="flex-1 p-4 flex items-center justify-center text-gray-400 flex-col">
-                    <i class="fa-solid fa-server text-4xl mb-2"></i>
-                    <p class="text-sm">Estado de sistemas en construcción</p>
+            <!-- VISTA: EVENTOS -->
+            <div id="vista-eventos" class="hidden flex flex-col h-full bg-gray-50">
+                <div class="p-4">
+                    <button onclick="alert('Función de agregar evento en desarrollo')" class="w-full bg-teal-600 text-white rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-md mb-4">
+                        <i class="fa-solid fa-calendar-plus"></i> Agendar Evento
+                    </button>
+                    <div class="space-y-3">
+                        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-pink-500">
+                            <div class="flex justify-between"><h4 class="font-bold text-gray-800">Cumpleaños Carlos P.</h4><span class="text-xs font-bold text-pink-500">HOY</span></div>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-cake-candles"></i> TENS Citodiagnóstico</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-teal-500">
+                            <div class="flex justify-between"><h4 class="font-bold text-gray-800">Reunión Calidad</h4><span class="text-xs text-gray-500">Viernes 15:00</span></div>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-users"></i> Obligatoria para Tecnólogos</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </main>
 
-        <!-- BARRA NAVEGACIÓN INFERIOR -->
+        <!-- BARRA NAVEGACIÓN INFERIOR (4 Botones) -->
         <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full z-20" style="padding-bottom: env(safe-area-inset-bottom);">
-            <div class="flex justify-around items-center h-16 px-2">
-                <button id="btn-foros" onclick="cambiarVista('foros')" class="flex flex-col items-center justify-center w-full h-full text-teal-700"><i class="fa-solid fa-users-rectangle text-xl mb-1"></i><span class="text-[10px] font-medium">Foros</span></button>
-                <button id="btn-sistemas" onclick="cambiarVista('sistemas')" class="flex flex-col items-center justify-center w-full h-full text-gray-400"><i class="fa-solid fa-server text-xl mb-1"></i><span class="text-[10px] font-medium">Sistemas</span></button>
-                <button id="btn-chat" onclick="cambiarVista('chat')" class="flex flex-col items-center justify-center w-full h-full text-gray-400"><i class="fa-solid fa-comments text-xl mb-1"></i><span class="text-[10px] font-medium">Chat</span></button>
+            <div class="flex justify-around items-center h-16 px-1">
+                <button id="btn-foros" onclick="cambiarVista('foros')" class="flex flex-col items-center justify-center w-full text-teal-700"><i class="fa-solid fa-users-rectangle text-xl mb-1"></i><span class="text-[10px] font-bold">Foros</span></button>
+                <button id="btn-sistemas" onclick="cambiarVista('sistemas')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-network-wired text-xl mb-1"></i><span class="text-[10px] font-bold">Sistemas</span></button>
+                <button id="btn-chat" onclick="cambiarVista('chat')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-comments text-xl mb-1"></i><span class="text-[10px] font-bold">Chat</span></button>
+                <button id="btn-eventos" onclick="cambiarVista('eventos')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-calendar-day text-xl mb-1"></i><span class="text-[10px] font-bold">Eventos</span></button>
             </div>
         </nav>
     </div>
 
-    <!-- SCRIPT -->
+    <!-- ==================== MODALES (Ventanas Emergentes) ==================== -->
+    
+    <!-- Modal Nueva Publicación -->
+    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
+        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto transform transition-transform animate-slide-up">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 id="titulo-modal-post" class="font-bold text-lg text-gray-800">Nueva Publicación</h2>
+                <button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div id="campo-roles-destino" class="hidden">
+                    <label class="text-xs font-bold text-gray-500 uppercase">Publicar para:</label>
+                    <select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50">
+                        <option value="Todos">Todos los roles</option>
+                        <option value="Tecnólogos">Solo Tecnólogos Médicos</option>
+                        <option value="TENS">Solo Técnicos (TENS)</option>
+                        <option value="Secretaría">Solo Secretaría</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" id="post-titulo" placeholder="Título de la publicación..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none focus:border-teal-500">
+                </div>
+                <div>
+                    <textarea id="post-cuerpo" rows="4" placeholder="Escribe los detalles aquí..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500"><i class="fa-solid fa-image"></i> URL de Imagen (Opcional)</label>
+                    <input type="text" id="post-img" placeholder="https://ejemplo.com/foto.jpg" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50">
+                </div>
+                <button onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Rellenar Reactivos -->
+    <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-5 overflow-hidden">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-fill-drip text-teal-600 mr-1"></i> Rellenar Reactivos</h2>
+                <button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <p class="text-xs text-gray-500 mb-4">Ingresa el nivel actual aproximado (0-100%) tras el relleno.</p>
+            
+            <div id="form-reactivos" class="space-y-3 max-h-[50vh] overflow-y-auto px-1">
+                <!-- Se generan inputs dinámicamente -->
+            </div>
+            
+            <button onclick="guardarReactivos()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md mt-4">Actualizar Sistema</button>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPT PRINCIPAL ==================== -->
     <script>
-        const baseDeUsuarios = {
-            'admin': { pass: '1234', nombre: 'Jefatura de Laboratorio', iniciales: 'JL', rol: 'jefatura' },
-            'tm1': { pass: '1234', nombre: 'Tecnólogo Médico 1', iniciales: 'T1', rol: 'usuario' }
+        // 1. BASES DE DATOS SIMULADAS
+        const roles = {
+            'supervision': { nombre: 'Supervisión', color: 'bg-purple-100 text-purple-800' },
+            'encargado': { nombre: 'Encargado Área', color: 'bg-blue-100 text-blue-800' },
+            'tecnologo': { nombre: 'Tecnólogo Médico', color: 'bg-teal-100 text-teal-800' },
+            'tecnico': { nombre: 'Técnico (TENS)', color: 'bg-orange-100 text-orange-800' },
+            'secretaria': { nombre: 'Secretaría', color: 'bg-pink-100 text-pink-800' }
         };
+
+        const baseUsuarios = {
+            'super': { pass: '1234', nombre: 'Dra. Silva', iniciales: 'DS', rol: 'supervision' },
+            'encargado': { pass: '1234', nombre: 'Jefe Citología', iniciales: 'JC', rol: 'encargado' },
+            'tm': { pass: '1234', nombre: 'Tecnólogo Central', iniciales: 'TM', rol: 'tecnologo' },
+            'tens': { pass: '1234', nombre: 'Carlos P.', iniciales: 'CP', rol: 'tecnico' },
+            'sec': { pass: '1234', nombre: 'Recepción', iniciales: 'RC', rol: 'secretaria' }
+        };
+
+        // Estado del stock (En porcentajes)
+        let reactivosStock = {
+            'EA50': 20, 'ORANGE': 45, 'HEMATOXILINA': 80, 
+            'OH70': 95, 'OH95': 15, 'OH100': 60, 'HISTOCLEAR': 30
+        };
+
+        // Foros
+        let foroActual = 'Avisos';
+        let publicaciones = [
+            { id: 1, foro: 'Avisos', audiencia: 'Todos', autor: baseUsuarios['super'], titulo: 'Nueva Normativa Minsal', cuerpo: 'Se adjunta nueva norma para toma de muestra PAP.', likes: 2, comentarios: [] },
+            { id: 2, foro: 'Offtopic', audiencia: 'Todos', autor: baseUsuarios['tens'], titulo: '¿Almuerzo?', cuerpo: '¿Quién se suma a pedir colaciones hoy?', likes: 5, comentarios: [{autor: 'TM', txt: 'Yo!'}] }
+        ];
 
         let usuarioActual = null;
 
+        // 2. LÓGICA DE SESIÓN
         function iniciarSesion() {
             const user = document.getElementById('login-user').value.toLowerCase().trim();
             const pass = document.getElementById('login-pass').value;
-            const errorMsg = document.getElementById('error-login');
-
-            if (baseDeUsuarios[user] && baseDeUsuarios[user].pass === pass) {
-                usuarioActual = baseDeUsuarios[user];
-                localStorage.setItem('mavrogeni_user', JSON.stringify(usuarioActual));
-                entrarALaApp();
+            if (baseUsuarios[user] && baseUsuarios[user].pass === pass) {
+                usuarioActual = baseUsuarios[user];
+                document.getElementById('vista-login').classList.replace('block', 'hidden');
+                document.getElementById('app-principal').classList.replace('hidden', 'flex');
+                
+                document.getElementById('header-nombre').innerText = usuarioActual.nombre;
+                document.getElementById('header-avatar').innerText = usuarioActual.iniciales;
+                
+                // Configurar permisos del botón "Crear Publicación"
+                evaluarPermisosForo();
+                renderPosts();
             } else {
-                errorMsg.classList.remove('hidden');
-                setTimeout(() => errorMsg.classList.add('hidden'), 3000);
+                document.getElementById('error-login').classList.remove('hidden');
             }
         }
 
-        function entrarALaApp() {
-            document.getElementById('vista-login').classList.replace('block', 'hidden');
-            document.getElementById('app-principal').classList.replace('hidden', 'flex');
-            
-            document.getElementById('menu-nombre').innerText = usuarioActual.nombre;
-            document.getElementById('menu-avatar').innerText = usuarioActual.iniciales;
-            
-            const badgeRol = document.getElementById('menu-rol-badge');
-            if(usuarioActual.rol === 'jefatura') badgeRol.innerText = 'Administrador / Jefatura';
-            else badgeRol.innerText = 'Personal de Laboratorio';
+        function cerrarSesion() { location.reload(); }
 
-            const btnCrearAviso = document.getElementById('btn-crear-aviso');
-            if (usuarioActual.rol === 'jefatura' || usuarioActual.rol === 'encargado') {
-                btnCrearAviso.classList.remove('hidden');
-            } else {
-                btnCrearAviso.classList.add('hidden');
-            }
-        }
-
-        function cerrarSesion() {
-            localStorage.removeItem('mavrogeni_user');
-            location.reload(); 
-        }
-
-        function toggleMenu() {
-            const menu = document.getElementById('menu-lateral');
-            const overlay = document.getElementById('overlay-menu');
-            
-            if (menu.classList.contains('menu-cerrado')) {
-                menu.classList.remove('menu-cerrado');
-                menu.classList.add('menu-abierto');
-                overlay.classList.remove('hidden');
-            } else {
-                menu.classList.remove('menu-abierto');
-                menu.classList.add('menu-cerrado');
-                overlay.classList.add('hidden');
-            }
-        }
-
-        function cambiarVista(vistaDestino) {
-            const vistas = ['foros', 'sistemas', 'chat'];
-            vistas.forEach(vista => {
-                const el = document.getElementById('vista-' + vista);
-                if(vista === vistaDestino) {
-                    el.classList.remove('hidden');
-                    el.classList.add(vista === 'chat' || vista === 'sistemas' ? 'flex' : 'block');
-                } else {
-                    el.classList.add('hidden');
-                    el.classList.remove('block', 'flex');
-                }
+        // 3. NAVEGACIÓN
+        function cambiarVista(vista) {
+            ['foros', 'sistemas', 'chat', 'eventos'].forEach(v => {
+                document.getElementById('vista-' + v).classList.add('hidden');
+                document.getElementById('vista-' + v).classList.remove('block', 'flex');
+                document.getElementById('btn-' + v).classList.replace('text-teal-700', 'text-gray-400');
             });
-
-            vistas.forEach(id => {
-                const btn = document.getElementById('btn-' + id);
-                if(id === vistaDestino) btn.classList.replace('text-gray-400', 'text-teal-700');
-                else btn.classList.replace('text-teal-700', 'text-gray-400');
-            });
+            const vistaActiva = document.getElementById('vista-' + vista);
+            vistaActiva.classList.remove('hidden');
+            vistaActiva.classList.add(vista === 'foros' ? 'block' : 'flex');
+            document.getElementById('btn-' + vista).classList.replace('text-gray-400', 'text-teal-700');
+            
+            if(vista === 'sistemas') renderReactivos();
         }
 
-        function cambiarSubForo(foroDestino) {
-            const foros = ['avisos', 'offtopic', 'ventas'];
-            foros.forEach(foro => {
-                const el = document.getElementById('foro-' + foro);
-                if(foro === foroDestino) {
-                    el.classList.remove('hidden'); el.classList.add('block');
-                } else {
-                    el.classList.add('hidden'); el.classList.remove('block');
-                }
-
-                const tab = document.getElementById('tab-' + foro);
-                if(foro === foroDestino) {
+        function cambiarSubForo(foro) {
+            foroActual = foro;
+            ['Avisos', 'Offtopic', 'Ventas'].forEach(f => {
+                const tab = document.getElementById('tab-' + f);
+                if(f === foro) {
                     tab.classList.replace('text-gray-500', 'text-teal-700');
                     tab.classList.replace('border-transparent', 'border-teal-700');
                 } else {
@@ -293,15 +289,176 @@
                     tab.classList.replace('border-teal-700', 'border-transparent');
                 }
             });
+            evaluarPermisosForo();
+            renderPosts();
         }
 
-        window.onload = function() {
-            const guardado = localStorage.getItem('mavrogeni_user');
-            if(guardado) {
-                usuarioActual = JSON.parse(guardado);
-                entrarALaApp();
+        function evaluarPermisosForo() {
+            const btn = document.getElementById('btn-abrir-modal-post');
+            if (foroActual === 'Avisos') {
+                if (usuarioActual.rol === 'supervision' || usuarioActual.rol === 'encargado') {
+                    btn.style.display = 'flex';
+                    document.getElementById('txt-btn-publicar').innerText = 'Publicar Aviso Oficial';
+                } else {
+                    btn.style.display = 'none'; // Ocultar para otros roles en Avisos
+                }
+            } else {
+                btn.style.display = 'flex'; // Mostrar para todos en Offtopic/Ventas
+                document.getElementById('txt-btn-publicar').innerText = 'Crear Publicación';
             }
-        };
+        }
+
+        // 4. LÓGICA DE FOROS (POSTS, LIKES, COMENTARIOS)
+        function abrirModalPost() {
+            document.getElementById('post-titulo').value = '';
+            document.getElementById('post-cuerpo').value = '';
+            document.getElementById('post-img').value = '';
+            
+            const divAudiencia = document.getElementById('campo-roles-destino');
+            if (foroActual === 'Avisos') divAudiencia.classList.remove('hidden');
+            else divAudiencia.classList.add('hidden');
+            
+            document.getElementById('modal-post').classList.add('modal-abierto');
+        }
+
+        function guardarPost() {
+            const titulo = document.getElementById('post-titulo').value;
+            const cuerpo = document.getElementById('post-cuerpo').value;
+            const img = document.getElementById('post-img').value;
+            const audiencia = foroActual === 'Avisos' ? document.getElementById('post-audiencia').value : 'Todos';
+
+            if(!titulo || !cuerpo) return alert("Título y cuerpo son obligatorios.");
+
+            publicaciones.unshift({
+                id: Date.now(), foro: foroActual, audiencia: audiencia,
+                autor: usuarioActual, titulo: titulo, cuerpo: cuerpo, img: img,
+                likes: 0, comentarios: []
+            });
+            cerrarModal('modal-post');
+            renderPosts();
+        }
+
+        function renderPosts() {
+            const contenedor = document.getElementById('contenedor-posts');
+            contenedor.innerHTML = '';
+            
+            const postsFiltrados = publicaciones.filter(p => p.foro === foroActual);
+            
+            if(postsFiltrados.length === 0) {
+                contenedor.innerHTML = '<p class="text-center text-gray-400 mt-10 text-sm">No hay publicaciones aquí aún.</p>';
+                return;
+            }
+
+            postsFiltrados.forEach(p => {
+                const rolInfo = roles[p.autor.rol];
+                let audienciaBadge = p.foro === 'Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : '';
+                let imgHtml = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : '';
+                
+                // HTML de Comentarios
+                let comsHtml = '';
+                p.comentarios.forEach(c => {
+                    comsHtml += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><span class="font-bold text-gray-700">${c.autor}:</span> ${c.txt}</div>`;
+                });
+
+                const html = `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs">${p.autor.iniciales}</div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-800">${p.autor.nombre}</p>
+                                <span class="text-[9px] ${rolInfo.color} px-1.5 rounded">${rolInfo.nombre}</span>
+                            </div>
+                        </div>
+                        ${audienciaBadge}
+                    </div>
+                    <h4 class="font-bold text-gray-900 text-sm">${p.titulo}</h4>
+                    <p class="text-sm text-gray-600 mt-1">${p.cuerpo}</p>
+                    ${imgHtml}
+                    
+                    <div class="border-t border-gray-100 mt-3 pt-3 flex gap-4">
+                        <button onclick="darLike(${p.id})" class="text-xs font-bold text-gray-500 hover:text-pink-500 transition-colors"><i class="fa-solid fa-heart mr-1"></i> ${p.likes}</button>
+                        <button class="text-xs font-bold text-gray-500"><i class="fa-solid fa-comment mr-1"></i> ${p.comentarios.length}</button>
+                    </div>
+                    
+                    <div class="mt-3">
+                        ${comsHtml}
+                        <div class="flex gap-2 mt-2">
+                            <input type="text" id="input-com-${p.id}" placeholder="Escribe un comentario..." class="flex-1 bg-gray-100 border-none rounded-full px-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-teal-500">
+                            <button onclick="agregarComentario(${p.id})" class="bg-teal-600 text-white rounded-full w-6 h-6 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-[10px]"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+                contenedor.innerHTML += html;
+            });
+        }
+
+        function darLike(id) {
+            const p = publicaciones.find(x => x.id === id);
+            if(p) { p.likes++; renderPosts(); }
+        }
+
+        function agregarComentario(id) {
+            const input = document.getElementById('input-com-' + id);
+            if(input.value.trim() !== '') {
+                const p = publicaciones.find(x => x.id === id);
+                p.comentarios.push({ autor: usuarioActual.iniciales, txt: input.value });
+                renderPosts();
+            }
+        }
+
+        // 5. LÓGICA DE SISTEMAS (CITODIAGNÓSTICO)
+        function renderReactivos() {
+            const cont = document.getElementById('contenedor-reactivos');
+            const modalForm = document.getElementById('form-reactivos');
+            cont.innerHTML = ''; modalForm.innerHTML = '';
+
+            for (const [nombre, nivel] of Object.entries(reactivosStock)) {
+                // Color según nivel
+                let bgBar = 'bg-teal-500'; let txtColor = 'text-teal-700';
+                if (nivel < 25) { bgBar = 'bg-red-500'; txtColor = 'text-red-600'; }
+                else if (nivel < 50) { bgBar = 'bg-yellow-400'; txtColor = 'text-yellow-600'; }
+
+                // Generar Barras para Dashboard
+                cont.innerHTML += `
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1 ${txtColor}">
+                        <span>${nombre}</span> <span>${nivel}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                        <div class="barra-nivel ${bgBar} h-2.5 rounded-full" style="width: ${nivel}%"></div>
+                    </div>
+                </div>`;
+
+                // Generar Inputs para el Modal de Relleno
+                modalForm.innerHTML += `
+                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                    <label class="text-xs font-bold text-gray-700">${nombre}</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="input-reac-${nombre}" value="${nivel}" min="0" max="100" class="w-16 border rounded p-1 text-xs text-center font-bold">
+                        <span class="text-xs text-gray-500">%</span>
+                    </div>
+                </div>`;
+            }
+        }
+
+        function abrirModalReactivos() {
+            renderReactivos(); // Cargar valores actuales en inputs
+            document.getElementById('modal-reactivos').classList.add('modal-abierto');
+        }
+
+        function guardarReactivos() {
+            for (const nombre of Object.keys(reactivosStock)) {
+                const val = document.getElementById('input-reac-' + nombre).value;
+                reactivosStock[nombre] = Math.min(100, Math.max(0, parseInt(val) || 0));
+            }
+            cerrarModal('modal-reactivos');
+            renderReactivos(); // Refrescar dashboard visual
+        }
+
+        // 6. UTILIDADES
+        function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
+
     </script>
 </body>
 </html>
