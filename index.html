@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -25,7 +25,7 @@
 <body class="bg-gray-100 h-screen flex flex-col font-sans antialiased overflow-hidden">
 
     <!-- ==================== LOGIN ==================== -->
-    <div id="vista-login" class="flex flex-col h-full bg-teal-900 text-white justify-center px-8 relative block z-50">
+    <div id="vista-login" class="flex flex-col h-full bg-teal-900 text-white justify-center px-8 relative z-50">
         <div class="text-center mb-10">
             <i class="fa-solid fa-microscope text-5xl mb-4 text-teal-400"></i>
             <h1 class="text-4xl font-bold tracking-wide">Mavrogeni</h1>
@@ -39,7 +39,7 @@
     </div>
 
     <!-- ==================== APP PRINCIPAL ==================== -->
-    <div id="app-principal" class="hidden flex flex-col h-full relative">
+    <div id="app-principal" class="hidden flex-col h-full relative">
         
         <!-- TOPBAR -->
         <header class="bg-teal-700 text-white shadow-md sticky top-0 z-30">
@@ -55,11 +55,9 @@
                 </div>
                 
                 <div class="flex gap-1">
-                    <!-- RECUPERADO: Botón Anexos Telefónicos -->
                     <button onclick="abrirModal('modal-anexos')" class="p-2 hover:bg-teal-600 rounded-full">
                         <i class="fa-solid fa-phone text-lg"></i>
                     </button>
-                    <!-- Campana de Notificaciones -->
                     <button onclick="abrirModalNotificaciones()" class="relative p-2 hover:bg-teal-600 rounded-full">
                         <i class="fa-regular fa-bell text-xl"></i>
                         <span id="badge-notif" class="absolute top-2 right-2 bg-red-500 rounded-full w-2.5 h-2.5 border-2 border-white hidden"></span>
@@ -79,7 +77,6 @@
             </div>
             <div class="flex-1 py-4 px-3 overflow-y-auto">
                 <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-2">Personal</p>
-                <!-- REPARADO: Botón Perfil -->
                 <button onclick="abrirModalPerfil(); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700">
                     <i class="fa-solid fa-user w-5 text-teal-600"></i> Mi Perfil
                 </button>
@@ -88,13 +85,11 @@
                 <button onclick="abrirModal('modal-bitacora-nueva'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2">
                     <i class="fa-solid fa-clipboard-check w-5"></i> Escribir Bitácora
                 </button>
-                <!-- RECUPERADO: Botón Protocolos -->
                 <button onclick="abrirModal('modal-protocolos'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700">
                     <i class="fa-solid fa-book-medical w-5 text-teal-600"></i> Protocolos
                 </button>
                 
                 <div class="mt-auto border-t pt-4">
-                    <!-- REPARADO: Botón Cerrar Sesión -->
                     <button onclick="cerrarSesion()" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-600 font-medium">
                         <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i> Cerrar Sesión
                     </button>
@@ -149,7 +144,7 @@
                             <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-xs"></div>
                         </div>
 
-                        <!-- RECUPERADO: Panel de Reactivos con % -->
+                        <!-- PANEL DE REACTIVOS -->
                         <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
                             <div class="flex justify-between items-center border-b pb-2 mb-3">
                                 <h3 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-vials text-teal-600 mr-1"></i> Nivel de Reactivos</h3>
@@ -201,9 +196,9 @@
         </nav>
     </div>
 
-    <!-- ==================== MODALES RECUPERADOS ==================== -->
+    <!-- ==================== MODALES ==================== -->
     
-    <!-- REPARADO: Mi Perfil -->
+    <!-- Modal Mi Perfil -->
     <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Modificar Mi Perfil</h2><button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button></div>
@@ -218,7 +213,7 @@
         </div>
     </div>
 
-    <!-- RECUPERADO: Directorio Anexos -->
+    <!-- Modal Directorio Anexos -->
     <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -234,7 +229,7 @@
         </div>
     </div>
 
-    <!-- RECUPERADO: Protocolos -->
+    <!-- Modal Protocolos -->
     <div id="modal-protocolos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 mx-auto shadow-2xl max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -248,14 +243,13 @@
         </div>
     </div>
 
-    <!-- Notificaciones, Post, Bitácora y Calendario -->
+    <!-- Modales Restantes (Notificaciones, Posts, Calendario, Bitácora) -->
     <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
 
     <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg text-gray-800">Nueva Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Destino:</label><select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Todos</option><option>Supervisión</option><option>Encargados</option><option>Tecnólogos</option><option>TENS</option><option>Secretaría</option></select></div><div id="campo-fecha-evento" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Fecha y Hora:</label><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none"><textarea id="post-cuerpo" rows="4" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea><div id="div-img-post"><label class="text-xs font-bold text-gray-500"><i class="fa-solid fa-image"></i> URL de Imagen</label><input type="text" id="post-img" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50"></div><button id="btn-submit-post" onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
     
     <div id="modal-bitacora-nueva" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh]"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Traspaso de Turno</h2><button onclick="cerrarModal('modal-bitacora-nueva')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500">Unidad</label><select id="bit-unidad" class="w-full border rounded p-2 text-sm mt-1 font-bold bg-gray-50"><option>Citopatología - Secretaría</option><option>Citopatología - TENS</option><option>Histopatología</option><option>Macroscopía</option></select></div><div><label class="text-xs font-bold text-gray-500">Tipo Traspaso</label><select id="bit-tipo" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Diario</option><option>Semanal</option></select></div></div><div><label class="text-xs font-bold text-gray-500">Novedades y Pendientes</label><textarea id="bit-nov" rows="5" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea></div><button onclick="guardarBitacora()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg">Guardar Traspaso</button></div></div></div>
 
-    <!-- REPARADO: Calendario y Reactivos Modals -->
     <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center">
             <h2 class="font-bold text-lg text-gray-800 mb-2">Evento en Calendario</h2>
@@ -304,8 +298,13 @@
         }
 
         function entrarApp() {
-            document.getElementById('vista-login').classList.replace('block', 'hidden');
-            document.getElementById('app-principal').classList.replace('hidden', 'flex');
+            const vLogin = document.getElementById('vista-login');
+            const vApp = document.getElementById('app-principal');
+            vLogin.classList.remove('flex');
+            vLogin.classList.add('hidden');
+            vApp.classList.remove('hidden');
+            vApp.classList.add('flex');
+
             actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); actualizarCampana();
         }
 
@@ -347,14 +346,14 @@
         function generarCalendarioGrid() {
             const grid = document.getElementById('grid-calendario'); let html = '';
             ['L','M','M','J','V','S','D'].forEach(d => html += `<div class="font-bold text-teal-800 pb-1">${d}</div>`);
-            for(let i=0; i<5; i++) html += `<div></div>`; // Empieza en sábado
+            for(let i=0; i<5; i++) html += `<div></div>`; 
             for(let i=1; i<=31; i++) {
                 const ev = calendarioData[`dia_${i}`];
                 let bg = 'bg-gray-50 text-gray-700', icon = '';
                 if(ev) {
                     if(ev === 'Eliminación') { bg = 'bg-red-100 text-red-800'; icon='<i class="fa-solid fa-trash-can text-[8px]"></i>'; }
                     else if(ev === 'Relleno') { bg = 'bg-teal-100 text-teal-800'; icon='<i class="fa-solid fa-fill-drip text-[8px]"></i>'; }
-                    else { bg = 'bg-purple-100 text-purple-800'; icon='<i class="fa-solid fa-star text-[8px]"></i>'; } // Evento Propio
+                    else { bg = 'bg-purple-100 text-purple-800'; icon='<i class="fa-solid fa-star text-[8px]"></i>'; }
                 }
                 html += `<button onclick="abrirOpcionesCalendario(${i})" class="p-1 rounded flex flex-col items-center justify-center font-bold border border-gray-200 hover:border-teal-400 ${bg}">${i}${icon}</button>`;
             }
@@ -484,7 +483,7 @@
             if(n) { n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); if(n.targetV) cambiarVista(n.targetV); if(n.targetS) cambiarSubForo(n.targetS); actualizarCampana(); }
         }
 
-        // CARGA INICIAL ROBUSTA
+        // CARGA INICIAL
         window.onload = function() {
             try {
                 let s = localStorage.getItem('mvrg_sesion');
@@ -493,16 +492,24 @@
                 let ev = localStorage.getItem('mvrg_cal');
                 let bi = localStorage.getItem('mvrg_bitacora');
                 
-                if(st) reactivosStock = JSON.parse(st);
+                if(st) reactivosStock = JSON.parse(st); else reactivosStock = {'EA50': 20, 'ORANGE': 45, 'HEMATOXILINA': 80, 'OH70': 95, 'OH95': 15, 'OH100': 60, 'HISTOCLEAR': 30};
                 if(po) publicaciones = JSON.parse(po);
                 if(ev) calendarioData = JSON.parse(ev);
                 if(bi) bitacoraData = JSON.parse(bi);
                 
-                if(s) { usuarioActual = JSON.parse(s); entrarApp(); } 
-                else document.getElementById('vista-login').style.display = 'flex';
+                if(s) { 
+                    usuarioActual = JSON.parse(s); 
+                    entrarApp(); 
+                } else {
+                    document.getElementById('vista-login').classList.remove('hidden');
+                    document.getElementById('vista-login').classList.add('flex');
+                    document.getElementById('app-principal').classList.remove('flex');
+                    document.getElementById('app-principal').classList.add('hidden');
+                }
             } catch (e) {
                 console.error("Error cargando memoria", e);
-                document.getElementById('vista-login').style.display = 'flex';
+                document.getElementById('vista-login').classList.remove('hidden');
+                document.getElementById('vista-login').classList.add('flex');
             }
         };
     </script>
