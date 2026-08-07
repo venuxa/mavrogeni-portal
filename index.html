@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mavrogeni App</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { touch-action: manipulation; }
+        button { user-select: none; }
+        ::-webkit-scrollbar { display: none; }
+        #menu-lateral { transition: transform 0.3s ease-in-out; }
+        .menu-abierto { transform: translateX(0%); }
+        .menu-cerrado { transform: translateX(-100%); }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col font-sans antialiased overflow-hidden">
+
+    <!-- ==================== VISTA: LOGIN (Por Usuario y Clave) ==================== -->
+    <div id="vista-login" class="flex flex-col h-full bg-teal-800 text-white justify-center px-8 relative block z-50">
+        <div class="text-center mb-10">
+            <i class="fa-solid fa-microscope text-5xl mb-4 text-teal-300"></i>
+            <h1 class="text-4xl font-bold tracking-wide">Mavrogeni</h1>
+            <p class="text-teal-200 mt-2 text-sm uppercase tracking-widest">Portal Interno</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-2xl text-gray-800">
+            <h2 class="text-lg font-bold mb-6 text-center text-gray-700">Acceso de Personal</h2>
+            
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Usuario</label>
+                <div class="relative">
+                    <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400"></i>
+                    <input type="text" id="login-user" placeholder="Ej: admin" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-3 pl-10 pr-3 focus:outline-none focus:border-teal-500">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Contraseña</label>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+                    <input type="password" id="login-pass" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-3 pl-10 pr-3 focus:outline-none focus:border-teal-500">
+                </div>
+            </div>
+
+            <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 shadow-md transition-all active:scale-95">Ingresar</button>
+            <p id="error-login" class="text-xs text-red-500 text-center mt-4 hidden">Usuario o contraseña incorrectos.</p>
+        </div>
+        
+        <div class="mt-8 text-center text-xs text-teal-400">
+            <p>Usuarios de prueba:</p>
+            <p>admin / 1234 (Rol Jefatura)</p>
+            <p>tm1 / 1234 (Rol Normal)</p>
+        </div>
+    </div>
+
+    <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+    <div id="app-principal" class="hidden flex flex-col h-full relative">
+        
+        <!-- BARRA SUPERIOR -->
+        <header class="bg-teal-700 text-white shadow-md sticky top-0 z-30">
+            <div class="flex justify-between items-center px-4 h-14">
+                <button onclick="toggleMenu()" class="text-xl p-2 -ml-2 hover:bg-teal-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1 class="text-lg font-bold tracking-wide">Mavrogeni App</h1>
+                <button class="relative p-2 -mr-2 hover:bg-teal-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" onclick="alert('No hay notificaciones nuevas')">
+                    <i class="fa-regular fa-bell text-xl"></i>
+                    <span class="absolute top-2 right-2 bg-red-500 rounded-full w-2.5 h-2.5 border-2 border-teal-700"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MENÚ LATERAL -->
+        <div id="overlay-menu" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleMenu()"></div>
+        <nav id="menu-lateral" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 menu-cerrado flex flex-col">
+            <div class="bg-teal-700 p-6 text-white">
+                <div id="menu-avatar" class="w-16 h-16 bg-white text-teal-700 rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-3">TM</div>
+                <h2 id="menu-nombre" class="font-bold text-lg">Cargando...</h2>
+                <p id="menu-rol-badge" class="text-xs text-teal-200 mt-1 uppercase tracking-wider">Cargando...</p>
+            </div>
+            <div class="flex-1 py-4 flex flex-col gap-1 px-3">
+                <button class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 text-left">
+                    <i class="fa-solid fa-user w-5 text-center text-teal-600"></i> Mi Perfil
+                </button>
+                <button class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 text-left">
+                    <i class="fa-solid fa-gear w-5 text-center text-teal-600"></i> Configuración
+                </button>
+                <div class="mt-auto border-t pt-4">
+                    <button onclick="cerrarSesion()" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-600 text-left font-medium">
+                        <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ÁREA DE CONTENIDO -->
+        <main class="flex-1 overflow-y-auto bg-gray-100 pb-20 relative">
+            
+            <!-- VISTA: FOROS -->
+            <div id="vista-foros" class="block h-full flex flex-col">
+                <div class="bg-white border-b flex text-sm font-medium shadow-sm sticky top-0 z-20">
+                    <button onclick="cambiarSubForo('avisos')" id="tab-avisos" class="flex-1 py-3 text-teal-700 border-b-2 border-teal-700">Avisos</button>
+                    <button onclick="cambiarSubForo('offtopic')" id="tab-offtopic" class="flex-1 py-3 text-gray-500 border-b-2 border-transparent">OffTopic</button>
+                    <button onclick="cambiarSubForo('ventas')" id="tab-ventas" class="flex-1 py-3 text-gray-500 border-b-2 border-transparent">Ventas</button>
+                </div>
+
+                <div class="p-4 flex-1 overflow-y-auto">
+                    <!-- FORO AVISOS -->
+                    <div id="foro-avisos" class="block space-y-4">
+                        <div id="btn-crear-aviso" class="hidden mb-4">
+                            <button class="w-full bg-teal-50 border border-teal-600 text-teal-700 rounded-lg p-3 font-bold flex items-center justify-center gap-2 border-dashed hover:bg-teal-100">
+                                <i class="fa-solid fa-bullhorn"></i> Publicar Nuevo Aviso Oficial
+                            </button>
+                        </div>
+                        <div class="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-sm border border-blue-100 overflow-hidden relative">
+                            <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+                            <div class="p-4 pl-5">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">JEF</div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-800">Dra. Jefatura</p>
+                                            <p class="text-[10px] text-gray-500">Hace 1 hora</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-blue-100 text-blue-800 text-[9px] font-bold px-2 py-1 rounded-full uppercase"><i class="fa-solid fa-thumbtack mr-1"></i>Importante</span>
+                                </div>
+                                <h4 class="font-bold text-gray-900 mb-1">Reunión de Calidad</h4>
+                                <p class="text-sm text-gray-600">Se cita a todo el personal a revisión de indicadores este viernes a las 15:00 hrs.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FORO OFFTOPIC -->
+                    <div id="foro-offtopic" class="hidden space-y-4">
+                        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xs">CP</div>
+                                <p class="text-xs font-bold text-gray-800">Carlos P. <span class="text-gray-400 font-normal">hace 3 horas</span></p>
+                            </div>
+                            <p class="text-sm text-gray-700">¿Alguien sabe si van a pedir almuerzo juntos hoy?</p>
+                        </div>
+                    </div>
+
+                    <!-- FORO VENTAS -->
+                    <div id="foro-ventas" class="hidden space-y-4">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex">
+                            <div class="w-24 bg-gray-200 flex items-center justify-center text-gray-400">
+                                <i class="fa-solid fa-image text-3xl"></i>
+                            </div>
+                            <div class="p-3 flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-bold text-gray-800 text-sm leading-tight mb-1">Uniforme Talla M</h4>
+                                    <span class="text-teal-700 font-bold text-sm bg-teal-50 px-2 py-0.5 rounded">$15.000</span>
+                                </div>
+                                <p class="text-xs text-gray-500 line-clamp-1 mb-2">Poco uso, Cherokee.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: CHAT -->
+            <div id="vista-chat" class="hidden flex flex-col h-full absolute inset-0 bg-gray-50">
+                <div class="flex-1 p-4 flex items-center justify-center text-gray-400 flex-col">
+                    <i class="fa-regular fa-comments text-4xl mb-2"></i>
+                    <p class="text-sm">Área de chat en construcción</p>
+                </div>
+            </div>
+
+            <!-- VISTA: SISTEMAS -->
+            <div id="vista-sistemas" class="hidden flex flex-col h-full absolute inset-0 bg-gray-50">
+                <div class="flex-1 p-4 flex items-center justify-center text-gray-400 flex-col">
+                    <i class="fa-solid fa-server text-4xl mb-2"></i>
+                    <p class="text-sm">Estado de sistemas en construcción</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- BARRA NAVEGACIÓN INFERIOR -->
+        <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full z-20" style="padding-bottom: env(safe-area-inset-bottom);">
+            <div class="flex justify-around items-center h-16 px-2">
+                <button id="btn-foros" onclick="cambiarVista('foros')" class="flex flex-col items-center justify-center w-full h-full text-teal-700"><i class="fa-solid fa-users-rectangle text-xl mb-1"></i><span class="text-[10px] font-medium">Foros</span></button>
+                <button id="btn-sistemas" onclick="cambiarVista('sistemas')" class="flex flex-col items-center justify-center w-full h-full text-gray-400"><i class="fa-solid fa-server text-xl mb-1"></i><span class="text-[10px] font-medium">Sistemas</span></button>
+                <button id="btn-chat" onclick="cambiarVista('chat')" class="flex flex-col items-center justify-center w-full h-full text-gray-400"><i class="fa-solid fa-comments text-xl mb-1"></i><span class="text-[10px] font-medium">Chat</span></button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+        const baseDeUsuarios = {
+            'admin': { pass: '1234', nombre: 'Jefatura de Laboratorio', iniciales: 'JL', rol: 'jefatura' },
+            'tm1': { pass: '1234', nombre: 'Tecnólogo Médico 1', iniciales: 'T1', rol: 'usuario' }
+        };
+
+        let usuarioActual = null;
+
+        function iniciarSesion() {
+            const user = document.getElementById('login-user').value.toLowerCase().trim();
+            const pass = document.getElementById('login-pass').value;
+            const errorMsg = document.getElementById('error-login');
+
+            if (baseDeUsuarios[user] && baseDeUsuarios[user].pass === pass) {
+                usuarioActual = baseDeUsuarios[user];
+                localStorage.setItem('mavrogeni_user', JSON.stringify(usuarioActual));
+                entrarALaApp();
+            } else {
+                errorMsg.classList.remove('hidden');
+                setTimeout(() => errorMsg.classList.add('hidden'), 3000);
+            }
+        }
+
+        function entrarALaApp() {
+            document.getElementById('vista-login').classList.replace('block', 'hidden');
+            document.getElementById('app-principal').classList.replace('hidden', 'flex');
+            
+            document.getElementById('menu-nombre').innerText = usuarioActual.nombre;
+            document.getElementById('menu-avatar').innerText = usuarioActual.iniciales;
+            
+            const badgeRol = document.getElementById('menu-rol-badge');
+            if(usuarioActual.rol === 'jefatura') badgeRol.innerText = 'Administrador / Jefatura';
+            else badgeRol.innerText = 'Personal de Laboratorio';
+
+            const btnCrearAviso = document.getElementById('btn-crear-aviso');
+            if (usuarioActual.rol === 'jefatura' || usuarioActual.rol === 'encargado') {
+                btnCrearAviso.classList.remove('hidden');
+            } else {
+                btnCrearAviso.classList.add('hidden');
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('mavrogeni_user');
+            location.reload(); 
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('menu-lateral');
+            const overlay = document.getElementById('overlay-menu');
+            
+            if (menu.classList.contains('menu-cerrado')) {
+                menu.classList.remove('menu-cerrado');
+                menu.classList.add('menu-abierto');
+                overlay.classList.remove('hidden');
+            } else {
+                menu.classList.remove('menu-abierto');
+                menu.classList.add('menu-cerrado');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function cambiarVista(vistaDestino) {
+            const vistas = ['foros', 'sistemas', 'chat'];
+            vistas.forEach(vista => {
+                const el = document.getElementById('vista-' + vista);
+                if(vista === vistaDestino) {
+                    el.classList.remove('hidden');
+                    el.classList.add(vista === 'chat' || vista === 'sistemas' ? 'flex' : 'block');
+                } else {
+                    el.classList.add('hidden');
+                    el.classList.remove('block', 'flex');
+                }
+            });
+
+            vistas.forEach(id => {
+                const btn = document.getElementById('btn-' + id);
+                if(id === vistaDestino) btn.classList.replace('text-gray-400', 'text-teal-700');
+                else btn.classList.replace('text-teal-700', 'text-gray-400');
+            });
+        }
+
+        function cambiarSubForo(foroDestino) {
+            const foros = ['avisos', 'offtopic', 'ventas'];
+            foros.forEach(foro => {
+                const el = document.getElementById('foro-' + foro);
+                if(foro === foroDestino) {
+                    el.classList.remove('hidden'); el.classList.add('block');
+                } else {
+                    el.classList.add('hidden'); el.classList.remove('block');
+                }
+
+                const tab = document.getElementById('tab-' + foro);
+                if(foro === foroDestino) {
+                    tab.classList.replace('text-gray-500', 'text-teal-700');
+                    tab.classList.replace('border-transparent', 'border-teal-700');
+                } else {
+                    tab.classList.replace('text-teal-700', 'text-gray-500');
+                    tab.classList.replace('border-teal-700', 'border-transparent');
+                }
+            });
+        }
+
+        window.onload = function() {
+            const guardado = localStorage.getItem('mavrogeni_user');
+            if(guardado) {
+                usuarioActual = JSON.parse(guardado);
+                entrarALaApp();
+            }
+        };
+    </script>
+</body>
+</html>
