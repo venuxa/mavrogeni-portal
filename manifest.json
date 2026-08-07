@@ -1,0 +1,15 @@
+{
+  "name": "Mavrogeni App",
+  "short_name": "Mavrogeni",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#115e59",
+  "theme_color": "#115e59",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3004/3004382.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
