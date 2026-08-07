@@ -13,6 +13,11 @@
         body { touch-action: manipulation; }
         button { user-select: none; }
         ::-webkit-scrollbar { display: none; }
+        
+        /* REGLAS ESTRICTAS PARA EVITAR PANTALLA DIVIDIDA */
+        .pantalla-oculta { display: none !important; }
+        .pantalla-activa { display: flex !important; }
+
         .modal-abierto { display: flex !important; }
         #menu-lateral { transition: transform 0.3s ease-in-out; }
         .menu-abierto { transform: translateX(0%); }
@@ -25,7 +30,7 @@
 <body class="bg-gray-100 h-screen flex flex-col font-sans antialiased overflow-hidden">
 
     <!-- ==================== LOGIN ==================== -->
-    <div id="vista-login" class="flex-col h-full bg-teal-900 text-white justify-center px-8 relative z-50" style="display: flex;">
+    <div id="vista-login" class="flex-col h-full bg-teal-900 text-white justify-center px-8 relative z-50 pantalla-activa">
         <div class="text-center mb-10">
             <i class="fa-solid fa-microscope text-5xl mb-4 text-teal-400"></i>
             <h1 class="text-4xl font-bold tracking-wide">Mavrogeni</h1>
@@ -39,7 +44,7 @@
     </div>
 
     <!-- ==================== APP PRINCIPAL ==================== -->
-    <div id="app-principal" class="flex-col h-full relative" style="display: none;">
+    <div id="app-principal" class="flex-col h-full relative pantalla-oculta">
         
         <!-- TOPBAR -->
         <header class="bg-teal-700 text-white shadow-md sticky top-0 z-30">
@@ -298,14 +303,14 @@
         }
 
         function entrarApp() {
-            // FORZAR VISIBILIDAD DE PANTALLAS CON ESTILOS EN LÍNEA
-            document.getElementById('vista-login').style.display = 'none';
-            document.getElementById('app-principal').style.display = 'flex';
+            // CAMBIO DE CLASES ESTRICTAS
+            document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta');
+            document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
 
             actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); actualizarCampana();
         }
 
-        // FUNCIONES DE PERFIL Y SESIÓN REPARADAS
+        // FUNCIONES DE PERFIL Y SESIÓN
         function actualizarUIUsuario() {
             const nom = `${usuarioActual.n} ${usuarioActual.a}`;
             document.getElementById('header-nombre').innerText = nom;
@@ -339,7 +344,7 @@
         function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); }
         function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
 
-        // CALENDARIO REPARADO
+        // CALENDARIO
         function generarCalendarioGrid() {
             const grid = document.getElementById('grid-calendario'); let html = '';
             ['L','M','M','J','V','S','D'].forEach(d => html += `<div class="font-bold text-teal-800 pb-1">${d}</div>`);
@@ -364,7 +369,7 @@
             generarCalendarioGrid(); cerrarModal('modal-accion-bateria'); generarNotificacion(`Calendario: ${val} registrado el día ${diaSeleccionado}`, 'sistemas', '');
         }
 
-        // REACTIVOS % REPARADO
+        // REACTIVOS %
         function renderReactivos() {
             const c = document.getElementById('contenedor-reactivos'); c.innerHTML='';
             for(const [n,l] of Object.entries(reactivosStock)) {
@@ -496,15 +501,12 @@
                 
                 if(s) { 
                     usuarioActual = JSON.parse(s); 
+                    document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta');
+                    document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
                     entrarApp(); 
-                } else {
-                    document.getElementById('vista-login').style.display = 'flex';
-                    document.getElementById('app-principal').style.display = 'none';
                 }
             } catch (e) {
                 console.error("Error cargando memoria", e);
-                document.getElementById('vista-login').style.display = 'flex';
-                document.getElementById('app-principal').style.display = 'none';
             }
         };
     </script>
