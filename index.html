@@ -14,10 +14,8 @@
         button { user-select: none; }
         ::-webkit-scrollbar { display: none; }
         
-        /* REGLAS ESTRICTAS PARA EVITAR PANTALLA DIVIDIDA */
         .pantalla-oculta { display: none !important; }
         .pantalla-activa { display: flex !important; }
-
         .modal-abierto { display: flex !important; }
         #menu-lateral { transition: transform 0.3s ease-in-out; }
         .menu-abierto { transform: translateX(0%); }
@@ -90,6 +88,9 @@
                 <button onclick="abrirModal('modal-bitacora-nueva'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2">
                     <i class="fa-solid fa-clipboard-check w-5"></i> Escribir Bitácora
                 </button>
+                <button onclick="irABitacoraDirecto(); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700">
+                    <i class="fa-solid fa-folder-open w-5 text-teal-600"></i> Ver Bitácoras
+                </button>
                 <button onclick="abrirModal('modal-protocolos'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700">
                     <i class="fa-solid fa-book-medical w-5 text-teal-600"></i> Protocolos
                 </button>
@@ -125,6 +126,7 @@
 
             <!-- 2. VISTA SISTEMAS -->
             <div id="vista-sistemas" class="hidden flex flex-col h-full bg-gray-50">
+                <!-- Nivel 1: Lista -->
                 <div id="sistemas-lista-unidades" class="block p-4">
                     <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Unidades</h2>
                     <div class="grid grid-cols-1 gap-3">
@@ -136,12 +138,20 @@
                     </div>
                 </div>
 
+                <!-- Nivel 2: Citodiagnóstico con Tabs (Procesamiento y Bitácora) -->
                 <div id="sistemas-citodiagnostico" class="hidden flex-col h-full">
-                    <div class="bg-white border-b flex text-sm font-bold shadow-sm px-4 py-3 text-gray-700 items-center gap-3 sticky top-0 z-10">
+                    <div class="bg-white border-b flex text-sm font-bold shadow-sm px-4 py-3 text-gray-700 items-center gap-3 sticky top-0 z-20">
                         <button onclick="cerrarUnidad()" class="text-gray-400 hover:text-teal-600 text-lg"><i class="fa-solid fa-arrow-left"></i></button><span>Citodiagnóstico</span>
                     </div>
-                    <div class="p-4 flex-1 overflow-y-auto space-y-4">
-                        
+
+                    <!-- Pestañas internas de Citodiagnóstico -->
+                    <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky z-10" style="top: 45px;">
+                        <button onclick="cambiarSubCitodiagnostico('Procesamiento')" id="tab-cito-Procesamiento" class="flex-1 py-3 px-2 border-b-2 border-teal-700 text-teal-700">Procesamiento</button>
+                        <button onclick="cambiarSubCitodiagnostico('Bitacora')" id="tab-cito-Bitacora" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500">Bitácora</button>
+                    </div>
+                    
+                    <!-- Contenido Procesamiento -->
+                    <div id="cito-Procesamiento" class="p-4 flex-1 overflow-y-auto space-y-4 block">
                         <!-- CALENDARIO DE EVENTOS Y BATERÍA -->
                         <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
                             <h3 class="font-bold text-gray-800 text-sm mb-3 border-b pb-2"><i class="fa-regular fa-calendar-check text-teal-600 mr-1"></i> Cronograma de Batería (Agosto 2026)</h3>
@@ -161,6 +171,22 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- Contenido Bitácora -->
+                    <div id="cito-Bitacora" class="p-4 flex-1 overflow-y-auto hidden bg-gray-50">
+                        <div class="bg-white p-3 rounded-lg border shadow-sm mb-4">
+                            <label class="text-xs font-bold text-gray-500 uppercase">Seleccionar Área:</label>
+                            <select id="filtro-bitacora" onchange="renderBitacora()" class="w-full mt-1 border rounded p-2 text-sm bg-gray-50 font-bold">
+                                <option>Citopatología - Secretaría</option><option>Citopatología - TENS</option><option>Histopatología</option><option>Macroscopía</option>
+                            </select>
+                            <button onclick="exportarPDF()" class="mt-3 w-full bg-gray-800 text-white rounded-lg p-2 text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-900"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF del Área</button>
+                        </div>
+                        <div id="print-area" class="space-y-3 bg-white p-4 rounded-xl border">
+                            <h2 id="titulo-print" class="font-bold text-lg text-center mb-4 hidden border-b pb-2">Bitácora Oficial</h2>
+                            <div id="contenedor-bitacora-items" class="space-y-4"></div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -170,32 +196,13 @@
                 <div class="p-4 flex-1 overflow-y-auto space-y-6" id="contenedor-equipo"></div>
             </div>
 
-            <!-- 4. VISTA BITÁCORA -->
-            <div id="vista-bitacora" class="hidden flex flex-col h-full bg-gray-50">
-                <div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10"><span>Registro de Traspasos</span></div>
-                <div class="p-4 flex-1 overflow-y-auto">
-                    <div class="bg-white p-3 rounded-lg border shadow-sm mb-4">
-                        <label class="text-xs font-bold text-gray-500 uppercase">Seleccionar Área:</label>
-                        <select id="filtro-bitacora" onchange="renderBitacora()" class="w-full mt-1 border rounded p-2 text-sm bg-gray-50 font-bold">
-                            <option>Citopatología - Secretaría</option><option>Citopatología - TENS</option><option>Histopatología</option><option>Macroscopía</option>
-                        </select>
-                        <button onclick="exportarPDF()" class="mt-3 w-full bg-gray-800 text-white rounded-lg p-2 text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-900"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF del Área</button>
-                    </div>
-                    <div id="print-area" class="space-y-3 bg-white p-4 rounded-xl border">
-                        <h2 id="titulo-print" class="font-bold text-lg text-center mb-4 hidden border-b pb-2">Bitácora Oficial</h2>
-                        <div id="contenedor-bitacora-items" class="space-y-4"></div>
-                    </div>
-                </div>
-            </div>
-
         </main>
 
-        <!-- BARRA INFERIOR -->
+        <!-- BARRA INFERIOR DE 3 BOTONES -->
         <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full z-20" style="padding-bottom: env(safe-area-inset-bottom);">
             <div class="flex justify-around items-center h-16 px-1">
                 <button id="btn-foros" onclick="cambiarVista('foros')" class="flex flex-col items-center justify-center w-full text-teal-700"><i class="fa-solid fa-users-rectangle text-xl mb-1"></i><span class="text-[10px] font-bold">Foros</span></button>
                 <button id="btn-sistemas" onclick="cambiarVista('sistemas')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-network-wired text-xl mb-1"></i><span class="text-[10px] font-bold">Sistemas</span></button>
-                <button id="btn-bitacora" onclick="cambiarVista('bitacora')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-book-journal-whills text-xl mb-1"></i><span class="text-[10px] font-bold">Bitácora</span></button>
                 <button id="btn-equipo" onclick="cambiarVista('equipo')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-shield-heart text-xl mb-1"></i><span class="text-[10px] font-bold">Equipo</span></button>
             </div>
         </nav>
@@ -203,7 +210,6 @@
 
     <!-- ==================== MODALES ==================== -->
     
-    <!-- Modal Mi Perfil -->
     <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Modificar Mi Perfil</h2><button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button></div>
@@ -218,7 +224,6 @@
         </div>
     </div>
 
-    <!-- Modal Directorio Anexos -->
     <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -234,7 +239,6 @@
         </div>
     </div>
 
-    <!-- Modal Protocolos -->
     <div id="modal-protocolos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 mx-auto shadow-2xl max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -248,7 +252,6 @@
         </div>
     </div>
 
-    <!-- Modales Restantes (Notificaciones, Posts, Calendario, Bitácora, Reactivos) -->
     <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
 
     <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg text-gray-800">Nueva Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Destino:</label><select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Todos</option><option>Supervisión</option><option>Encargados</option><option>Tecnólogos</option><option>TENS</option><option>Secretaría</option></select></div><div id="campo-fecha-evento" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Fecha y Hora:</label><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none"><textarea id="post-cuerpo" rows="4" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea><div id="div-img-post"><label class="text-xs font-bold text-gray-500"><i class="fa-solid fa-image"></i> URL de Imagen</label><input type="text" id="post-img" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50"></div><button id="btn-submit-post" onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
@@ -303,14 +306,12 @@
         }
 
         function entrarApp() {
-            // CAMBIO DE CLASES ESTRICTAS
             document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta');
             document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
 
             actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); actualizarCampana();
         }
 
-        // FUNCIONES DE PERFIL Y SESIÓN
         function actualizarUIUsuario() {
             const nom = `${usuarioActual.n} ${usuarioActual.a}`;
             document.getElementById('header-nombre').innerText = nom;
@@ -336,11 +337,60 @@
         }
         function cerrarSesion() { localStorage.removeItem('mvrg_sesion'); location.reload(); }
 
-        // NAVEGACIÓN
         function toggleMenu() { const m = document.getElementById('menu-lateral'), o = document.getElementById('overlay-menu'); if(m.classList.contains('menu-cerrado')){m.classList.remove('menu-cerrado');m.classList.add('menu-abierto');o.classList.remove('hidden');}else{m.classList.remove('menu-abierto');m.classList.add('menu-cerrado');o.classList.add('hidden');} }
-        function cambiarVista(vista) { ['foros', 'sistemas', 'equipo', 'bitacora'].forEach(v => { const e = document.getElementById('vista-' + v); if(e){e.classList.add('hidden');e.classList.remove('block', 'flex');} }); document.getElementById('vista-' + vista).classList.remove('hidden'); document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex'); ['foros', 'sistemas', 'equipo', 'bitacora'].forEach(id => { const b = document.getElementById('btn-' + id); if(b){if(id === vista) b.classList.replace('text-gray-400', 'text-teal-700'); else b.classList.replace('text-teal-700', 'text-gray-400');} }); }
-        function abrirUnidad(u) { document.getElementById('sistemas-lista-unidades').classList.replace('block', 'hidden'); document.getElementById('sistemas-citodiagnostico').classList.replace('hidden', 'flex'); }
-        function cerrarUnidad() { document.getElementById('sistemas-citodiagnostico').classList.replace('flex', 'hidden'); document.getElementById('sistemas-lista-unidades').classList.replace('hidden', 'block'); }
+        
+        // MODIFICADO: Solo quedan 3 vistas principales en el bottom bar
+        function cambiarVista(vista) { 
+            ['foros', 'sistemas', 'equipo'].forEach(v => { 
+                const e = document.getElementById('vista-' + v); 
+                if(e){e.classList.add('hidden');e.classList.remove('block', 'flex');} 
+            }); 
+            document.getElementById('vista-' + vista).classList.remove('hidden'); 
+            document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex'); 
+            
+            ['foros', 'sistemas', 'equipo'].forEach(id => { 
+                const b = document.getElementById('btn-' + id); 
+                if(b){if(id === vista) b.classList.replace('text-gray-400', 'text-teal-700'); else b.classList.replace('text-teal-700', 'text-gray-400');} 
+            }); 
+        }
+
+        // CONTROL DE TABS DENTRO DE CITODIAGNÓSTICO
+        function cambiarSubCitodiagnostico(tab) {
+            if(tab === 'Procesamiento') {
+                document.getElementById('cito-Procesamiento').style.display = 'block';
+                document.getElementById('cito-Bitacora').style.display = 'none';
+                document.getElementById('tab-cito-Procesamiento').classList.replace('border-transparent', 'border-teal-700');
+                document.getElementById('tab-cito-Procesamiento').classList.replace('text-gray-500', 'text-teal-700');
+                document.getElementById('tab-cito-Bitacora').classList.replace('border-teal-700', 'border-transparent');
+                document.getElementById('tab-cito-Bitacora').classList.replace('text-teal-700', 'text-gray-500');
+            } else {
+                document.getElementById('cito-Bitacora').style.display = 'block';
+                document.getElementById('cito-Procesamiento').style.display = 'none';
+                document.getElementById('tab-cito-Bitacora').classList.replace('border-transparent', 'border-teal-700');
+                document.getElementById('tab-cito-Bitacora').classList.replace('text-gray-500', 'text-teal-700');
+                document.getElementById('tab-cito-Procesamiento').classList.replace('border-teal-700', 'border-transparent');
+                document.getElementById('tab-cito-Procesamiento').classList.replace('text-teal-700', 'text-gray-500');
+                renderBitacora(); // Asegurar render
+            }
+        }
+
+        function abrirUnidad(u) { 
+            document.getElementById('sistemas-lista-unidades').classList.replace('block', 'hidden'); 
+            document.getElementById('sistemas-citodiagnostico').classList.replace('hidden', 'flex'); 
+            cambiarSubCitodiagnostico('Procesamiento'); // Por defecto abre procesamiento
+        }
+        function cerrarUnidad() { 
+            document.getElementById('sistemas-citodiagnostico').classList.replace('flex', 'hidden'); 
+            document.getElementById('sistemas-lista-unidades').classList.replace('hidden', 'block'); 
+        }
+        
+        // Acceso directo a Bitácora desde el menú lateral
+        function irABitacoraDirecto() {
+            cambiarVista('sistemas');
+            abrirUnidad('citodiagnostico');
+            cambiarSubCitodiagnostico('Bitacora');
+        }
+
         function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); }
         function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
 
@@ -366,7 +416,7 @@
             let val = tipo;
             if(tipo === 'Propio') { val = document.getElementById('cal-evento-propio').value; if(!val) return; }
             calendarioData[`dia_${diaSeleccionado}`] = val; localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData));
-            generarCalendarioGrid(); cerrarModal('modal-accion-bateria'); generarNotificacion(`Calendario: ${val} registrado el día ${diaSeleccionado}`, 'sistemas', '');
+            generarCalendarioGrid(); cerrarModal('modal-accion-bateria'); generarNotificacion(`Calendario: ${val} registrado el día ${diaSeleccionado}`, 'sistemas', 'citodiagnostico');
         }
 
         // REACTIVOS %
@@ -453,7 +503,7 @@
         // BITÁCORA Y PDF
         function guardarBitacora() {
             const b = { id: Date.now(), fecha: new Date().toLocaleString('es-CL'), autor: usuarioActual, unidad: document.getElementById('bit-unidad').value, tipo: document.getElementById('bit-tipo').value, nov: document.getElementById('bit-nov').value };
-            bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); cerrarModal('modal-bitacora-nueva'); renderBitacora(); generarNotificacion(`Traspaso en ${b.unidad}`, 'bitacora', '');
+            bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); cerrarModal('modal-bitacora-nueva'); renderBitacora(); generarNotificacion(`Traspaso en ${b.unidad}`, 'sistemas', 'bitacora');
         }
         function renderBitacora() {
             const c = document.getElementById('contenedor-bitacora-items'); c.innerHTML = '';
@@ -482,7 +532,19 @@
         }
         function irDestinoNotificacion(id) {
             const n = notificaciones.find(x=>x.id===id);
-            if(n) { n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); if(n.targetV) cambiarVista(n.targetV); if(n.targetS) cambiarSubForo(n.targetS); actualizarCampana(); }
+            if(n) { 
+                n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); 
+                
+                if(n.targetV) cambiarVista(n.targetV); 
+                
+                if(n.targetV === 'sistemas' && n.targetS === 'bitacora') {
+                    irABitacoraDirecto();
+                } else if(n.targetS) {
+                    cambiarSubForo(n.targetS); 
+                }
+                
+                actualizarCampana(); 
+            }
         }
 
         // CARGA INICIAL ROBUSTA
