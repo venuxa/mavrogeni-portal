@@ -4,591 +4,620 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mavrogeni App</title>
+    <!-- Enlace al Manifest para que sea App Instalable -->
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Librería para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         body { touch-action: manipulation; }
         button { user-select: none; }
         ::-webkit-scrollbar { display: none; }
         .modal-abierto { display: flex !important; }
-        .barra-nivel { transition: width 0.5s ease-in-out, background-color 0.5s; }
-        /* Animaciones */
         #menu-lateral { transition: transform 0.3s ease-in-out; }
         .menu-abierto { transform: translateX(0%); }
         .menu-cerrado { transform: translateX(-100%); }
-        details > summary { list-style: none; }
-        details > summary::-webkit-details-marker { display: none; }
     </style>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col font-sans antialiased overflow-hidden">
 
-    <!-- ==================== VISTA: LOGIN ==================== -->
+    <!-- ==================== LOGIN ==================== -->
     <div id="vista-login" class="flex flex-col h-full bg-teal-900 text-white justify-center px-8 relative block z-50">
         <div class="text-center mb-10">
             <i class="fa-solid fa-microscope text-5xl mb-4 text-teal-400"></i>
             <h1 class="text-4xl font-bold tracking-wide">Mavrogeni</h1>
-            <p class="text-teal-300 mt-2 text-sm uppercase tracking-widest">Portal del Laboratorio</p>
         </div>
         <div class="bg-white rounded-2xl p-6 shadow-2xl text-gray-800">
-            <div class="mb-4">
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Usuario</label>
-                <input type="text" id="login-user" placeholder="Ej: admin" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-3 px-3 focus:outline-none focus:border-teal-500">
-            </div>
-            <div class="mb-6">
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Contraseña</label>
-                <input type="password" id="login-pass" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-3 px-3 focus:outline-none focus:border-teal-500">
-            </div>
-            <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition-all">Ingresar</button>
-            <p id="error-login" class="text-xs text-red-500 text-center mt-4 hidden">Usuario incorrecto.</p>
+            <input type="text" id="login-user" placeholder="Usuario" class="w-full bg-gray-50 border rounded-lg py-3 px-3 mb-4">
+            <input type="password" id="login-pass" placeholder="Clave" class="w-full bg-gray-50 border rounded-lg py-3 px-3 mb-6">
+            <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700">Ingresar</button>
         </div>
     </div>
 
-    <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+    <!-- ==================== APP PRINCIPAL ==================== -->
     <div id="app-principal" class="hidden flex flex-col h-full relative">
         
-        <!-- TOPBAR -->
+        <!-- TOPBAR CON RELOJ -->
         <header class="bg-teal-700 text-white shadow-md sticky top-0 z-30">
             <div class="flex justify-between items-center px-4 h-14">
-                <!-- Botón Menú / Perfil -->
-                <button onclick="toggleMenu()" class="flex items-center gap-3 hover:bg-teal-600 p-1 rounded-lg transition-colors">
+                <button onclick="toggleMenu()" class="flex items-center gap-3 hover:bg-teal-600 p-1 rounded-lg">
                     <i class="fa-solid fa-bars text-xl mr-1"></i>
                     <div id="header-avatar" class="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center font-bold text-xs border border-teal-400 overflow-hidden"></div>
-                    <div class="text-left hidden sm:block">
-                        <h1 class="text-sm font-bold tracking-wide leading-tight" id="header-nombre">Usuario</h1>
-                    </div>
                 </button>
                 
-                <!-- Acciones Rápidas (Anexos y Notificaciones) -->
-                <div class="flex gap-1">
-                    <button onclick="abrirModal('modal-anexos')" class="p-2 hover:bg-teal-600 rounded-full transition-colors">
-                        <i class="fa-solid fa-phone text-lg"></i>
-                    </button>
-                    <button onclick="abrirModalNotificaciones()" class="relative p-2 hover:bg-teal-600 rounded-full transition-colors">
-                        <i class="fa-regular fa-bell text-xl"></i>
-                        <span id="badge-notif" class="absolute top-2 right-2 bg-red-500 rounded-full w-2.5 h-2.5 border-2 border-teal-700 hidden"></span>
-                    </button>
+                <!-- Reloj Central -->
+                <div class="text-center">
+                    <h1 class="text-sm font-bold tracking-wide leading-tight">Mavrogeni</h1>
+                    <p id="topbar-reloj" class="text-[10px] text-teal-200 font-mono"></p>
                 </div>
+                
+                <button onclick="abrirModalNotificaciones()" class="relative p-2 hover:bg-teal-600 rounded-full">
+                    <i class="fa-regular fa-bell text-xl"></i>
+                    <span id="badge-notif" class="absolute top-2 right-2 bg-red-500 rounded-full w-2.5 h-2.5 border-2 border-white hidden"></span>
+                </button>
             </div>
         </header>
 
-        <!-- MENÚ LATERAL (SIDEBAR) -->
+        <!-- MENÚ LATERAL -->
         <div id="overlay-menu" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleMenu()"></div>
         <nav id="menu-lateral" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 menu-cerrado flex flex-col">
             <div class="bg-teal-700 p-6 text-white text-center relative">
                 <button onclick="toggleMenu()" class="absolute top-3 right-4 text-2xl text-teal-300">&times;</button>
-                <div id="menu-avatar" class="w-16 h-16 mx-auto bg-white text-teal-700 rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-3 overflow-hidden">TM</div>
-                <h2 id="menu-nombre" class="font-bold text-lg">Cargando...</h2>
-                <p id="menu-rol-badge" class="text-xs text-teal-200 mt-1 uppercase tracking-wider">Cargando...</p>
+                <div id="menu-avatar" class="w-16 h-16 mx-auto bg-white text-teal-700 rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-3 overflow-hidden"></div>
+                <h2 id="menu-nombre" class="font-bold text-lg">Usuario</h2>
             </div>
-            <div class="flex-1 py-4 flex flex-col gap-1 px-3 overflow-y-auto">
-                <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-2">Personal</p>
-                <button onclick="abrirModalPerfil(); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 text-left">
-                    <i class="fa-solid fa-user w-5 text-center text-teal-600"></i> Mi Perfil
+            <div class="flex-1 py-4 px-3 overflow-y-auto">
+                <button onclick="abrirModal('modal-bitacora-nueva'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2">
+                    <i class="fa-solid fa-clipboard-check w-5"></i> Escribir Bitácora
                 </button>
-                
-                <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-4">Herramientas HRA</p>
-                <button onclick="cambiarVista('bitacora'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 text-left">
-                    <i class="fa-solid fa-clipboard-list w-5 text-center text-teal-600"></i> Bitácora de Turnos
+                <button onclick="cambiarVista('bitacora'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700">
+                    <i class="fa-solid fa-folder-open w-5 text-teal-600"></i> Ver Bitácoras
                 </button>
-                <button onclick="abrirModal('modal-protocolos'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 text-left">
-                    <i class="fa-solid fa-book-medical w-5 text-center text-teal-600"></i> Protocolos
-                </button>
-
                 <div class="mt-auto border-t pt-4">
-                    <button onclick="cerrarSesion()" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-600 text-left font-medium">
-                        <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i> Cerrar Sesión
+                    <button onclick="cerrarSesion()" class="flex items-center gap-4 w-full p-3 rounded-lg text-red-600 font-medium">
+                        <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i> Salir
                     </button>
                 </div>
             </div>
         </nav>
 
-        <!-- ÁREA DE CONTENIDO -->
+        <!-- ÁREA CENTRAL -->
         <main class="flex-1 overflow-y-auto bg-gray-100 pb-20 relative">
             
-            <!-- VISTA: FOROS -->
+            <!-- 1. VISTA FOROS -->
             <div id="vista-foros" class="block h-full flex flex-col">
-                <div class="bg-white border-b flex text-xs sm:text-sm font-medium shadow-sm sticky top-0 z-20 overflow-x-auto">
-                    <button onclick="cambiarSubForo('Avisos')" id="tab-Avisos" class="flex-1 py-3 px-2 text-teal-700 border-b-2 border-teal-700 whitespace-nowrap">Avisos</button>
-                    <button onclick="cambiarSubForo('Offtopic')" id="tab-Offtopic" class="flex-1 py-3 px-2 text-gray-500 border-b-2 border-transparent whitespace-nowrap">OffTopic</button>
-                    <button onclick="cambiarSubForo('Ventas')" id="tab-Ventas" class="flex-1 py-3 px-2 text-gray-500 border-b-2 border-transparent whitespace-nowrap">Ventas</button>
-                    <button onclick="cambiarSubForo('Kudos')" id="tab-Kudos" class="flex-1 py-3 px-2 text-pink-500 border-b-2 border-transparent whitespace-nowrap"><i class="fa-solid fa-medal mr-1"></i>Kudos</button>
+                <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky top-0 z-20">
+                    <button onclick="cambiarSubForo('Avisos')" id="tab-Avisos" class="flex-1 py-3 border-b-2 border-teal-700 text-teal-700">Avisos</button>
+                    <button onclick="cambiarSubForo('Offtopic')" id="tab-Offtopic" class="flex-1 py-3 border-b-2 border-transparent text-gray-500">OffTopic</button>
+                    <button onclick="cambiarSubForo('Ventas')" id="tab-Ventas" class="flex-1 py-3 border-b-2 border-transparent text-gray-500">Ventas</button>
+                    <button onclick="cambiarSubForo('Eventos')" id="tab-Eventos" class="flex-1 py-3 border-b-2 border-transparent text-purple-600 font-bold"><i class="fa-solid fa-calendar mr-1"></i>Eventos</button>
                 </div>
                 
                 <div class="p-4 flex-1 overflow-y-auto">
+                    <!-- Botón Flotante -->
                     <button id="btn-abrir-modal-post" onclick="abrirModalPost()" class="w-full bg-white border border-teal-200 text-teal-700 rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-sm mb-4">
                         <i class="fa-solid fa-pen"></i> <span id="txt-btn-publicar">Crear Publicación</span>
                     </button>
                     <div id="contenedor-posts" class="space-y-4"></div>
+                    <!-- Contenedor Eventos (Solo se muestra en tab Eventos) -->
+                    <div id="contenedor-eventos" class="space-y-3 hidden"></div>
                 </div>
             </div>
 
-            <!-- VISTA: SISTEMAS -->
+            <!-- 2. VISTA SISTEMAS -->
             <div id="vista-sistemas" class="hidden flex flex-col h-full bg-gray-50">
                 <div id="sistemas-lista-unidades" class="block p-4">
-                    <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Unidades de Anatomía Patológica</h2>
+                    <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Unidades</h2>
                     <div class="grid grid-cols-1 gap-3">
-                        <button onclick="abrirUnidad('citodiagnostico')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between hover:border-teal-400">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center"><i class="fa-solid fa-microscope"></i></div>
-                                <span class="font-bold text-gray-800 text-left">Citodiagnóstico</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-gray-300"></i>
-                        </button>
-                        <button class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between opacity-60">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-vial"></i></div>
-                                <span class="font-bold text-gray-800 text-left">Histopatología</span>
-                            </div>
-                        </button>
-                        <button class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between opacity-60">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-eye"></i></div>
-                                <span class="font-bold text-gray-800 text-left">Macroscopía</span>
-                            </div>
+                        <button onclick="abrirUnidad('citodiagnostico')" class="bg-white p-4 rounded-xl shadow-sm border flex items-center justify-between hover:border-teal-400">
+                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center"><i class="fa-solid fa-microscope"></i></div><span class="font-bold text-gray-800">Citodiagnóstico</span></div><i class="fa-solid fa-chevron-right text-gray-300"></i>
                         </button>
                     </div>
                 </div>
 
                 <div id="sistemas-citodiagnostico" class="hidden flex-col h-full">
                     <div class="bg-white border-b flex text-sm font-bold shadow-sm px-4 py-3 text-gray-700 items-center gap-3 sticky top-0 z-10">
-                        <button onclick="cerrarUnidad()" class="text-gray-400 hover:text-teal-600 text-lg"><i class="fa-solid fa-arrow-left"></i></button>
-                        <span>Citodiagnóstico</span>
+                        <button onclick="cerrarUnidad()" class="text-gray-400 hover:text-teal-600 text-lg"><i class="fa-solid fa-arrow-left"></i></button><span>Citodiagnóstico</span>
                     </div>
                     <div class="p-4 flex-1 overflow-y-auto space-y-4">
+                        
+                        <!-- NUEVO CALENDARIO VISUAL -->
                         <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
                             <h3 class="font-bold text-gray-800 text-sm mb-3 border-b pb-2"><i class="fa-regular fa-calendar-check text-teal-600 mr-1"></i> Cronograma de Batería</h3>
-                            <p class="text-xs text-gray-500 mb-2">Selecciona la fecha para registrar acción:</p>
-                            <input type="date" id="input-fecha-bateria" onchange="gestionarFechaBateria(this.value)" class="w-full bg-gray-50 border border-teal-300 text-teal-800 font-bold rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-inner">
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-                            <div class="flex justify-between items-center border-b pb-2 mb-3">
-                                <h3 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-vials text-teal-600 mr-1"></i> Nivel de Reactivos</h3>
-                                <button onclick="renderReactivos()" class="text-gray-400 hover:text-teal-600"><i class="fa-solid fa-rotate-right"></i></button>
+                            <div class="text-center font-bold text-gray-600 mb-2">Agosto 2026</div>
+                            <!-- Grilla del Calendario -->
+                            <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-xs">
+                                <!-- Generado por JS -->
                             </div>
-                            <div id="contenedor-reactivos" class="space-y-3"></div>
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <!-- VISTA: CHAT -->
-            <div id="vista-chat" class="hidden flex flex-col h-full absolute inset-0 bg-gray-50">
-                <div class="flex-1 p-4 flex items-center justify-center text-gray-400 flex-col">
-                    <i class="fa-regular fa-comments text-4xl mb-2"></i><p class="text-sm">Chat Global en construcción</p>
+            <!-- 3. VISTA EQUIPO (Logros y Perfiles Gamificados) -->
+            <div id="vista-equipo" class="hidden flex flex-col h-full bg-gray-50">
+                <div class="bg-white border-b shadow-sm px-4 py-3 text-center sticky top-0 z-10">
+                    <h2 class="font-bold text-gray-800 text-lg"><i class="fa-solid fa-shield-halved text-teal-600 mr-2"></i> Nuestro Equipo</h2>
+                </div>
+                <div class="p-4 flex-1 overflow-y-auto space-y-6" id="contenedor-equipo">
+                    <!-- Generado por JS agrupado por unidad -->
                 </div>
             </div>
 
-            <!-- VISTA: EVENTOS -->
-            <div id="vista-eventos" class="hidden flex flex-col h-full bg-gray-50">
-                <div class="p-4">
-                    <button onclick="abrirModal('modal-evento')" class="w-full bg-teal-600 text-white rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-md mb-4 hover:bg-teal-700">
-                        <i class="fa-solid fa-calendar-plus"></i> Agendar Nuevo Evento
-                    </button>
-                    <div id="contenedor-eventos" class="space-y-3"></div>
-                </div>
-            </div>
-
-            <!-- VISTA NUEVA: BITÁCORA DE TURNOS -->
+            <!-- 4. VISTA BITÁCORA Y EXPORTACIÓN -->
             <div id="vista-bitacora" class="hidden flex flex-col h-full bg-gray-50">
-                <div class="bg-white border-b flex text-sm font-bold shadow-sm px-4 py-3 text-gray-700 items-center justify-between sticky top-0 z-10">
-                    <span><i class="fa-solid fa-clipboard-list text-teal-600 mr-2"></i> Bitácora de Turnos</span>
-                    <button onclick="abrirModal('modal-bitacora-nueva')" class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs hover:bg-teal-200">+ Entrega</button>
+                <div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10">
+                    <span>Registro de Traspasos</span>
                 </div>
                 <div class="p-4 flex-1 overflow-y-auto">
-                    <div id="contenedor-bitacora" class="space-y-4 border-l-2 border-teal-200 pl-4 ml-2">
-                        <!-- Las entregas se renderizan aquí -->
+                    
+                    <!-- Filtro y Exportación por Unidad -->
+                    <div class="bg-white p-3 rounded-lg border shadow-sm mb-4">
+                        <label class="text-xs font-bold text-gray-500 uppercase">Seleccionar Área:</label>
+                        <select id="filtro-bitacora" onchange="renderBitacora()" class="w-full mt-1 border rounded p-2 text-sm bg-gray-50 font-bold">
+                            <option value="Citopatología - Secretaría">Citopatología - Secretaría</option>
+                            <option value="Citopatología - TENS">Citopatología - TENS</option>
+                            <option value="Histopatología">Histopatología</option>
+                            <option value="Macroscopía">Macroscopía</option>
+                        </select>
+                        <button onclick="exportarPDF()" class="mt-3 w-full bg-gray-800 text-white rounded-lg p-2 text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-900">
+                            <i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF del Área
+                        </button>
+                    </div>
+
+                    <!-- Contenedor de la Bitácora (Imprimible) -->
+                    <div id="print-area" class="space-y-3 bg-white p-4 rounded-xl border">
+                        <h2 id="titulo-print" class="font-bold text-lg text-center mb-4 hidden border-b pb-2">Bitácora Oficial</h2>
+                        <div id="contenedor-bitacora-items" class="space-y-4"></div>
                     </div>
                 </div>
             </div>
 
         </main>
 
-        <!-- BARRA NAVEGACIÓN INFERIOR -->
+        <!-- BARRA INFERIOR -->
         <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full z-20" style="padding-bottom: env(safe-area-inset-bottom);">
             <div class="flex justify-around items-center h-16 px-1">
                 <button id="btn-foros" onclick="cambiarVista('foros')" class="flex flex-col items-center justify-center w-full text-teal-700"><i class="fa-solid fa-users-rectangle text-xl mb-1"></i><span class="text-[10px] font-bold">Foros</span></button>
                 <button id="btn-sistemas" onclick="cambiarVista('sistemas')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-network-wired text-xl mb-1"></i><span class="text-[10px] font-bold">Sistemas</span></button>
-                <button id="btn-chat" onclick="cambiarVista('chat')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-comments text-xl mb-1"></i><span class="text-[10px] font-bold">Chat</span></button>
-                <button id="btn-eventos" onclick="cambiarVista('eventos')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-calendar-day text-xl mb-1"></i><span class="text-[10px] font-bold">Eventos</span></button>
+                <button id="btn-bitacora" onclick="cambiarVista('bitacora')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-book-journal-whills text-xl mb-1"></i><span class="text-[10px] font-bold">Bitácora</span></button>
+                <button id="btn-equipo" onclick="cambiarVista('equipo')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-shield-heart text-xl mb-1"></i><span class="text-[10px] font-bold">Equipo</span></button>
             </div>
         </nav>
     </div>
 
     <!-- ==================== MODALES ==================== -->
     
-    <!-- Modal DIRECTORIO ANEXOS -->
-    <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-phone text-teal-600 mr-2"></i> Directorio HRA</h2>
-                <button onclick="cerrarModal('modal-anexos')" class="text-gray-400 text-2xl">&times;</button>
+    <!-- Modal NOTIFICACIONES (Con navegación) -->
+    <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div>
+            <div class="flex text-xs font-bold mb-3 border-b">
+                <button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button>
+                <button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button>
             </div>
-            <div class="space-y-2">
-                <div class="flex justify-between p-3 bg-gray-50 rounded border"><span class="font-bold text-sm">Recepción Muestras</span><span class="text-teal-700 font-bold">4010</span></div>
-                <div class="flex justify-between p-3 bg-gray-50 rounded border"><span class="font-bold text-sm">Informática (Soporte)</span><span class="text-teal-700 font-bold">4040</span></div>
-                <div class="flex justify-between p-3 bg-gray-50 rounded border"><span class="font-bold text-sm">Bodega Insumos</span><span class="text-teal-700 font-bold">4050</span></div>
-                <div class="flex justify-between p-3 bg-gray-50 rounded border"><span class="font-bold text-sm">Pabellón Central</span><span class="text-teal-700 font-bold">4090</span></div>
-            </div>
+            <div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div>
         </div>
     </div>
 
-    <!-- Modal PROTOCOLOS -->
-    <div id="modal-protocolos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end items-center sm:justify-center p-4 sm:p-0">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-book-medical text-teal-600 mr-2"></i> Biblioteca de Protocolos</h2>
-                <button onclick="cerrarModal('modal-protocolos')" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-            <div class="space-y-3">
-                <details class="bg-gray-50 rounded-lg border group">
-                    <summary class="font-bold p-4 cursor-pointer flex justify-between items-center">
-                        Criterios Rechazo PAP <i class="fa-solid fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
-                    </summary>
-                    <div class="p-4 pt-0 text-sm text-gray-600 border-t">
-                        <ul class="list-disc pl-5 space-y-1 mt-2">
-                            <li>Placa rota irreparablemente.</li>
-                            <li>Falta de identificación o discordancia orden/placa.</li>
-                            <li>Muestra derramada en el contenedor.</li>
-                        </ul>
-                    </div>
-                </details>
-                <details class="bg-gray-50 rounded-lg border group">
-                    <summary class="font-bold p-4 cursor-pointer flex justify-between items-center">
-                        Contingencia Citoweb <i class="fa-solid fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
-                    </summary>
-                    <div class="p-4 pt-0 text-sm text-gray-600 border-t">
-                        <p class="mt-2">Si el sistema Citoweb HRA cae:</p>
-                        <ol class="list-decimal pl-5 space-y-1 mt-1">
-                            <li>Llamar a Informática (Anexo 4040).</li>
-                            <li>Registrar validaciones en Cuaderno de Contingencia Rojo.</li>
-                            <li>No despachar resultados hasta regularizar sistema.</li>
-                        </ol>
-                    </div>
-                </details>
-                <details class="bg-gray-50 rounded-lg border group">
-                    <summary class="font-bold p-4 cursor-pointer flex justify-between items-center">
-                        Tiempos Tinción H&E <i class="fa-solid fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
-                    </summary>
-                    <div class="p-4 pt-0 text-sm text-gray-600 border-t">
-                        <p class="mt-2">Hematoxilina: 3 min. Lavado agua cte: 2 min. Eosina: 1 min.</p>
-                    </div>
-                </details>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal NUEVA BITÁCORA -->
-    <div id="modal-bitacora-nueva" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
-        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 class="font-bold text-lg text-gray-800">Entregar Turno</h2>
-                <button onclick="cerrarModal('modal-bitacora-nueva')" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Turno Saliente</label>
-                    <select id="bit-turno" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50">
-                        <option value="Mañana (08:00 - 14:00)">Mañana</option>
-                        <option value="Tarde (14:00 - 20:00)">Tarde</option>
-                        <option value="Noche (20:00 - 08:00)">Noche</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Novedades / Problemas</label>
-                    <textarea id="bit-nov" rows="3" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500" placeholder="Ej: Procesador 2 hizo ruido en el paso 4..."></textarea>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500">Muestras Pendientes</label>
-                    <textarea id="bit-pend" rows="2" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500" placeholder="Ej: Faltan 10 biopsias por cortar."></textarea>
-                </div>
-                <button onclick="guardarBitacora()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg">Guardar Entrega</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Los modales anteriores se mantienen... -->
-    <!-- Modal PERFIL -->
-    <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Mi Perfil</h2><button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button></div>
-            <div class="space-y-4">
-                <div class="flex justify-center"><div id="preview-foto-perfil" class="w-20 h-20 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center text-2xl font-bold border-2 border-teal-500 overflow-hidden"></div></div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="perfil-nombre" class="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-teal-500 text-sm"></div>
-                    <div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="perfil-apellido" class="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-teal-500 text-sm"></div>
-                </div>
-                <div><label class="text-xs font-bold text-gray-500">URL Foto Perfil</label><input type="text" id="perfil-foto" class="w-full border-b border-gray-300 py-1 focus:outline-none text-xs text-gray-600"></div>
-                <button onclick="guardarPerfil()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md mt-2">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal POST -->
+    <!-- Modal POST & EVENTO (Unificado para limpiar código) -->
     <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
         <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg text-gray-800">Nueva Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div>
             <div class="space-y-4">
+                
                 <div id="campo-roles-destino" class="hidden">
-                    <label class="text-xs font-bold text-gray-500 uppercase">Publicar para:</label>
-                    <select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Todos</option><option>Supervisión</option><option>Encargados</option><option>Tecnólogos</option><option>TENS</option><option>Secretaría</option></select>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Destino:</label>
+                    <select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50">
+                        <option>Todos</option><option>Supervisión</option><option>Encargados</option><option>Tecnólogos</option><option>TENS</option><option>Secretaría</option>
+                    </select>
                 </div>
+                
+                <!-- Campos Evento Específicos -->
+                <div id="campo-fecha-evento" class="hidden">
+                    <label class="text-xs font-bold text-gray-500 uppercase">Fecha y Hora:</label>
+                    <input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50">
+                </div>
+
                 <input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none focus:border-teal-500">
-                <textarea id="post-cuerpo" rows="4" placeholder="Escribe los detalles aquí..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500"></textarea>
+                <textarea id="post-cuerpo" rows="4" placeholder="Escribe los detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea>
+                
                 <div id="div-img-post">
                     <label class="text-xs font-bold text-gray-500"><i class="fa-solid fa-image"></i> URL de Imagen</label>
                     <input type="text" id="post-img" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50">
                 </div>
+                
                 <button id="btn-submit-post" onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modales Sistema -->
+    <!-- Modal ACCIÓN CALENDARIO -->
     <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center">
             <h2 class="font-bold text-lg text-gray-800 mb-2">Acción de Batería</h2>
-            <p class="text-sm text-gray-500 mb-6">Fecha: <span id="txt-fecha-accion" class="font-bold text-teal-700"></span></p>
+            <p class="text-sm text-gray-500 mb-6">Día seleccionado: <span id="txt-fecha-accion" class="font-bold text-teal-700"></span> Agosto 2026</p>
             <div class="space-y-3">
-                <button onclick="registrarEliminacion()" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-4 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-xl"></i> Registrar Eliminación</button>
-                <button onclick="abrirRellenoReactivos()" class="w-full bg-teal-50 text-teal-700 border border-teal-200 font-bold py-4 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-xl"></i> Rellenar Reactivos</button>
+                <button onclick="registrarAccionCal('Eliminación')" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-4 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-xl"></i> Registrar Eliminación</button>
+                <button onclick="registrarAccionCal('Relleno')" class="w-full bg-teal-50 text-teal-700 border border-teal-200 font-bold py-4 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-xl"></i> Rellenar Reactivos</button>
             </div><button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline">Cancelar</button>
         </div>
     </div>
 
-    <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-5"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Rellenar Reactivos</h2><button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button></div><div id="form-reactivos" class="space-y-3"></div><button onclick="guardarReactivos()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg mt-4">Actualizar Sistema</button></div>
+    <!-- Modal NUEVA BITÁCORA -->
+    <div id="modal-bitacora-nueva" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
+        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Traspaso de Turno</h2><button onclick="cerrarModal('modal-bitacora-nueva')" class="text-gray-400 text-2xl">&times;</button></div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500">Unidad</label>
+                        <select id="bit-unidad" class="w-full border rounded p-2 text-sm mt-1 font-bold bg-gray-50">
+                            <option>Citopatología - Secretaría</option><option>Citopatología - TENS</option><option>Histopatología</option><option>Macroscopía</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500">Tipo Traspaso</label>
+                        <select id="bit-tipo" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Diario</option><option>Semanal</option></select>
+                    </div>
+                </div>
+                <div><label class="text-xs font-bold text-gray-500">Novedades y Muestras Pendientes</label><textarea id="bit-nov" rows="5" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea></div>
+                <button onclick="guardarBitacora()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg">Guardar Traspaso</button>
+            </div>
+        </div>
     </div>
 
-    <div id="modal-evento" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
-        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh]"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Agendar Evento</h2><button onclick="cerrarModal('modal-evento')" class="text-gray-400">&times;</button></div><div class="space-y-4"><div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="ev-nombre" class="w-full border-b border-gray-300 py-2 focus:outline-none text-sm"></div><div><label class="text-xs font-bold text-gray-500">Fecha y Hora</label><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"></div><div><label class="text-xs font-bold text-gray-500">Roles</label><select id="ev-roles" class="w-full border rounded p-2 text-sm bg-gray-50"><option>Todos los roles</option><option>Solo TENS</option></select></div><div><label class="text-xs font-bold text-gray-500">Descripción</label><textarea id="ev-desc" rows="3" class="w-full border rounded-lg p-2 text-sm bg-gray-50"></textarea></div><button onclick="guardarEvento()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg">Agendar</button></div></div>
-    </div>
-
-    <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold text-gray-800">Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div>
-    </div>
-
-    <!-- ==================== SCRIPT ==================== -->
+    <!-- SCRIPT PRINCIPAL -->
     <script>
-        const configRoles = {
-            'supervision': { nombre: 'Supervisión', badge: 'bg-purple-100 text-purple-800' },
-            'encargado': { nombre: 'Encargado Área', badge: 'bg-blue-100 text-blue-800' },
-            'tecnologo': { nombre: 'Tecnólogo Médico', badge: 'bg-teal-100 text-teal-800' },
-            'tecnico': { nombre: 'Técnico (TENS)', badge: 'bg-orange-100 text-orange-800' },
-            'secretaria': { nombre: 'Secretaría', badge: 'bg-pink-100 text-pink-800' }
+        // BASE DE DATOS Y LOGROS GAMIFICADOS
+        const dbLogros = {
+            'cito_master': { nombre: 'Master Citoweb', icono: 'fa-laptop-medical', color: 'text-blue-500' },
+            'looter': { nombre: 'Looter de Insumos', icono: 'fa-box-open', color: 'text-orange-500' },
+            'support': { nombre: 'Soporte Lvl 99', icono: 'fa-shield-heart', color: 'text-pink-500' },
+            'guardian': { nombre: 'Guardián del Turno', icono: 'fa-khanda', color: 'text-teal-500' }
         };
 
         const baseUsuarios = {
-            'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'supervision' },
-            'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'encargado' },
-            'tm': { pass: '1234', n: 'Tecnólogo', a: 'Central', rol: 'tecnologo' },
-            'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'tecnico' },
-            'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'secretaria' }
+            'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'Supervisión', equipo: 'Jefatura', logros: ['cito_master', 'support'] },
+            'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'Encargado Área', equipo: 'Citodiagnóstico', logros: ['cito_master'] },
+            'tm': { pass: '1234', n: 'TM', a: 'Central', rol: 'Tecnólogo', equipo: 'Citodiagnóstico', logros: ['cito_master', 'guardian'] },
+            'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'Técnico (TENS)', equipo: 'Citodiagnóstico', logros: ['looter'] },
+            'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'Secretaría', equipo: 'Secretaría', logros: ['support'] }
         };
 
         let usuarioActual = null;
         let foroActual = 'Avisos';
         let tabNotifActual = 'nuevas';
+        let diaSeleccionado = 0;
 
+        // Cargar LocalStorage
         let publicaciones = JSON.parse(localStorage.getItem('mvrg_posts')) || [];
-        let reactivosStock = JSON.parse(localStorage.getItem('mvrg_stock')) || {'EA50': 20, 'ORANGE': 45, 'HEMATOXILINA': 80, 'OH70': 95, 'OH95': 15, 'OH100': 60, 'HISTOCLEAR': 30};
-        let eventosData = JSON.parse(localStorage.getItem('mvrg_eventos')) || [];
-        let notificaciones = JSON.parse(localStorage.getItem('mvrg_notif')) || [];
         let bitacoraData = JSON.parse(localStorage.getItem('mvrg_bitacora')) || [];
+        let notificaciones = JSON.parse(localStorage.getItem('mvrg_notif')) || [];
+        let calendarioData = JSON.parse(localStorage.getItem('mvrg_cal')) || {}; // { 'dia_15': 'Eliminación', 'dia_16': 'Relleno' }
+
+        // RELOJ EN TIEMPO REAL
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('topbar-reloj').innerText = d.toLocaleDateString('es-CL') + ' ' + d.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+        }, 1000);
 
         function iniciarSesion() {
             const user = document.getElementById('login-user').value.toLowerCase().trim();
             const pass = document.getElementById('login-pass').value;
             if (baseUsuarios[user] && baseUsuarios[user].pass === pass) {
                 const u = baseUsuarios[user];
-                usuarioActual = { id: user, nombre: u.n, apellido: u.a, rol: u.rol, foto: '', iniciales: (u.n.charAt(0) + u.a.charAt(0)).toUpperCase() };
-                localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
+                usuarioActual = { id: user, ...u, iniciales: (u.n.charAt(0) + u.a.charAt(0)).toUpperCase() };
                 entrarApp();
-            } else { document.getElementById('error-login').classList.remove('hidden'); }
+            } else document.getElementById('error-login').classList.remove('hidden');
         }
 
         function entrarApp() {
             document.getElementById('vista-login').classList.replace('block', 'hidden');
             document.getElementById('app-principal').classList.replace('hidden', 'flex');
-            actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEventos(); actualizarCampana(); renderBitacora();
-        }
-
-        function actualizarUIUsuario() {
-            document.getElementById('header-nombre').innerText = `${usuarioActual.nombre} ${usuarioActual.apellido}`;
-            document.getElementById('menu-nombre').innerText = `${usuarioActual.nombre} ${usuarioActual.apellido}`;
-            document.getElementById('menu-rol-badge').innerText = configRoles[usuarioActual.rol].nombre;
             
-            const avatarHtml = usuarioActual.foto ? `<img src="${usuarioActual.foto}" class="w-full h-full object-cover">` : usuarioActual.iniciales;
-            document.getElementById('header-avatar').innerHTML = avatarHtml;
-            document.getElementById('menu-avatar').innerHTML = avatarHtml;
-            document.getElementById('preview-foto-perfil').innerHTML = avatarHtml;
+            document.getElementById('header-nombre').innerText = `${usuarioActual.n} ${usuarioActual.a}`;
+            document.getElementById('header-avatar').innerText = usuarioActual.iniciales;
+            document.getElementById('menu-nombre').innerText = `${usuarioActual.n} ${usuarioActual.a}`;
+            document.getElementById('menu-avatar').innerText = usuarioActual.iniciales;
+            
+            evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); actualizarCampana();
         }
 
-        function abrirModalPerfil() {
-            document.getElementById('perfil-nombre').value = usuarioActual.nombre;
-            document.getElementById('perfil-apellido').value = usuarioActual.apellido;
-            document.getElementById('perfil-foto').value = usuarioActual.foto || '';
-            document.getElementById('modal-perfil').classList.add('modal-abierto');
-        }
-        function guardarPerfil() {
-            usuarioActual.nombre = document.getElementById('perfil-nombre').value;
-            usuarioActual.apellido = document.getElementById('perfil-apellido').value;
-            usuarioActual.foto = document.getElementById('perfil-foto').value;
-            usuarioActual.iniciales = (usuarioActual.nombre.charAt(0) + usuarioActual.apellido.charAt(0)).toUpperCase();
-            localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
-            actualizarUIUsuario(); renderPosts(); renderBitacora(); cerrarModal('modal-perfil');
-        }
-        function cerrarSesion() { localStorage.removeItem('mvrg_sesion'); location.reload(); }
-
-        function toggleMenu() {
-            const menu = document.getElementById('menu-lateral'); const overlay = document.getElementById('overlay-menu');
-            if(menu.classList.contains('menu-cerrado')){ menu.classList.remove('menu-cerrado'); menu.classList.add('menu-abierto'); overlay.classList.remove('hidden'); }
-            else { menu.classList.remove('menu-abierto'); menu.classList.add('menu-cerrado'); overlay.classList.add('hidden'); }
-        }
-
+        // NAVEGACIÓN
         function cambiarVista(vista) {
-            ['foros', 'sistemas', 'chat', 'eventos', 'bitacora'].forEach(v => {
-                const el = document.getElementById('vista-' + v); if(el) { el.classList.add('hidden'); el.classList.remove('block', 'flex'); }
+            ['foros', 'sistemas', 'equipo', 'bitacora'].forEach(v => {
+                document.getElementById('vista-' + v).classList.add('hidden');
+                document.getElementById('vista-' + v).classList.remove('block', 'flex');
+                document.getElementById('btn-' + v).classList.replace('text-teal-700', 'text-gray-400');
             });
             document.getElementById('vista-' + vista).classList.remove('hidden');
             document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex');
+            document.getElementById('btn-' + vista).classList.replace('text-gray-400', 'text-teal-700');
+        }
+
+        // CALENDARIO AGOSTO 2026
+        function generarCalendarioGrid() {
+            const grid = document.getElementById('grid-calendario');
+            let html = '';
+            ['L','M','M','J','V','S','D'].forEach(d => html += `<div class="font-bold text-teal-800 pb-1">${d}</div>`);
             
-            // Botones inferiores
-            ['foros', 'sistemas', 'chat', 'eventos'].forEach(id => {
-                const btn = document.getElementById('btn-' + id);
-                if(btn) { if(id === vista) btn.classList.replace('text-gray-400', 'text-teal-700'); else btn.classList.replace('text-teal-700', 'text-gray-400'); }
+            // Agosto 2026 empieza un Sábado (5 espacios vacíos antes)
+            for(let i=0; i<5; i++) html += `<div></div>`;
+            
+            for(let i=1; i<=31; i++) {
+                const key = `dia_${i}`;
+                let claseExtra = 'bg-gray-50 hover:bg-teal-100 text-gray-700';
+                let icon = '';
+                if(calendarioData[key]) {
+                    if(calendarioData[key] === 'Eliminación') { claseExtra = 'bg-red-100 text-red-800 border border-red-300'; icon='<i class="fa-solid fa-trash-can block text-[8px] mt-0.5"></i>'; }
+                    else { claseExtra = 'bg-teal-100 text-teal-800 border border-teal-300'; icon='<i class="fa-solid fa-fill-drip block text-[8px] mt-0.5"></i>'; }
+                }
+                html += `<button onclick="abrirOpcionesCalendario(${i})" class="p-1 rounded flex flex-col items-center justify-center font-bold ${claseExtra}">${i}${icon}</button>`;
+            }
+            grid.innerHTML = html;
+        }
+
+        function abrirOpcionesCalendario(dia) {
+            diaSeleccionado = dia;
+            document.getElementById('txt-fecha-accion').innerText = dia;
+            abrirModal('modal-accion-bateria');
+        }
+
+        function registrarAccionCal(tipo) {
+            calendarioData[`dia_${diaSeleccionado}`] = tipo;
+            localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData));
+            generarCalendarioGrid();
+            cerrarModal('modal-accion-bateria');
+            generarNotificacion(`Se registró ${tipo} en batería el día ${diaSeleccionado}`, 'sistemas');
+        }
+
+        // SECCIÓN EQUIPO (Gamificada)
+        function renderEquipo() {
+            const cont = document.getElementById('contenedor-equipo');
+            cont.innerHTML = '';
+            const equiposUnicos = [...new Set(Object.values(baseUsuarios).map(u => u.equipo))];
+            
+            equiposUnicos.forEach(eq => {
+                let html = `<h3 class="font-bold text-gray-500 uppercase text-xs mb-3 border-b pb-1 mt-4">${eq}</h3><div class="grid grid-cols-1 gap-3">`;
+                
+                for (const [id, u] of Object.entries(baseUsuarios)) {
+                    if(u.equipo === eq) {
+                        let htmlLogros = '';
+                        u.logros.forEach(l => {
+                            const lg = dbLogros[l];
+                            htmlLogros += `<div class="bg-gray-50 p-1.5 rounded-lg border text-center" title="${lg.nombre}"><i class="fa-solid ${lg.icono} ${lg.color} text-lg"></i></div>`;
+                        });
+
+                        html += `
+                        <div class="bg-white rounded-xl shadow-sm border p-3 flex gap-3 items-center">
+                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold border-2 border-gray-300">${(u.n.charAt(0)+u.a.charAt(0)).toUpperCase()}</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-sm leading-tight text-gray-800">${u.n} ${u.a}</h4>
+                                <p class="text-[10px] text-gray-500 uppercase">${u.rol}</p>
+                                <div class="flex gap-2 mt-2">${htmlLogros}</div>
+                            </div>
+                        </div>`;
+                    }
+                }
+                html += `</div>`;
+                cont.innerHTML += html;
             });
         }
 
+        // FOROS Y EVENTOS UNIFICADOS
         function cambiarSubForo(foro) {
             foroActual = foro;
-            ['Avisos', 'Offtopic', 'Ventas', 'Kudos'].forEach(f => {
+            ['Avisos', 'Offtopic', 'Ventas', 'Eventos'].forEach(f => {
                 const t = document.getElementById('tab-'+f);
-                if(f === foro) { t.classList.replace('text-gray-500', 'text-teal-700'); t.classList.replace('border-transparent', 'border-teal-700'); }
-                else if(f === 'Kudos') { t.classList.replace('text-teal-700', 'text-pink-500'); t.classList.replace('border-pink-500', 'border-transparent'); }
-                else { t.classList.replace('text-teal-700', 'text-gray-500'); t.classList.replace('border-teal-700', 'border-transparent'); }
+                if(f === foro) {
+                    if(f==='Eventos') t.classList.replace('border-transparent', 'border-purple-600');
+                    else { t.classList.replace('text-gray-500', 'text-teal-700'); t.classList.replace('border-transparent', 'border-teal-700'); }
+                } else {
+                    if(f==='Eventos') t.classList.replace('border-purple-600', 'border-transparent');
+                    else { t.classList.replace('text-teal-700', 'text-gray-500'); t.classList.replace('border-teal-700', 'border-transparent'); }
+                }
             });
-            if(foro === 'Kudos') { document.getElementById('tab-Kudos').classList.add('border-pink-500'); document.getElementById('tab-Kudos').classList.remove('border-transparent'); }
+            
+            document.getElementById('contenedor-posts').style.display = foro === 'Eventos' ? 'none' : 'block';
+            document.getElementById('contenedor-eventos').style.display = foro === 'Eventos' ? 'block' : 'none';
             evaluarPermisosForo(); renderPosts();
         }
 
         function evaluarPermisosForo() {
             const btn = document.getElementById('btn-abrir-modal-post');
             const txt = document.getElementById('txt-btn-publicar');
+            
             if (foroActual === 'Avisos') {
-                if (usuarioActual.rol === 'supervision' || usuarioActual.rol === 'encargado') { btn.style.display = 'flex'; txt.innerText = 'Publicar Aviso Oficial'; } 
+                if (usuarioActual.rol === 'Supervisión' || usuarioActual.rol === 'Encargado Área') { btn.style.display = 'flex'; txt.innerText = 'Publicar Aviso Oficial'; } 
                 else btn.style.display = 'none';
-            } else if (foroActual === 'Kudos') {
-                btn.style.display = 'flex'; txt.innerText = 'Otorgar Reconocimiento';
+            } else if (foroActual === 'Eventos') {
+                btn.style.display = 'flex'; txt.innerText = 'Agendar Nuevo Evento';
             } else {
                 btn.style.display = 'flex'; txt.innerText = 'Crear Publicación';
             }
         }
 
         function abrirModalPost() {
-            document.getElementById('post-titulo').value = ''; document.getElementById('post-cuerpo').value = ''; document.getElementById('post-img').value = '';
-            document.getElementById('campo-roles-destino').style.display = foroActual === 'Avisos' ? 'block' : 'none';
+            document.getElementById('post-titulo').value = ''; document.getElementById('post-cuerpo').value = '';
+            const cDestino = document.getElementById('campo-roles-destino');
+            const cFecha = document.getElementById('campo-fecha-evento');
+            const cImg = document.getElementById('div-img-post');
             
-            if(foroActual === 'Kudos') {
-                document.getElementById('tit-mod-post').innerText = "Dar Reconocimiento";
-                document.getElementById('post-titulo').placeholder = "Nombre del compañero (Ej: Carlos P.)";
-                document.getElementById('post-cuerpo').placeholder = "Escribe por qué merece esta medalla...";
-                document.getElementById('div-img-post').style.display = 'none';
-                document.getElementById('btn-submit-post').innerText = "Otorgar Medalla";
-            } else {
-                document.getElementById('tit-mod-post').innerText = "Nueva Publicación";
-                document.getElementById('post-titulo').placeholder = "Título de la publicación...";
-                document.getElementById('post-cuerpo').placeholder = "Detalles aquí...";
-                document.getElementById('div-img-post').style.display = 'block';
-                document.getElementById('btn-submit-post').innerText = "Publicar";
-            }
+            cDestino.style.display = (foroActual === 'Avisos' || foroActual === 'Eventos') ? 'block' : 'none';
+            cFecha.style.display = foroActual === 'Eventos' ? 'block' : 'none';
+            cImg.style.display = foroActual === 'Eventos' ? 'none' : 'block';
+            
+            document.getElementById('tit-mod-post').innerText = foroActual === 'Eventos' ? "Agendar Evento" : "Nueva Publicación";
             document.getElementById('modal-post').classList.add('modal-abierto');
         }
 
         function guardarPost() {
             const tit = document.getElementById('post-titulo').value;
-            if(!tit) return alert("Faltan datos.");
-            const nP = {
-                id: Date.now(), foro: foroActual, audiencia: foroActual==='Avisos' ? document.getElementById('post-audiencia').value : 'Todos',
-                autor: usuarioActual, titulo: tit, cuerpo: document.getElementById('post-cuerpo').value,
-                img: foroActual === 'Kudos' ? 'KUDOS' : document.getElementById('post-img').value, // Flag para Kudos
+            if(!tit) return;
+            
+            const p = {
+                id: Date.now(), foro: foroActual, titulo: tit,
+                autor: usuarioActual, cuerpo: document.getElementById('post-cuerpo').value,
+                audiencia: document.getElementById('post-audiencia').value,
+                fechaEvento: foroActual === 'Eventos' ? document.getElementById('ev-fecha').value : null,
+                img: document.getElementById('post-img').value,
                 likes: [], comentarios: []
             };
-            publicaciones.unshift(nP); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones));
-            generarNotificacion(`${usuarioActual.nombre} publicó en ${foroActual}`);
+            
+            publicaciones.unshift(p);
+            localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones));
+            generarNotificacion(`${usuarioActual.n} publicó en ${foroActual}: ${tit}`, 'foros', foroActual);
             cerrarModal('modal-post'); renderPosts();
         }
 
         function renderPosts() {
-            const cont = document.getElementById('contenedor-posts'); cont.innerHTML = '';
-            const filt = publicaciones.filter(p => p.foro === foroActual);
-            if(filt.length === 0) { cont.innerHTML = '<p class="text-center text-gray-400">No hay publicaciones.</p>'; return; }
-
-            filt.forEach(p => {
-                const cRol = configRoles[p.autor.rol];
-                const av = p.autor.foto ? `<img src="${p.autor.foto}" class="w-full h-full object-cover">` : p.autor.iniciales;
-                const yaDioLike = p.likes.includes(usuarioActual.id);
-                const colCor = yaDioLike ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400';
-                
-                let htmlImg = '';
-                if(p.img === 'KUDOS') htmlImg = `<div class="bg-pink-50 p-3 rounded-lg text-center my-2 text-pink-600 font-bold border border-pink-200"><i class="fa-solid fa-medal text-3xl mb-1 block"></i> ¡Felicidades!</div>`;
-                else if (p.img) htmlImg = `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">`;
-
-                let htmlCom = ''; p.comentarios.forEach(c => htmlCom += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><span class="font-bold text-teal-800">${c.autor}:</span> ${c.txt}</div>`);
-
-                cont.innerHTML += `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs overflow-hidden">${av}</div>
-                        <div><p class="text-xs font-bold text-gray-800">${p.autor.nombre} ${p.autor.apellido}</p><span class="text-[9px] ${cRol.badge} px-1.5 rounded">${cRol.nombre}</span></div>
-                    </div>
-                    <h4 class="font-bold text-gray-900 text-sm">${p.titulo}</h4><p class="text-sm text-gray-600">${p.cuerpo}</p>${htmlImg}
-                    <div class="border-t border-gray-100 mt-3 pt-2 flex gap-4">
-                        <button onclick="toggleLike(${p.id})" class="text-xs font-bold transition-colors ${colCor}"><i class="fa-solid fa-heart"></i> ${p.likes.length}</button>
-                    </div>
-                    <div class="mt-2">${htmlCom}<div class="flex gap-2 mt-2"><input type="text" id="inp-c-${p.id}" placeholder="Comentar..." class="flex-1 bg-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none"><button onclick="comentar(${p.id})" class="text-teal-600"><i class="fa-solid fa-paper-plane"></i></button></div></div>
-                </div>`;
+            const cP = document.getElementById('contenedor-posts'); cP.innerHTML = '';
+            const cE = document.getElementById('contenedor-eventos'); cE.innerHTML = '';
+            
+            publicaciones.forEach(p => {
+                if(p.foro === 'Eventos' && foroActual === 'Eventos') {
+                    // Renderizar estilo Evento
+                    const fFormat = new Date(p.fechaEvento).toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+                    cE.innerHTML += `
+                    <div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-4">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-gray-800">${p.titulo}</h4>
+                            <span class="text-[10px] bg-purple-50 text-purple-700 px-2 py-1 rounded font-bold">${fFormat}</span>
+                        </div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase mt-1"><i class="fa-solid fa-users mr-1"></i>Para: ${p.audiencia}</p>
+                        <p class="text-xs text-gray-600 mt-2">${p.cuerpo}</p>
+                        <p class="text-[10px] text-gray-400 mt-3 text-right">Organizado por: ${p.autor.n} ${p.autor.a}</p>
+                    </div>`;
+                } else if(p.foro === foroActual && p.foro !== 'Eventos') {
+                    // Renderizar estilo Post normal
+                    const img = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : '';
+                    const aud = p.foro === 'Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : '';
+                    const colCor = p.likes.includes(usuarioActual.id) ? 'text-pink-500' : 'text-gray-400';
+                    let coms = ''; p.comentarios.forEach(c => coms += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><b>${c.autor}:</b> ${c.txt}</div>`);
+                    
+                    cP.innerHTML += `
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4" id="post-${p.id}">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex gap-2 items-center">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs">${p.autor.iniciales}</div>
+                                <div><p class="text-xs font-bold">${p.autor.n} ${p.autor.a}</p><span class="text-[9px] bg-gray-100 px-1 rounded">${p.autor.rol}</span></div>
+                            </div>${aud}
+                        </div>
+                        <h4 class="font-bold text-sm">${p.titulo}</h4><p class="text-sm text-gray-600">${p.cuerpo}</p>${img}
+                        <div class="border-t border-gray-100 mt-3 pt-2 flex gap-4">
+                            <button onclick="toggleLike(${p.id})" class="text-xs font-bold ${colCor}"><i class="fa-solid fa-heart"></i> ${p.likes.length}</button>
+                        </div>
+                        <div class="mt-2">${coms}<div class="flex gap-2 mt-2"><input type="text" id="inp-c-${p.id}" placeholder="Comentar..." class="flex-1 bg-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none"><button onclick="comentar(${p.id})" class="text-teal-600"><i class="fa-solid fa-paper-plane"></i></button></div></div>
+                    </div>`;
+                }
             });
         }
         function toggleLike(id) { const p = publicaciones.find(x => x.id === id); if(p){ const idx = p.likes.indexOf(usuarioActual.id); if(idx===-1) p.likes.push(usuarioActual.id); else p.likes.splice(idx,1); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
-        function comentar(id) { const i = document.getElementById('inp-c-'+id); if(i.value){ publicaciones.find(x => x.id === id).comentarios.push({ autor: usuarioActual.nombre, txt: i.value }); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
+        function comentar(id) { const i = document.getElementById('inp-c-'+id); if(i.value){ publicaciones.find(x => x.id === id).comentarios.push({ autor: usuarioActual.n, txt: i.value }); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
 
-        // --- SISTEMAS / CITODIAGNÓSTICO ---
-        function abrirUnidad(u) { document.getElementById('sistemas-lista-unidades').classList.replace('block', 'hidden'); document.getElementById('sistemas-citodiagnostico').classList.replace('hidden', 'flex'); renderReactivos(); }
-        function cerrarUnidad() { document.getElementById('sistemas-citodiagnostico').classList.replace('flex', 'hidden'); document.getElementById('sistemas-lista-unidades').classList.replace('hidden', 'block'); }
-        function gestionarFechaBateria(fStr) { if(!fStr) return; document.getElementById('txt-fecha-accion').innerText = new Date(fStr + 'T12:00:00').toLocaleDateString('es-CL'); abrirModal('modal-accion-bateria'); }
-        function registrarEliminacion() { alert('Eliminación registrada.'); document.getElementById('input-fecha-bateria').value = ''; cerrarModal('modal-accion-bateria'); }
-        function abrirRellenoReactivos() { cerrarModal('modal-accion-bateria'); const cont = document.getElementById('form-reactivos'); cont.innerHTML = ''; for(const [n, l] of Object.entries(reactivosStock)) cont.innerHTML += `<div class="flex justify-between bg-gray-50 p-2 rounded mb-2"><label class="text-xs font-bold">${n}</label><input type="number" id="inp-r-${n}" value="${l}" class="w-16 border rounded text-xs text-center"></div>`; abrirModal('modal-reactivos'); }
-        function guardarReactivos() { for(const k of Object.keys(reactivosStock)) reactivosStock[k] = Math.min(100, Math.max(0, parseInt(document.getElementById('inp-r-'+k).value)||0)); localStorage.setItem('mvrg_stock', JSON.stringify(reactivosStock)); document.getElementById('input-fecha-bateria').value = ''; cerrarModal('modal-reactivos'); renderReactivos(); }
-        function renderReactivos() { const c = document.getElementById('contenedor-reactivos'); c.innerHTML=''; for(const [n,l] of Object.entries(reactivosStock)) { let bg = l<25?'bg-red-500':l<50?'bg-yellow-400':'bg-teal-500'; c.innerHTML += `<div><div class="flex justify-between text-xs font-bold mb-1"><span>${n}</span><span>${l}%</span></div><div class="w-full bg-gray-200 rounded-full h-2.5"><div class="${bg} h-2.5 rounded-full" style="width:${l}%"></div></div></div>`; } }
-
-        // --- EVENTOS ---
-        function guardarEvento() { const n = document.getElementById('ev-nombre').value, f = document.getElementById('ev-fecha').value; if(!n||!f)return; eventosData.push({titulo:n, fecha:f, roles:document.getElementById('ev-roles').value, desc:document.getElementById('ev-desc').value}); eventosData.sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)); localStorage.setItem('mvrg_eventos', JSON.stringify(eventosData)); cerrarModal('modal-evento'); renderEventos(); }
-        function renderEventos() { const c = document.getElementById('contenedor-eventos'); c.innerHTML = ''; eventosData.forEach(e => c.innerHTML += `<div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-teal-500"><div class="flex justify-between"><h4 class="font-bold text-sm text-gray-800">${e.titulo}</h4><span class="text-[10px] text-teal-600 font-bold">${new Date(e.fecha).toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div><p class="text-[10px] font-bold text-gray-400">${e.roles}</p><p class="text-xs mt-1 text-gray-600">${e.desc}</p></div>`); }
-
-        // --- BITÁCORA DE TURNOS ---
+        // BITÁCORA Y EXPORTACIÓN PDF
         function guardarBitacora() {
-            const b = { id: Date.now(), fecha: new Date().toLocaleString('es-CL'), autor: usuarioActual, turno: document.getElementById('bit-turno').value, nov: document.getElementById('bit-nov').value, pend: document.getElementById('bit-pend').value };
-            bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); cerrarModal('modal-bitacora-nueva'); renderBitacora();
+            const b = { 
+                id: Date.now(), fecha: new Date().toLocaleString('es-CL'), autor: usuarioActual, 
+                unidad: document.getElementById('bit-unidad').value, 
+                tipo: document.getElementById('bit-tipo').value, 
+                nov: document.getElementById('bit-nov').value 
+            };
+            bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); 
+            cerrarModal('modal-bitacora-nueva'); renderBitacora();
+            generarNotificacion(`Nuevo traspaso en ${b.unidad}`, 'bitacora', '');
         }
+        
         function renderBitacora() {
-            const c = document.getElementById('contenedor-bitacora'); c.innerHTML = '';
-            if(bitacoraData.length === 0) c.innerHTML = '<p class="text-xs text-gray-400">No hay entregas registradas.</p>';
-            bitacoraData.forEach(b => {
-                c.innerHTML += `<div class="relative bg-white p-3 rounded-lg border shadow-sm mb-4"><div class="absolute -left-[25px] top-4 w-3 h-3 bg-teal-500 rounded-full border-2 border-white"></div><div class="flex justify-between"><span class="text-xs font-bold text-teal-700">Turno ${b.turno}</span><span class="text-[9px] text-gray-400">${b.fecha}</span></div><p class="text-[10px] text-gray-500 mb-2">Entregado por: ${b.autor.nombre} ${b.autor.apellido}</p><div class="text-xs bg-gray-50 p-2 rounded mb-1"><span class="font-bold">Novedades:</span> ${b.nov||'Sin novedad'}</div><div class="text-xs bg-gray-50 p-2 rounded"><span class="font-bold">Pendientes:</span> ${b.pend||'Ninguno'}</div></div>`;
+            const c = document.getElementById('contenedor-bitacora-items'); c.innerHTML = '';
+            const unidadSeleccionada = document.getElementById('filtro-bitacora').value;
+            const filt = bitacoraData.filter(b => b.unidad === unidadSeleccionada);
+            
+            if(filt.length === 0) { c.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No hay traspasos registrados en esta área.</p>'; return; }
+            
+            filt.forEach(b => {
+                c.innerHTML += `
+                <div class="relative bg-white p-4 rounded-lg border-l-4 border-teal-500 mb-4 page-break-inside-avoid">
+                    <div class="flex justify-between border-b pb-2 mb-2">
+                        <span class="text-sm font-bold text-teal-800">Traspaso ${b.tipo}</span>
+                        <span class="text-xs text-gray-500">${b.fecha}</span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-600 mb-2"><i class="fa-solid fa-user-pen mr-1"></i> Responsable: ${b.autor.n} ${b.autor.a} (${b.autor.rol})</p>
+                    <div class="text-sm text-gray-800 whitespace-pre-wrap">${b.nov || 'Sin novedades.'}</div>
+                </div>`;
             });
         }
 
-        // --- NOTIFICACIONES ---
-        function generarNotificacion(t) { notificaciones.unshift({ id: Date.now(), txt: t, leida: false }); localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); actualizarCampana(); }
+        function exportarPDF() {
+            const unidad = document.getElementById('filtro-bitacora').value;
+            const element = document.getElementById('print-area');
+            const titulo = document.getElementById('titulo-print');
+            
+            // Preparar vista para imprimir
+            titulo.innerText = `Bitácora Oficial: ${unidad}\nGenerado: ${new Date().toLocaleDateString('es-CL')}`;
+            titulo.classList.remove('hidden');
+            
+            const opt = {
+                margin: 0.5,
+                filename: `Bitacora_${unidad.replace(/\s/g, '')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            // Generar PDF y luego ocultar título
+            html2pdf().set(opt).from(element).save().then(() => {
+                titulo.classList.add('hidden');
+            });
+        }
+
+        // NOTIFICACIONES INTELIGENTES
+        function generarNotificacion(t, vistaDestino, subDestino) {
+            notificaciones.unshift({ id: Date.now(), txt: t, leida: false, targetV: vistaDestino, targetS: subDestino });
+            localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); actualizarCampana();
+        }
         function actualizarCampana() { document.getElementById('badge-notif').style.display = notificaciones.some(n=>!n.leida) ? 'block' : 'none'; }
         function abrirModalNotificaciones() { renderNotificaciones(); abrirModal('modal-notificaciones'); }
-        function cambiarTabNotif(t) { tabNotifActual = t; const n = document.getElementById('tab-notif-nuevas'), l = document.getElementById('tab-notif-leidas'); if(t==='nuevas'){n.classList.replace('text-gray-400','text-teal-700');n.classList.add('border-teal-700');l.classList.replace('text-teal-700','text-gray-400');l.classList.remove('border-teal-700');}else{l.classList.replace('text-gray-400','text-teal-700');l.classList.add('border-teal-700');n.classList.replace('text-teal-700','text-gray-400');n.classList.remove('border-teal-700');} renderNotificaciones(); }
-        function renderNotificaciones() { const c = document.getElementById('lista-notificaciones'); c.innerHTML=''; const f = notificaciones.filter(n => tabNotifActual==='nuevas'?!n.leida:n.leida); f.forEach(n => c.innerHTML += `<div class="bg-gray-50 p-2 rounded border flex justify-between text-xs"><p>${n.txt}</p>${tabNotifActual==='nuevas'?`<button onclick="marcarNotifLeida(${n.id})" class="text-teal-600 font-bold">Leída</button>`:''}</div>`); }
-        function marcarNotifLeida(id) { notificaciones.find(x=>x.id===id).leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); renderNotificaciones(); actualizarCampana(); }
+        function cambiarTabNotif(t) { 
+            tabNotifActual = t; 
+            const n = document.getElementById('tab-notif-nuevas'), l = document.getElementById('tab-notif-leidas'); 
+            if(t==='nuevas'){n.classList.replace('text-gray-400','text-teal-700');n.classList.add('border-teal-700');l.classList.replace('text-teal-700','text-gray-400');l.classList.remove('border-teal-700');}
+            else{l.classList.replace('text-gray-400','text-teal-700');l.classList.add('border-teal-700');n.classList.replace('text-teal-700','text-gray-400');n.classList.remove('border-teal-700');} 
+            renderNotificaciones(); 
+        }
+        function renderNotificaciones() {
+            const c = document.getElementById('lista-notificaciones'); c.innerHTML=''; 
+            const f = notificaciones.filter(n => tabNotifActual==='nuevas'?!n.leida:n.leida); 
+            f.forEach(n => {
+                c.innerHTML += `
+                <div onclick="irDestinoNotificacion(${n.id})" class="bg-gray-50 p-3 rounded border flex flex-col gap-1 cursor-pointer hover:bg-teal-50">
+                    <p class="text-xs font-bold text-gray-800">${n.txt}</p>
+                    <span class="text-[9px] text-teal-600">Click para ver &rarr;</span>
+                </div>`;
+            });
+        }
+        function irDestinoNotificacion(id) {
+            const n = notificaciones.find(x=>x.id===id);
+            if(n) {
+                n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones));
+                cerrarModal('modal-notificaciones');
+                if(n.targetV) cambiarVista(n.targetV);
+                if(n.targetS) cambiarSubForo(n.targetS);
+                actualizarCampana();
+            }
+        }
 
+        // UTILIDADES
+        function toggleMenu() { const m = document.getElementById('menu-lateral'), o = document.getElementById('overlay-menu'); if(m.classList.contains('menu-cerrado')){m.classList.remove('menu-cerrado');m.classList.add('menu-abierto');o.classList.remove('hidden');}else{m.classList.remove('menu-abierto');m.classList.add('menu-cerrado');o.classList.add('hidden');} }
+        function abrirUnidad(u) { document.getElementById('sistemas-lista-unidades').classList.replace('block', 'hidden'); document.getElementById('sistemas-citodiagnostico').classList.replace('hidden', 'flex'); }
+        function cerrarUnidad() { document.getElementById('sistemas-citodiagnostico').classList.replace('flex', 'hidden'); document.getElementById('sistemas-lista-unidades').classList.replace('hidden', 'block'); }
         function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); }
         function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
-
+        
         window.onload = function() { const g = localStorage.getItem('mvrg_sesion'); if(g) { usuarioActual = JSON.parse(g); entrarApp(); } };
     </script>
 </body>
