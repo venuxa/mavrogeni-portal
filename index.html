@@ -123,7 +123,7 @@
                 </div>
             </div>
 
-            <!-- 2. VISTA SECCIONES (Antes Sistemas) -->
+            <!-- 2. VISTA SECCIONES -->
             <div id="vista-secciones" class="hidden flex flex-col h-full bg-gray-50">
                 <div id="secciones-lista-unidades" class="block p-4">
                     <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Unidades</h2>
@@ -141,22 +141,18 @@
                         <button onclick="cerrarUnidad()" class="text-gray-400 hover:text-teal-600 text-lg"><i class="fa-solid fa-arrow-left"></i></button><span>Citodiagnóstico</span>
                     </div>
 
-                    <!-- Pestañas internas de Citodiagnóstico -->
                     <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky z-10" style="top: 45px;">
                         <button onclick="cambiarSubCitodiagnostico('Procesamiento')" id="tab-cito-Procesamiento" class="flex-1 py-3 px-2 border-b-2 border-teal-700 text-teal-700">Procesamiento</button>
                         <button onclick="cambiarSubCitodiagnostico('Bitacora')" id="tab-cito-Bitacora" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500">Bitácora</button>
                     </div>
                     
-                    <!-- Contenido Procesamiento -->
                     <div id="cito-Procesamiento" class="p-4 flex-1 overflow-y-auto space-y-4 block">
-                        <!-- CALENDARIO DE EVENTOS Y BATERÍA -->
                         <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
                             <h3 class="font-bold text-gray-800 text-sm mb-3 border-b pb-2"><i class="fa-regular fa-calendar-check text-teal-600 mr-1"></i> Cronograma de Batería (Agosto 2026)</h3>
                             <p class="text-[10px] text-gray-400 mb-2">Toca un día para registrar relleno, eliminación o un evento nuevo.</p>
                             <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-xs"></div>
                         </div>
 
-                        <!-- PANEL DE REACTIVOS -->
                         <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
                             <div class="flex justify-between items-center border-b pb-2 mb-3">
                                 <h3 class="font-bold text-gray-800 text-sm"><i class="fa-solid fa-vials text-teal-600 mr-1"></i> Nivel de Reactivos</h3>
@@ -169,7 +165,6 @@
                         </div>
                     </div>
 
-                    <!-- Contenido Bitácora (Escribir Traspaso) -->
                     <div id="cito-Bitacora" class="p-4 flex-1 overflow-y-auto hidden bg-gray-50 flex-col items-center pt-8">
                         <i class="fa-solid fa-clipboard-check text-5xl text-teal-200 mb-4"></i>
                         <h3 class="font-bold text-gray-700 mb-2 text-lg">Nuevo Traspaso de Turno</h3>
@@ -188,7 +183,7 @@
                 <div class="p-4 flex-1 overflow-y-auto space-y-6" id="contenedor-equipo"></div>
             </div>
 
-            <!-- 4. VISTA BITÁCORA (VISOR EXCLUSIVO) -->
+            <!-- 4. VISTA BITÁCORA -->
             <div id="vista-bitacora" class="hidden flex flex-col h-full bg-gray-50">
                 <div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10">
                     <span class="text-teal-800"><i class="fa-solid fa-folder-open mr-2"></i> Visor de Bitácoras</span>
@@ -236,17 +231,79 @@
         </div>
     </div>
 
+    <!-- MODAL DIRECTORIO ACTUALIZADO CON CATEGORÍAS -->
     <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white">
                 <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-phone text-teal-600 mr-2"></i> Directorio HRA</h2>
                 <button onclick="cerrarModal('modal-anexos')" class="text-gray-400 text-2xl">&times;</button>
             </div>
-            <div class="space-y-2">
-                <div class="flex justify-between p-3 bg-gray-50 rounded border"><span class="font-bold text-sm">Recepción Muestras</span><span class="text-teal-700 font-bold">4010</span></div>
-                <div class="flex justify-between p-3 bg-gray-50 rounded border"><span class="font-bold text-sm">Informática (Soporte)</span><span class="text-teal-700 font-bold">4040</span></div>
-                <div class="flex justify-between p-3 bg-gray-50 rounded border"><span class="font-bold text-sm">Bodega Insumos</span><span class="text-teal-700 font-bold">4050</span></div>
-                <div class="flex justify-between p-3 bg-gray-50 rounded border"><span class="font-bold text-sm">Pabellón Central</span><span class="text-teal-700 font-bold">4090</span></div>
+            <div class="space-y-4">
+                
+                <!-- Secretarías -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Secretarías</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Secretaría VPH</span><span class="text-teal-700 font-bold">552826</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Secretaría Citología</span><span class="text-teal-700 font-bold">552543</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Secretaría Biopsias</span><span class="text-teal-700 font-bold">553407</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Secretaría Ventana (Recepción)</span><span class="text-teal-700 font-bold">553406</span></div>
+                    </div>
+                </div>
+
+                <!-- Oficinas TM -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Oficina TM 1 & 2</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Roxana Parra</span><span class="text-teal-700 font-bold">552836</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Paulina Aguilar</span><span class="text-teal-700 font-bold">552841</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Fernanda Jara</span><span class="text-teal-700 font-bold">552842</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Valentina Paredes</span><span class="text-teal-700 font-bold">552847</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Camila Arzola</span><span class="text-teal-700 font-bold">552827</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Andrés Estay</span><span class="text-teal-700 font-bold">552828</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Alejandro Aedo</span><span class="text-teal-700 font-bold">553026</span></div>
+                    </div>
+                </div>
+
+                <!-- Patólogos -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Oficina Patólogos</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Benitez</span><span class="text-teal-700 font-bold">552643</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Garcia</span><span class="text-teal-700 font-bold">552835</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Humeres</span><span class="text-teal-700 font-bold">552849</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Vidal</span><span class="text-teal-700 font-bold">552845</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Cerón</span><span class="text-teal-700 font-bold">552846</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dra. Beltrán</span><span class="text-teal-700 font-bold">552833</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Rojas</span><span class="text-teal-700 font-bold">552840</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dra. Alfaro</span><span class="text-teal-700 font-bold">552838</span></div>
+                    </div>
+                </div>
+                
+                <!-- Laboratorios -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Laboratorios</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citodiagnóstico</span><span class="text-teal-700 font-bold">----</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Histopatología</span><span class="text-teal-700 font-bold">----</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citogenética</span><span class="text-teal-700 font-bold">552839</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Inmunohistoquimica</span><span class="text-teal-700 font-bold">552830</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Técnicas histológicas</span><span class="text-teal-700 font-bold">553417</span></div>
+                    </div>
+                </div>
+                
+                <!-- Otros -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Otros</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Informática (Soporte)</span><span class="text-teal-700 font-bold">----</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Bodega</span><span class="text-teal-700 font-bold">----</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Sala de archivo</span><span class="text-teal-700 font-bold">553027</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Sala de macroscopia</span><span class="text-teal-700 font-bold">553067</span></div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Morgue</span><span class="text-teal-700 font-bold">553049</span></div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -359,7 +416,6 @@
             document.getElementById('vista-' + vista).classList.remove('hidden'); 
             document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex'); 
             
-            // Botones inferiores (solo Foros, Secciones y Equipo están ahí)
             ['foros', 'secciones', 'equipo'].forEach(id => { 
                 const b = document.getElementById('btn-' + id); 
                 if(b){
@@ -368,7 +424,6 @@
                 } 
             });
             
-            // Si entra a bitacora por sidebar, se desmarcan los iconos del nav bottom
             if(vista === 'bitacora') {
                 ['foros', 'secciones', 'equipo'].forEach(id => { 
                     const b = document.getElementById('btn-' + id); 
@@ -517,7 +572,7 @@
         // BITÁCORA Y PDF
         function guardarBitacora() {
             const b = { id: Date.now(), fecha: new Date().toLocaleString('es-CL'), autor: usuarioActual, unidad: document.getElementById('bit-unidad').value, tipo: document.getElementById('bit-tipo').value, nov: document.getElementById('bit-nov').value };
-            bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); cerrarModal('modal-bitacora-nueva'); renderBitacora(); generarNotificacion(`Traspaso en ${b.unidad}`, 'bitacora', '');
+            bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); cerrarModal('modal-bitacora-nueva'); renderBitacora(); generarNotificacion(`Traspaso en ${b.unidad}`, 'secciones', 'bitacora');
         }
         function renderBitacora() {
             const c = document.getElementById('contenedor-bitacora-items'); c.innerHTML = '';
@@ -550,13 +605,19 @@
                 n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); 
                 
                 if(n.targetV) cambiarVista(n.targetV); 
-                if(n.targetS) cambiarSubForo(n.targetS); 
+                
+                if(n.targetV === 'secciones' && n.targetS === 'bitacora') {
+                    abrirUnidad('citodiagnostico');
+                    cambiarSubCitodiagnostico('Bitacora');
+                } else if(n.targetS) {
+                    cambiarSubForo(n.targetS); 
+                }
                 
                 actualizarCampana(); 
             }
         }
 
-        // CARGA INICIAL ROBUSTA
+        // CARGA INICIAL
         window.onload = function() {
             try {
                 let s = localStorage.getItem('mvrg_sesion');
