@@ -22,10 +22,10 @@
         .barra-nivel { transition: width 0.5s ease-in-out, background-color 0.5s; }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
-        .medalla-on { opacity: 1; filter: grayscale(0%); transform: scale(1.1); }
-        .medalla-off { opacity: 0.3; filter: grayscale(100%); }
         
-        /* Estilos específicos para la tabla Excel */
+        .medalla-on { opacity: 1; filter: grayscale(0%); transform: scale(1.1); cursor: pointer; }
+        .medalla-off { opacity: 0.3; filter: grayscale(100%); cursor: pointer; }
+        
         .excel-table th, .excel-table td { border: 1px solid #1f2937; padding: 4px; text-align: center; }
         .excel-input { width: 100%; height: 100%; text-align: center; outline: none; background: transparent; }
         .excel-input:focus { background-color: #e6fffa; }
@@ -73,7 +73,6 @@
                 <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-2">Personal</p>
                 <button onclick="abrirModalPerfil(); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700"><i class="fa-solid fa-user w-5 text-teal-600"></i> Mi Perfil</button>
                 <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-4">Herramientas</p>
-                <button onclick="cambiarVista('bitacora'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 mb-2"><i class="fa-solid fa-folder-open w-5 text-teal-600"></i> Ver Bitácoras</button>
                 <button onclick="abrirModal('modal-protocolos'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 mb-2"><i class="fa-solid fa-book-medical w-5 text-teal-600"></i> Protocolos</button>
                 <button onclick="cambiarVista('actas'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2"><i class="fa-solid fa-file-signature w-5 text-teal-600"></i> Actas de Reunión</button>
                 <div id="seccion-admin" class="hidden"><p class="text-xs font-bold text-red-400 uppercase ml-2 mb-1 mt-4"><i class="fa-solid fa-lock mr-1"></i> Administración</p><button onclick="cambiarVista('admin'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-700 font-bold border border-red-100 mb-2"><i class="fa-solid fa-users-gear w-5"></i> Gestión Usuarios</button></div>
@@ -121,20 +120,29 @@
                             <button onclick="switchTabCito('sec', 'tras')" id="tab-sec-tras" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list mr-1"></i> Traspaso</button>
                         </div>
                         <div id="view-sec-reg" class="p-4 flex-1 overflow-y-auto block space-y-4">
-                            <!-- WIDGET ULTIMO TRASPASO -->
                             <div class="bg-white border border-gray-200 p-3 rounded-xl shadow-sm">
                                 <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1 mb-2"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Último Traspaso Registrado</h3>
                                 <div id="widget-ultimo-traspaso-sec" class="bg-gray-50 p-2 rounded">Cargando...</div>
                             </div>
-                            <!-- RUTINA VIGENTE -->
                             <div class="bg-pink-50 border border-pink-200 p-3 rounded-xl shadow-sm overflow-x-auto">
                                 <h3 class="font-bold text-pink-800 text-[10px] uppercase mb-2"><i class="fa-solid fa-table border mr-1"></i> Rutina Semanal Vigente</h3>
                                 <div id="display-rutina-sec" class="bg-white border rounded"></div>
                             </div>
                         </div>
-                        <div id="view-sec-tras" class="p-4 flex-1 overflow-y-auto hidden">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center mb-4"><i class="fa-solid fa-clipboard-check text-4xl text-pink-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-sec" rows="4" placeholder="Escribe las novedades de Secretaría..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-pink-400"></textarea><button onclick="guardarTraspaso('Citopatología - Secretaría', 'bit-nov-sec')" class="w-full bg-pink-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-pink-600">Registrar Traspaso</button></div>
-                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1 mb-2">Historial de Traspasos (Secretaría)</h3>
+                        <div id="view-sec-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-pink-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-sec" rows="4" placeholder="Escribe las novedades de Secretaría..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-pink-400"></textarea><button onclick="guardarTraspaso('Citopatología - Secretaría', 'bit-nov-sec')" class="w-full bg-pink-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-pink-600">Registrar Traspaso</button></div>
+                            
+                            <!-- DESCARGA POR FECHAS SECRETARIA -->
+                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
+                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-sec" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-sec" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                </div>
+                                <button onclick="exportarPDFRango('Citopatología - Secretaría', 'f-desde-sec', 'f-hasta-sec')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF Secretaría</button>
+                            </div>
+
+                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (Secretaría)</h3>
                             <div id="historial-tras-sec" class="space-y-2"></div>
                         </div>
                     </div>
@@ -146,25 +154,34 @@
                             <button onclick="switchTabCito('tens', 'tras')" id="tab-tens-tras" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list mr-1"></i> Traspaso</button>
                         </div>
                         <div id="view-tens-proc" class="p-4 flex-1 overflow-y-auto space-y-4 block">
-                            <!-- RUTINA ASIGNADA -->
                             <div class="bg-orange-50 border border-orange-200 p-3 rounded-xl shadow-sm overflow-x-auto">
                                 <h3 class="font-bold text-orange-800 text-[10px] uppercase mb-2"><i class="fa-solid fa-table mr-1"></i> Rutina Asignada</h3>
                                 <div id="display-rutina-tens" class="bg-white border rounded"></div>
                             </div>
-                            <!-- Calendario -->
+                            <!-- Calendario TENS Visible -->
                             <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
                                 <h3 class="font-bold text-gray-800 text-xs mb-2 border-b pb-1"><i class="fa-regular fa-calendar-check text-orange-500 mr-1"></i> Calendario de Tareas</h3>
                                 <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-[10px]"></div>
                             </div>
-                            <!-- Stock -->
                             <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
                                 <h3 class="font-bold text-gray-800 text-xs mb-2 border-b pb-1"><i class="fa-solid fa-flask text-orange-500 mr-1"></i> Stock Reactivos (Último cambio)</h3>
                                 <div id="contenedor-reactivos" class="space-y-2"></div>
                             </div>
                         </div>
-                        <div id="view-tens-tras" class="p-4 flex-1 overflow-y-auto hidden">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center mb-4"><i class="fa-solid fa-clipboard-check text-4xl text-orange-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-tens" rows="4" placeholder="Novedades de Procesamiento..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-orange-400"></textarea><button onclick="guardarTraspaso('Citopatología - TENS', 'bit-nov-tens')" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-orange-600">Registrar Traspaso</button></div>
-                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1 mb-2">Historial de Traspasos (TENS)</h3>
+                        <div id="view-tens-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-orange-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-tens" rows="4" placeholder="Novedades de Procesamiento..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-orange-400"></textarea><button onclick="guardarTraspaso('Citopatología - TENS', 'bit-nov-tens')" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-orange-600">Registrar Traspaso</button></div>
+                            
+                            <!-- DESCARGA POR FECHAS TENS -->
+                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
+                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-tens" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-tens" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                </div>
+                                <button onclick="exportarPDFRango('Citopatología - TENS', 'f-desde-tens', 'f-hasta-tens')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF TENS</button>
+                            </div>
+
+                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (TENS)</h3>
                             <div id="historial-tras-tens" class="space-y-2"></div>
                         </div>
                     </div>
@@ -177,11 +194,15 @@
                             <button onclick="switchTabCito('tm', 'tras')" id="tab-tm-tras" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list"></i> Traspaso</button>
                         </div>
                         
-                        <!-- CREADOR DE RUTINA EXCEL -->
                         <div id="view-tm-rutina" class="p-4 flex-1 overflow-y-auto block space-y-4">
+                            <!-- Widget Resumen Rutina en Torre de Control -->
+                            <div class="bg-teal-50 border border-teal-200 p-3 rounded-xl shadow-sm">
+                                <h3 class="font-bold text-teal-800 text-xs mb-1"><i class="fa-solid fa-eye"></i> Resumen Rutina Actual (Miniatura)</h3>
+                                <div id="resumen-mini-rutina" class="bg-white p-2 rounded border text-[8px] overflow-x-auto max-h-32">Sin rutina vigente.</div>
+                            </div>
+
                             <div class="bg-white p-3 rounded-xl shadow-sm border overflow-x-auto">
                                 <h3 class="font-bold text-teal-800 text-xs mb-2"><i class="fa-solid fa-table-cells"></i> Editor Rutina Semanal</h3>
-                                
                                 <table class="excel-table w-full text-[9px] bg-white">
                                     <thead>
                                         <tr class="bg-gray-100 font-bold">
@@ -194,7 +215,6 @@
                                         </tr>
                                     </thead>
                                     <tbody id="rutina-tbody">
-                                        <!-- FJ -->
                                         <tr>
                                             <td class="font-bold bg-gray-100">FJ</td>
                                             <td><input type="text" id="r-fj-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
@@ -203,7 +223,6 @@
                                             <td><input type="text" id="r-fj-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
                                             <td><input type="text" id="r-fj-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
                                         </tr>
-                                        <!-- PA -->
                                         <tr>
                                             <td class="font-bold bg-gray-100">PA</td>
                                             <td><input type="text" id="r-pa-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
@@ -212,7 +231,6 @@
                                             <td><input type="text" id="r-pa-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
                                             <td><input type="text" id="r-pa-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
                                         </tr>
-                                        <!-- SA -->
                                         <tr>
                                             <td class="font-bold bg-gray-100">SA</td>
                                             <td><input type="text" id="r-sa-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
@@ -221,7 +239,6 @@
                                             <td><input type="text" id="r-sa-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
                                             <td><input type="text" id="r-sa-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
                                         </tr>
-                                        <!-- LE -->
                                         <tr>
                                             <td class="font-bold bg-gray-100">LE</td>
                                             <td><input type="text" id="r-le-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
@@ -243,12 +260,10 @@
                                         <tr class="bg-gray-200 font-bold"><td colspan="11" class="p-1">* RUTINA SUJETA A CAMBIOS</td></tr>
                                     </tfoot>
                                 </table>
-
                                 <button onclick="guardarRutinaExcel()" class="w-full mt-3 bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Guardar y Publicar Rutina</button>
                             </div>
                         </div>
                         
-                        <!-- MONITOR EN VIVO -->
                         <div id="view-tm-monitor" class="p-3 flex-1 overflow-y-auto hidden bg-gray-200">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="grid-monitor-vivo"></div>
                         </div>
@@ -261,9 +276,12 @@
                 </div>
             </div>
 
-            <!-- VISTAS RESTANTES (Equipo, Bitacora Visor, Actas, Admin) -->
-            <div id="vista-equipo" class="hidden flex flex-col h-full bg-gray-50"><div class="bg-white border-b shadow-sm px-4 py-3 text-center sticky top-0 z-10"><h2 class="font-bold text-gray-800 text-lg"><i class="fa-solid fa-shield-halved text-teal-600 mr-2"></i> Nuestro Equipo</h2></div><div class="p-4 flex-1 overflow-y-auto space-y-6" id="contenedor-equipo"></div></div>
-            <div id="vista-bitacora" class="hidden flex flex-col h-full bg-gray-50"><div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10"><span class="text-teal-800"><i class="fa-solid fa-folder-open mr-2"></i> Visor de Bitácoras</span></div><div class="p-4 flex-1 overflow-y-auto"><div class="bg-white p-3 rounded-lg border shadow-sm mb-4"><label class="text-xs font-bold text-gray-500 uppercase">Área a Exportar:</label><select id="filtro-bitacora" onchange="renderBitacora()" class="w-full mt-1 border rounded p-2 text-sm bg-gray-50 font-bold"><option>Citopatología - Secretaría</option><option>Citopatología - TENS</option><option>Histopatología</option><option>Macroscopía</option></select><button onclick="exportarPDF()" class="mt-3 w-full bg-gray-800 text-white rounded-lg p-2 text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-900"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF</button></div><div id="print-area" class="space-y-3 bg-white p-4 rounded-xl border"><h2 id="titulo-print" class="font-bold text-lg text-center mb-4 hidden border-b pb-2">Bitácora Oficial</h2><div id="contenedor-bitacora-items" class="space-y-4"></div></div></div></div>
+            <!-- VISTAS RESTANTES -->
+            <div id="vista-equipo" class="hidden flex flex-col h-full bg-gray-50">
+                <div class="bg-white border-b shadow-sm px-4 py-3 text-center sticky top-0 z-10"><h2 class="font-bold text-gray-800 text-lg"><i class="fa-solid fa-medal text-teal-600 mr-2"></i> Nuestro Equipo</h2></div>
+                <div class="p-4 flex-1 overflow-y-auto space-y-6" id="contenedor-equipo"></div>
+            </div>
+            
             <div id="vista-actas" class="hidden flex flex-col h-full bg-gray-50 relative"><div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10"><span class="text-teal-800"><i class="fa-solid fa-file-signature mr-2"></i> Registro de Actas</span></div><div class="p-4 flex-1 overflow-y-auto"><div id="contenedor-registro-actas" class="space-y-4"></div></div><button id="btn-flotante-acta" onclick="abrirModalNuevaActa()" class="hidden absolute bottom-6 right-6 bg-teal-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl hover:bg-teal-700 border-2 border-white"><i class="fa-solid fa-plus"></i></button></div>
             <div id="vista-admin" class="hidden flex flex-col h-full bg-gray-50"><div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10"><span class="text-red-700"><i class="fa-solid fa-users-gear mr-2"></i> Gestión de Usuarios</span></div><div class="p-4 flex-1 overflow-y-auto"><button onclick="abrirModalAdminUsuario('')" class="w-full bg-white border border-red-200 text-red-700 rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-sm mb-4 hover:bg-red-50"><i class="fa-solid fa-user-plus"></i> Crear Nuevo Usuario</button><div id="contenedor-lista-usuarios" class="space-y-3"></div></div></div>
         </main>
@@ -278,27 +296,45 @@
         </nav>
     </div>
 
-    <!-- ==================== MODALES COMPARTIDOS ==================== -->
+    <!-- MODALES -->
     <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-phone text-teal-600 mr-2"></i> Directorio</h2><button onclick="cerrarModal('modal-anexos')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Secretarías</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">VPH</span><span class="text-teal-700 font-bold">552826</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citología</span><span class="text-teal-700 font-bold">552543</span></div></div></div></div></div></div>
     <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
     <div id="modal-admin-user" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-admin-user" class="font-bold text-lg text-red-700">Gestión de Usuario</h2><button onclick="cerrarModal('modal-admin-user')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-3"><input type="hidden" id="admin-u-mode"><div><label class="text-xs font-bold text-gray-500">ID Usuario</label><input type="text" id="admin-u-id" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div><div><label class="text-xs font-bold text-gray-500">Contraseña</label><input type="text" id="admin-u-pass" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="admin-u-n" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div><div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="admin-u-a" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div></div><div><label class="text-xs font-bold text-gray-500">Rol</label><select id="admin-u-rol" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50 font-bold"><option>Supervisión</option><option>Encargado Área</option><option>Tecnólogo Médico</option><option>Técnico (TENS)</option><option>Secretaría</option></select></div><button onclick="guardarAdminUsuario()" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-md mt-2">Guardar</button></div></div></div>
     
-    <!-- MODALES TAREAS -->
-    <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center"><h2 class="font-bold text-lg text-gray-800 mb-2">Calendario Tareas</h2><p class="text-sm text-gray-500 mb-6">Día: <span id="txt-fecha-accion" class="font-bold text-orange-600"></span> Agosto 2026</p><div id="opciones-jefe-cal" class="space-y-2 hidden"><button onclick="asignarEventoCal('Eliminación')" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-lg"></i> Programar Eliminación</button><button onclick="asignarEventoCal('Relleno')" class="w-full bg-orange-50 text-orange-600 border border-orange-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-lg"></i> Programar Relleno</button><button onclick="eliminarEventoCal()" class="text-xs text-gray-400 mt-2 underline">Borrar evento asignado</button></div><div id="opciones-tens-cal" class="space-y-2 hidden"><div id="info-evento-tens" class="bg-gray-50 p-3 rounded border mb-3 font-bold text-sm text-gray-700"></div><button id="btn-completar-evento" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-teal-700"><i class="fa-solid fa-check text-lg"></i> Marcar Completado</button></div><button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline block w-full">Cerrar</button></div></div>
+    <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center"><h2 class="font-bold text-lg text-gray-800 mb-2">Calendario Tareas</h2><p class="text-sm text-gray-500 mb-6">Día: <span id="txt-fecha-accion" class="font-bold text-orange-600"></span> Agosto 2026</p><div id="opciones-jefe-cal" class="space-y-2 hidden"><button onclick="asignarEventoCal('Eliminación')" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-lg"></i> Programar Eliminación</button><button onclick="asignarEventoCal('Relleno')" class="w-full bg-orange-50 text-orange-600 border border-orange-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-lg"></i> Programar Relleno</button><button onclick="eliminarEventoCal()" class="text-xs text-gray-400 mt-2 underline">Borrar evento asignado</button></div><div id="opciones-tens-cal" class="space-y-2 hidden"><div id="info-evento-tens" class="bg-gray-50 p-3 rounded border mb-3 font-bold text-sm text-gray-700"></div><button id="btn-completar-evento" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-teal-700"><i class="fa-solid fa-check text-lg"></i> Marcar Completado</button></div><button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline block w-full">Cerrar</button></div></div></div>
     <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Actualizar Stock</h2><button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button></div><p class="text-xs text-gray-500 mb-3">Indica el % restante de cada reactivo.</p><div id="form-reactivos" class="space-y-3"></div><button onclick="guardarReactivosYCompletar()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg mt-4 shadow-md">Guardar y Completar Tarea</button></div></div>
     
-    <!-- MODALES ORIGINALES -->
     <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Mi Perfil</h2><button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="grid grid-cols-2 gap-3"><div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="perfil-nombre" class="w-full border-b border-gray-300 py-1 text-sm focus:outline-none"></div><div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="perfil-apellido" class="w-full border-b border-gray-300 py-1 text-sm focus:outline-none"></div></div><div><label class="text-xs font-bold text-gray-500">URL Foto</label><input type="text" id="perfil-foto" class="w-full border-b border-gray-300 py-1 text-xs focus:outline-none"></div><button onclick="guardarPerfil()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Guardar</button></div></div></div>
     <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg">Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><select id="post-audiencia" class="w-full border rounded p-2 text-sm bg-gray-50"><option>Todos</option></select></div><div id="campo-fecha-evento" class="hidden"><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold"><textarea id="post-cuerpo" rows="4" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50"></textarea><div id="div-img-post"><input type="text" id="post-img" placeholder="URL Imagen" class="w-full border rounded p-2 text-xs bg-gray-50"></div><button onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
     
-    <!-- ACTAS MODALS -->
     <div id="modal-nueva-acta" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white z-10"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-file-signature text-teal-600 mr-2"></i> Crear Nueva Acta</h2><button onclick="cerrarModal('modal-nueva-acta')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="bg-teal-50 border border-teal-200 p-3 rounded-xl"><input type="text" id="acta-titulo" placeholder="Título (Ej: Coord. Mensual)" class="w-full border rounded-lg p-2 text-sm bg-white font-bold mb-2 focus:outline-none"><textarea id="acta-detalle" rows="4" placeholder="Temas tratados y acuerdos..." class="w-full border rounded-lg p-2 text-sm bg-white focus:outline-none"></textarea></div><div class="bg-white border p-3 rounded-xl shadow-sm"><p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Seleccionar Asistentes</p><div id="contenedor-asistentes-acta" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1"></div></div><button onclick="guardarActa()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Publicar Acta para Firmas</button></div></div></div>
     <div id="modal-firma-acta" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl"><div class="flex justify-between items-center mb-2 border-b pb-2"><h2 class="font-bold text-lg"><i class="fa-solid fa-pen-nib text-teal-600 mr-2"></i> Dibujar Firma</h2><button onclick="cerrarModal('modal-firma-acta')" class="text-gray-400 text-2xl">&times;</button></div><p class="text-xs text-gray-500 mb-4">Usa tu dedo o ratón.</p><div class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 relative h-40 mb-3"><canvas id="canvas-firma" class="w-full h-full touch-none cursor-crosshair"></canvas></div><div class="flex gap-2"><button onclick="limpiarFirmaCanvas()" class="w-1/3 bg-red-50 text-red-600 font-bold py-3 rounded-lg text-xs"><i class="fa-solid fa-eraser"></i> Limpiar</button><button onclick="guardarMiFirma()" class="w-2/3 bg-teal-600 text-white font-bold py-3 rounded-lg shadow-sm text-sm"><i class="fa-solid fa-check"></i> Aceptar</button></div></div></div>
 
+    <!-- MODAL DETALLE LOGROS (Gamificación Progreso %) -->
+    <div id="modal-detalle-logro" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl text-center relative">
+            <button onclick="cerrarModal('modal-detalle-logro')" class="absolute top-3 right-4 text-gray-400 text-xl">&times;</button>
+            <div id="logro-modal-icono" class="text-5xl mb-3"></div>
+            <h3 id="logro-modal-titulo" class="font-bold text-lg text-gray-800 mb-1"></h3>
+            <p id="logro-modal-desc" class="text-xs text-gray-500 mb-4"></p>
+            <div class="bg-gray-100 rounded-full h-3 overflow-hidden mb-2 border">
+                <div id="logro-modal-barra" class="bg-teal-600 h-full transition-all" style="width: 0%;"></div>
+            </div>
+            <p id="logro-modal-progreso" class="text-xs font-bold text-teal-700"></p>
+        </div>
+    </div>
+
     <!-- ==================== SCRIPT JAVASCRIPT ==================== -->
     <script>
-        // --- BASE DE DATOS Y LOGROS ---
-        const dbLogros = { 'pionero': { n: 'Pionero', i: 'fa-rocket', c: 'text-blue-500', desc: 'Inició sesión.' }, 'pluma': { n: 'La Pluma', i: 'fa-pen-fancy', c: 'text-yellow-500', desc: 'Firmó 5 actas.' }, 'guardian': { n: 'Guardián', i: 'fa-shield-halved', c: 'text-teal-500', desc: 'Registró 10 traspasos.' }, 'alquimista': { n: 'Alquimista', i: 'fa-flask', c: 'text-purple-500', desc: 'Rellenó batería 5 veces.' }, 'voz': { n: 'Voz del Lab', i: 'fa-bullhorn', c: 'text-orange-500', desc: 'Creó 3 publicaciones.' }, 'limpieza': { n: 'Limpieza', i: 'fa-broom', c: 'text-green-500', desc: 'Marcó 5 eliminaciones.' } };
+        const dbLogros = { 
+            'pionero': { n: 'Pionero', i: 'fa-rocket', c: 'text-blue-500', desc: 'Inició sesión en la plataforma.', meta: 1, statKey: 'login' }, 
+            'pluma': { n: 'La Pluma', i: 'fa-pen-fancy', c: 'text-yellow-500', desc: 'Firmó 5 actas oficiales.', meta: 5, statKey: 'pluma' }, 
+            'guardian': { n: 'Guardián', i: 'fa-shield-halved', c: 'text-teal-500', desc: 'Registró 10 traspasos de turno.', meta: 10, statKey: 'guardian' }, 
+            'alquimista': { n: 'Alquimista', i: 'fa-flask', c: 'text-purple-500', desc: 'Rellenó la batería de reactivos 5 veces.', meta: 5, statKey: 'alquimista' }, 
+            'voz': { n: 'Voz del Lab', i: 'fa-bullhorn', c: 'text-orange-500', desc: 'Creó 3 publicaciones en los foros.', meta: 3, statKey: 'voz' }, 
+            'limpieza': { n: 'Limpieza', i: 'fa-broom', c: 'text-green-500', desc: 'Marcó 5 eliminaciones de reactivos.', meta: 5, statKey: 'limpieza' } 
+        };
+        
         let usuariosDB = {}; const usuariosDefault = { 'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'Supervisión', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'Encargado Área', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'tm': { pass: '1234', n: 'TM', a: 'Central', rol: 'Tecnólogo Médico', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'Técnico (TENS)', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'Secretaría', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' } };
         
         let usuarioActual=null; let foroActual='Avisos'; let tabNotifActual='nuevas'; let diaSeleccionado=0;
@@ -335,7 +371,7 @@
         function actualizarUI() {
             const nom = `${usuarioActual.n} ${usuarioActual.a}`; document.getElementById('header-nombre').innerText = nom; document.getElementById('menu-nombre').innerText = nom; document.getElementById('menu-rol').innerText = usuarioActual.rol;
             const av = usuarioActual.foto ? `<img src="${usuarioActual.foto}" class="w-full h-full object-cover">` : usuarioActual.iniciales; document.getElementById('header-avatar').innerHTML = av; document.getElementById('menu-avatar').innerHTML = av;
-            evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); renderActas(); renderAdminUsuarios(); renderRutinas(); renderHistorialTraspasos(); actualizarCampana(); 
+            evaluarPermisosForo(); renderPosts(); renderEquipo(); generarCalendarioGrid(); renderReactivos(); renderActas(); renderAdminUsuarios(); renderRutinas(); renderHistorialTraspasos(); actualizarCampana(); 
         }
 
         function sumarStat(stat) {
@@ -353,10 +389,10 @@
         // --- NAVEGACIÓN Y MENÚS ---
         function toggleMenu() { const m = document.getElementById('menu-lateral'), o = document.getElementById('overlay-menu'); if(m.classList.contains('menu-cerrado')){m.classList.remove('menu-cerrado');m.classList.add('menu-abierto');o.classList.remove('hidden');}else{m.classList.remove('menu-abierto');m.classList.add('menu-cerrado');o.classList.add('hidden');} }
         function cambiarVista(vista) { 
-            ['foros', 'secciones', 'equipo', 'bitacora', 'actas', 'admin'].forEach(v => { const e = document.getElementById('vista-' + v); if(e){e.classList.add('hidden');e.classList.remove('block', 'flex');} }); 
+            ['foros', 'secciones', 'equipo', 'actas', 'admin'].forEach(v => { const e = document.getElementById('vista-' + v); if(e){e.classList.add('hidden');e.classList.remove('block', 'flex');} }); 
             document.getElementById('vista-' + vista).classList.remove('hidden'); document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex'); 
             ['foros', 'secciones', 'equipo'].forEach(id => { const b = document.getElementById('btn-' + id); if(b){ if(id === vista) b.classList.replace('text-gray-400', 'text-teal-700'); else b.classList.replace('text-teal-700', 'text-gray-400'); } });
-            if(['bitacora', 'actas', 'admin'].includes(vista)) { ['foros', 'secciones', 'equipo'].forEach(id => { const b = document.getElementById('btn-' + id); if(b) b.classList.replace('text-teal-700', 'text-gray-400'); }); }
+            if(['actas', 'admin'].includes(vista)) { ['foros', 'secciones', 'equipo'].forEach(id => { const b = document.getElementById('btn-' + id); if(b) b.classList.replace('text-teal-700', 'text-gray-400'); }); }
         }
         function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); } function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
         function cerrarSesion() { localStorage.removeItem('mvrg_sesion'); window.location.reload(true); }
@@ -379,7 +415,7 @@
             if(area==='tm' && tab==='monitor') renderMonitorVivo();
         }
 
-        // --- NUEVO GESTOR DE RUTINA EXCEL ---
+        // --- GESTOR DE RUTINA EXCEL ---
         function calcRutina() {
             let dias = ['l','m','x','j','v']; let inputs = ['fj','pa','sa','le'];
             dias.forEach(d => {
@@ -392,9 +428,6 @@
             let fechas = document.getElementById('rut-fechas').value.trim(); let turno = document.getElementById('rut-turno').value.trim();
             if(!fechas || !turno) { alert("Completa las Fechas y el nombre del Turno."); return; }
             
-            // Construir el HTML de la tabla para guardarla tal cual (solo lectura)
-            let inputsHtml = document.getElementById('rutina-tbody').innerHTML;
-            // Limpiar los inputs a simple texto para la vista de Sec y TENS
             let renderHtml = `<div class="overflow-x-auto"><table class="w-full text-center border-collapse border border-gray-800 text-[9px] bg-white"><thead class="bg-gray-100 font-bold"><tr><th colspan="6" class="border border-gray-800 p-1">CALENDARIO SEMANAL ${fechas.toUpperCase()}</th><th colspan="5" class="border border-gray-800 p-1">TURNO CITOLOGIA: ${turno.toUpperCase()}</th></tr><tr class="bg-gray-200"><th class="border border-gray-800 p-1 w-6"></th><th colspan="2" class="border border-gray-800 p-1">LUNES</th><th colspan="2" class="border border-gray-800 p-1">MARTES</th><th colspan="2" class="border border-gray-800 p-1">MIERCOLES</th><th colspan="2" class="border border-gray-800 p-1">JUEVES</th><th colspan="2" class="border border-gray-800 p-1">VIERNES</th></tr></thead><tbody>`;
             
             ['fj','pa','sa','le'].forEach(i => {
@@ -420,39 +453,63 @@
                 let actualHtml = `<p class="text-[9px] text-gray-500 mb-1 text-right">Actualizada: ${rutinasData[0].fechaCarga}</p>${rutinasData[0].html}`;
                 document.getElementById('display-rutina-sec').innerHTML = actualHtml; 
                 document.getElementById('display-rutina-tens').innerHTML = actualHtml;
+                document.getElementById('resumen-mini-rutina').innerHTML = actualHtml;
             } else {
-                document.getElementById('display-rutina-sec').innerHTML = '<p class="text-xs text-gray-400">Sin rutina vigente.</p>';
-                document.getElementById('display-rutina-tens').innerHTML = '<p class="text-xs text-gray-400">Sin rutina vigente.</p>';
+                let msg = '<p class="text-xs text-gray-400">Sin rutina vigente.</p>';
+                document.getElementById('display-rutina-sec').innerHTML = msg;
+                document.getElementById('display-rutina-tens').innerHTML = msg;
+                document.getElementById('resumen-mini-rutina').innerHTML = msg;
             }
         }
 
-        // --- TRASPASO DE TURNO E HISTORIALES ---
+        // --- TRASPASO DE TURNO E HISTORIALES Y EXPORTACIÓN POR FECHA ---
         function guardarTraspaso(unidadFija, inputId) {
             let txt = document.getElementById(inputId).value.trim(); if(!txt) { alert("Escribe alguna novedad."); return; }
-            const b = { id: Date.now(), fecha: new Date().toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}), autor: usuarioActual, unidad: unidadFija, tipo: 'Diario', nov: txt };
+            const b = { id: Date.now(), fechaIso: new Date().toISOString().split('T')[0], fecha: new Date().toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}), autor: usuarioActual, unidad: unidadFija, tipo: 'Diario', nov: txt };
             bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); 
             document.getElementById(inputId).value = ''; sumarStat('guardian'); alert(`Traspaso guardado en ${unidadFija}`);
             renderHistorialTraspasos();
         }
 
         function renderHistorialTraspasos() {
-            // Widget Secretaria Top
             const tsSec = bitacoraData.filter(b => b.unidad === 'Citopatología - Secretaría');
             const wU = document.getElementById('widget-ultimo-traspaso-sec');
             if(tsSec.length > 0) { wU.innerHTML = `<p class="text-[10px] text-pink-700 font-bold"><i class="fa-regular fa-clock"></i> ${tsSec[0].fecha} - ${tsSec[0].autor.n} ${tsSec[0].autor.a}</p><p class="text-xs text-gray-800 mt-1">${tsSec[0].nov}</p>`; } 
             else { wU.innerHTML = `<p class="text-xs text-gray-400">Sin registros.</p>`; }
 
-            // Lista Sec
             const lS = document.getElementById('historial-tras-sec'); lS.innerHTML = '';
-            tsSec.slice(0, 5).forEach(b => { lS.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-pink-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
+            tsSec.slice(0, 10).forEach(b => { lS.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-pink-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
 
-            // Lista TENS
             const tsTens = bitacoraData.filter(b => b.unidad === 'Citopatología - TENS');
             const lT = document.getElementById('historial-tras-tens'); lT.innerHTML = '';
-            tsTens.slice(0, 5).forEach(b => { lT.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-orange-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
+            tsTens.slice(0, 10).forEach(b => { lT.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-orange-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
         }
 
-        // --- CALENDARIO INTERACTIVO (TENS Y JEFATURA) ---
+        function exportarPDFRango(unidadFija, idDesde, idHasta) {
+            let dStr = document.getElementById(idDesde).value;
+            let hStr = document.getElementById(idHasta).value;
+            
+            let filtrados = bitacoraData.filter(b => {
+                if(b.unidad !== unidadFija) return false;
+                if(!b.fechaIso) return true; // compatibilidad
+                if(dStr && b.fechaIso < dStr) return false;
+                if(hStr && b.fechaIso > hStr) return false;
+                return true;
+            });
+
+            if(filtrados.length === 0) { alert("No hay registros en el rango de fechas seleccionado."); return; }
+
+            let htmlPrint = `<div style="padding:20px; font-family:sans-serif;"><h2 style="text-align:center; color:#0f766e;">Informe de Traspasos: ${unidadFija}</h2><p style="text-align:center; font-size:12px; color:#666;">Rango: ${dStr||'Inicio'} al ${hStr||'Hoy'}</p><hr style="margin:15px 0;"/>`;
+            filtrados.forEach(b => {
+                htmlPrint += `<div style="margin-bottom:15px; border-bottom:1px solid #ddd; padding-bottom:10px;"><p style="font-size:11px; font-weight:bold; color:#333;">${b.fecha} - ${b.autor.n} ${b.autor.a} (${b.autor.rol})</p><p style="font-size:12px; white-space:pre-wrap; color:#111;">${b.nov}</p></div>`;
+            });
+            htmlPrint += `</div>`;
+
+            let elem = document.createElement('div'); elem.innerHTML = htmlPrint;
+            html2pdf().set({margin: 0.5, filename: `Traspasos_${unidadFija.replace(/\s/g,'')}.pdf`, html2canvas:{scale:2}}).from(elem).save();
+        }
+
+        // --- CALENDARIO INTERACTIVO ---
         function generarCalendarioGrid() {
             const grid = document.getElementById('grid-calendario'); let html = '';
             ['L','M','M','J','V','S','D'].forEach(d => html += `<div class="font-bold text-orange-800 pb-1">${d}</div>`);
@@ -508,7 +565,7 @@
             }
         }
 
-        // --- MONITOR EN VIVO (TM) ---
+        // --- MONITOR EN VIVO ---
         function renderMonitorVivo() {
             let g = document.getElementById('grid-monitor-vivo'); g.innerHTML = '';
             let dHoy = new Date().getDate(); let evHoy = calendarioData[`dia_${dHoy}`];
@@ -520,19 +577,48 @@
             g.innerHTML = `<div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Stock Actual (TENS)</p>${stockHtml}</div><div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Calendario TENS (Hoy ${dHoy})</p><div class="text-xs p-2 bg-gray-50 rounded border">${txtCal}</div></div><div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100 md:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Últimos Traspasos Globales</p>${bitHtml||'<p class="text-[10px] text-gray-400">No hay traspasos.</p>'}</div>`;
         }
 
-        // --- EQUIPO (VITRINA LOGROS) ---
+        // --- EQUIPO (ESTILO TARJETA CÁPSULA "MEET THE TEAM" + INTERACTIVIDAD %) ---
         function renderEquipo() {
             const c = document.getElementById('contenedor-equipo'); c.innerHTML = ''; const roles = ['Supervisión', 'Encargado Área', 'Tecnólogo Médico', 'Técnico (TENS)', 'Secretaría'];
             roles.forEach(rolB => {
                 let usrs = Object.values(usuariosDB).filter(u => u.rol === rolB);
                 if(usrs.length > 0) {
-                    let html = `<div class="mb-6"><h3 class="font-bold text-gray-500 uppercase text-xs mb-3 border-b border-gray-300 pb-1">${rolB}</h3><div class="grid grid-cols-1 gap-3">`;
+                    let html = `<div class="mb-6"><h3 class="font-bold text-gray-500 uppercase text-xs mb-3 border-b border-gray-300 pb-1">${rolB}</h3><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">`;
                     usrs.forEach(u => {
-                        let lHtml = ''; Object.keys(dbLogros).forEach(lKey => { const lDef = dbLogros[lKey]; const tiene = u.logros.includes(lKey); lHtml += `<div class="p-1.5 rounded-full bg-gray-50 text-center ${tiene ? `medalla-on ${lDef.c}` : `medalla-off text-gray-400`}" title="${tiene ? lDef.n : lDef.desc}"><i class="fa-solid ${lDef.i} text-lg"></i></div>`; });
-                        html += `<div class="bg-white rounded-xl shadow-sm border p-4 flex flex-col gap-3"><div class="flex gap-3 items-center"><div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 border-2 border-gray-300 overflow-hidden shadow-inner">${u.foto ? `<img src="${u.foto}" class="w-full h-full object-cover">` : (u.n.charAt(0)+u.a.charAt(0)).toUpperCase()}</div><div class="flex-1"><h4 class="font-bold text-sm leading-tight text-gray-800">${u.n} ${u.a}</h4><p class="text-[9px] text-gray-400 uppercase font-bold">${u.rol}</p></div></div><div class="bg-gray-100 p-2 rounded-lg flex justify-around border shadow-inner">${lHtml}</div></div>`;
+                        let lHtml = ''; 
+                        Object.keys(dbLogros).forEach(lKey => { 
+                            const lDef = dbLogros[lKey]; 
+                            const tiene = (u.logros || []).includes(lKey); 
+                            lHtml += `<div onclick="abrirDetalleLogro('${u.id}', '${lKey}')" class="p-1.5 rounded-full bg-gray-100 text-center ${tiene ? `medalla-on ${lDef.c}` : `medalla-off text-gray-400`}" title="${lDef.n}"><i class="fa-solid ${lDef.i} text-lg"></i></div>`; 
+                        });
+                        
+                        let av = u.foto ? `<img src="${u.foto}" class="w-full h-full object-cover">` : `<span class="text-lg font-bold text-teal-700">${(u.n.charAt(0)+u.a.charAt(0)).toUpperCase()}</span>`;
+                        
+                        // Tarjeta Estilo Cápsula "Meet the Team"
+                        html += `
+                        <div class="bg-white rounded-3xl shadow-md border border-gray-200 p-4 flex flex-col items-center text-center relative overflow-hidden">
+                            <div class="w-20 h-20 rounded-full bg-teal-50 flex items-center justify-center border-4 border-white shadow-md overflow-hidden mb-3">${av}</div>
+                            <p class="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-0.5">${u.rol}</p>
+                            <h4 class="font-bold text-base text-gray-800 mb-3">${u.n} ${u.a}</h4>
+                            <div class="w-full bg-gray-50 p-2 rounded-2xl flex justify-around border border-gray-100 mt-auto">${lHtml}</div>
+                        </div>`;
                     }); c.innerHTML += html + '</div></div>';
                 }
             });
+        }
+
+        function abrirDetalleLogro(userId, lKey) {
+            let u = usuariosDB[userId]; let lDef = dbLogros[lKey];
+            let tiene = (u.logros || []).includes(lKey);
+            let statsVal = (u.stats && u.stats[lDef.statKey]) ? u.stats[lDef.statKey] : (tiene ? lDef.meta : 0);
+            let pct = Math.min(100, Math.round((statsVal / lDef.meta) * 100));
+
+            document.getElementById('logro-modal-icono').innerHTML = `<i class="fa-solid ${lDef.i} ${lDef.c}"></i>`;
+            document.getElementById('logro-modal-titulo').innerText = lDef.n;
+            document.getElementById('logro-modal-desc').innerText = lDef.desc;
+            document.getElementById('logro-modal-barra').style.width = pct + '%';
+            document.getElementById('logro-modal-progreso').innerText = tiene ? `¡Completado (100%)! 🌟` : `Progreso: ${statsVal} / ${lDef.meta} (${pct}%)`;
+            abrirModal('modal-detalle-logro');
         }
 
         // --- ACTAS ---
@@ -587,15 +673,12 @@
         function toggleLike(id) { const p = publicaciones.find(x=>x.id===id); if(p){ const idx = p.likes.indexOf(usuarioActual.id); if(idx===-1) p.likes.push(usuarioActual.id); else p.likes.splice(idx,1); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
         function comentar(id) { const i = document.getElementById('inp-c-'+id); if(i.value){ publicaciones.find(x=>x.id===id).comentarios.push({ autor: usuarioActual.n, txt: i.value }); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
 
-        function renderBitacora() { const c = document.getElementById('contenedor-bitacora-items'); c.innerHTML = ''; const uSel = document.getElementById('filtro-bitacora').value; const filt = bitacoraData.filter(b => b.unidad === uSel); if(filt.length===0) { c.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No hay traspasos aquí.</p>'; return; } filt.forEach(b => { c.innerHTML += `<div class="bg-white p-4 rounded-lg border-l-4 border-teal-500 mb-4 page-break-inside-avoid"><div class="flex justify-between border-b pb-2 mb-2"><span class="text-sm font-bold text-teal-800">Traspaso ${b.tipo}</span><span class="text-xs text-gray-500">${b.fecha}</span></div><p class="text-xs font-bold text-gray-600 mb-2"><i class="fa-solid fa-user-pen mr-1"></i> ${b.autor.n} ${b.autor.a} (${b.autor.rol})</p><div class="text-sm text-gray-800 whitespace-pre-wrap">${b.nov || 'Sin novedades.'}</div></div>`; }); }
-        function exportarPDF() { const u = document.getElementById('filtro-bitacora').value, e = document.getElementById('print-area'), t = document.getElementById('titulo-print'); t.innerText = `Bitácora Oficial: ${u}\nGenerado: ${new Date().toLocaleDateString('es-CL')}`; t.classList.remove('hidden'); html2pdf().set({margin: 0.5, filename: `Bitacora.pdf`, html2canvas:{scale:2}}).from(e).save().then(() => t.classList.add('hidden')); }
-
         function generarNotificacion(t, vD, sD) { notificaciones.unshift({ id: Date.now(), txt: t, leida: false, targetV: vD, targetS: sD }); localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); actualizarCampana(); }
         function actualizarCampana() { document.getElementById('badge-notif').style.display = notificaciones.some(n=>!n.leida) ? 'block' : 'none'; }
         function abrirModalNotificaciones() { renderNotificaciones(); abrirModal('modal-notificaciones'); }
         function cambiarTabNotif(t) { tabNotifActual = t; const n = document.getElementById('tab-notif-nuevas'), l = document.getElementById('tab-notif-leidas'); if(t==='nuevas'){n.classList.replace('text-gray-400','text-teal-700');n.classList.add('border-teal-700');l.classList.replace('text-teal-700','text-gray-400');l.classList.remove('border-teal-700');}else{l.classList.replace('text-gray-400','text-teal-700');l.classList.add('border-teal-700');n.classList.replace('text-teal-700','text-gray-400');n.classList.remove('border-teal-700');} renderNotificaciones(); }
         function renderNotificaciones() { const c = document.getElementById('lista-notificaciones'); c.innerHTML=''; const f = notificaciones.filter(n => tabNotifActual==='nuevas'?!n.leida:n.leida); f.forEach(n => c.innerHTML += `<div onclick="irDestinoNotificacion(${n.id})" class="bg-gray-50 p-3 rounded border flex flex-col gap-1 cursor-pointer hover:bg-teal-50"><p class="text-xs font-bold text-gray-800">${n.txt}</p><span class="text-[9px] text-teal-600">Click para ver &rarr;</span></div>`); }
-        function irDestinoNotificacion(id) { const n = notificaciones.find(x=>x.id===id); if(n) { n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); if(n.targetV) cambiarVista(n.targetV); if(n.targetV === 'secciones' && n.targetS === 'bitacora') { abrirUnidad('citodiagnostico'); cambiarSubCitodiagnostico('Bitacora'); } else if(n.targetS) { cambiarSubForo(n.targetS); } actualizarCampana(); } }
+        function irDestinoNotificacion(id) { const n = notificaciones.find(x=>x.id===id); if(n) { n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); if(n.targetV) cambiarVista(n.targetV); if(n.targetS) { cambiarSubForo(n.targetS); } actualizarCampana(); } }
 
         window.onload = function() { initData(); let s = localStorage.getItem('mvrg_sesion'); if(s) { let st = JSON.parse(s); if(usuariosDB[st.id]) { usuarioActual = { ...st, ...usuariosDB[st.id] }; entrarApp(); } } };
     </script>
