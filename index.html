@@ -25,6 +25,10 @@
         .barra-nivel { transition: width 0.5s ease-in-out, background-color 0.5s; }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
+        
+        /* Efecto medallas */
+        .medalla-on { opacity: 1; filter: grayscale(0%); transform: scale(1.1); }
+        .medalla-off { opacity: 0.3; filter: grayscale(100%); }
     </style>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col font-sans antialiased overflow-hidden">
@@ -38,8 +42,8 @@
         <div class="bg-white rounded-2xl p-6 shadow-2xl text-gray-800">
             <input type="text" id="login-user" placeholder="Usuario" class="w-full bg-gray-50 border rounded-lg py-3 px-3 mb-4">
             <input type="password" id="login-pass" placeholder="Clave" class="w-full bg-gray-50 border rounded-lg py-3 px-3 mb-6">
-            <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700">Ingresar</button>
-            <p id="error-login" class="text-xs text-red-500 text-center mt-4 hidden">Usuario incorrecto.</p>
+            <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 shadow-md">Ingresar</button>
+            <p id="error-login" class="text-xs text-red-500 text-center mt-4 hidden font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Usuario o clave incorrectos.</p>
         </div>
     </div>
 
@@ -78,7 +82,7 @@
                 <button onclick="toggleMenu()" class="absolute top-3 right-4 text-2xl text-teal-300">&times;</button>
                 <div id="menu-avatar" class="w-16 h-16 mx-auto bg-white text-teal-700 rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-3 overflow-hidden"></div>
                 <h2 id="menu-nombre" class="font-bold text-lg">Usuario</h2>
-                <p id="menu-rol" class="text-xs text-teal-200 uppercase mt-1"></p>
+                <p id="menu-rol" class="text-xs text-teal-200 uppercase mt-1 font-bold"></p>
             </div>
             <div class="flex-1 py-4 px-3 overflow-y-auto">
                 <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-2">Personal</p>
@@ -96,6 +100,14 @@
                 <button onclick="cambiarVista('actas'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2">
                     <i class="fa-solid fa-file-signature w-5 text-teal-600"></i> Actas de Reunión
                 </button>
+                
+                <!-- SECCIÓN ADMINISTRACIÓN (Solo Jefaturas) -->
+                <div id="seccion-admin" class="hidden">
+                    <p class="text-xs font-bold text-red-400 uppercase ml-2 mb-1 mt-4"><i class="fa-solid fa-lock mr-1"></i> Administración</p>
+                    <button onclick="cambiarVista('admin'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-700 font-bold border border-red-100 mb-2">
+                        <i class="fa-solid fa-users-gear w-5"></i> Gestión Usuarios
+                    </button>
+                </div>
                 
                 <div class="mt-auto border-t pt-4">
                     <button onclick="cerrarSesion()" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-600 font-medium">
@@ -132,10 +144,10 @@
                     <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Unidades</h2>
                     <div class="grid grid-cols-1 gap-3">
                         <button onclick="abrirUnidad('citodiagnostico')" class="bg-white p-4 rounded-xl shadow-sm border flex items-center justify-between hover:border-teal-400">
-                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center"><i class="fa-solid fa-microscope"></i></div><span class="font-bold text-gray-800">Citodiagnóstico</span></div><i class="fa-solid fa-chevron-right text-gray-300"></i>
+                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-xl"><i class="fa-solid fa-microscope"></i></div><span class="font-bold text-gray-800">Citodiagnóstico</span></div><i class="fa-solid fa-chevron-right text-gray-300"></i>
                         </button>
-                        <button class="bg-white p-4 rounded-xl shadow-sm border opacity-60 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-vial"></i></div><span class="font-bold text-gray-800">Histopatología</span></div></button>
-                        <button class="bg-white p-4 rounded-xl shadow-sm border opacity-60 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-eye"></i></div><span class="font-bold text-gray-800">Macroscopía</span></div></button>
+                        <button class="bg-white p-4 rounded-xl shadow-sm border opacity-60 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl"><i class="fa-solid fa-vial"></i></div><span class="font-bold text-gray-800">Histopatología</span></div></button>
+                        <button class="bg-white p-4 rounded-xl shadow-sm border opacity-60 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl"><i class="fa-solid fa-eye"></i></div><span class="font-bold text-gray-800">Macroscopía</span></div></button>
                     </div>
                 </div>
 
@@ -151,7 +163,7 @@
                     
                     <div id="cito-Procesamiento" class="p-4 flex-1 overflow-y-auto space-y-4 block">
                         <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-                            <h3 class="font-bold text-gray-800 text-sm mb-3 border-b pb-2"><i class="fa-regular fa-calendar-check text-teal-600 mr-1"></i> Cronograma de Batería (Agosto 2026)</h3>
+                            <h3 class="font-bold text-gray-800 text-sm mb-3 border-b pb-2"><i class="fa-regular fa-calendar-check text-teal-600 mr-1"></i> Cronograma (Agosto 2026)</h3>
                             <p class="text-[10px] text-gray-400 mb-2">Toca un día para registrar relleno, eliminación o un evento nuevo.</p>
                             <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-xs"></div>
                         </div>
@@ -182,11 +194,14 @@
 
             <!-- 3. VISTA EQUIPO -->
             <div id="vista-equipo" class="hidden flex flex-col h-full bg-gray-50">
-                <div class="bg-white border-b shadow-sm px-4 py-3 text-center sticky top-0 z-10"><h2 class="font-bold text-gray-800 text-lg"><i class="fa-solid fa-shield-halved text-teal-600 mr-2"></i> Nuestro Equipo</h2></div>
+                <div class="bg-white border-b shadow-sm px-4 py-3 text-center sticky top-0 z-10">
+                    <h2 class="font-bold text-gray-800 text-lg"><i class="fa-solid fa-shield-halved text-teal-600 mr-2"></i> Nuestro Equipo</h2>
+                </div>
+                <!-- Aquí se inyectan dinámicamente agrupados por Rol -->
                 <div class="p-4 flex-1 overflow-y-auto space-y-6" id="contenedor-equipo"></div>
             </div>
 
-            <!-- 4. VISTA BITÁCORA -->
+            <!-- 4. VISTA BITÁCORA (VISOR) -->
             <div id="vista-bitacora" class="hidden flex flex-col h-full bg-gray-50">
                 <div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10">
                     <span class="text-teal-800"><i class="fa-solid fa-folder-open mr-2"></i> Visor de Bitácoras</span>
@@ -206,37 +221,32 @@
                 </div>
             </div>
             
-            <!-- 5. VISTA ACTAS DE REUNIÓN (NUEVA VERSIÓN) -->
-            <div id="vista-actas" class="hidden flex flex-col h-full bg-gray-50">
-                <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky top-0 z-10 overflow-x-auto">
-                    <button onclick="cambiarSubActas('Nueva')" id="tab-actas-Nueva" class="flex-1 py-3 px-2 border-b-2 border-teal-700 text-teal-700 font-bold whitespace-nowrap">📝 Nueva Acta</button>
-                    <button onclick="cambiarSubActas('Registro')" id="tab-actas-Registro" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500 whitespace-nowrap">🗂️ Registro de Actas</button>
+            <!-- 5. VISTA ACTAS DE REUNIÓN -->
+            <div id="vista-actas" class="hidden flex flex-col h-full bg-gray-50 relative">
+                <div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10">
+                    <span class="text-teal-800"><i class="fa-solid fa-file-signature mr-2"></i> Registro de Actas</span>
                 </div>
                 
-                <!-- Pestaña: Nueva Acta (Solo Jefaturas) -->
-                <div id="actas-Nueva" class="p-4 flex-1 overflow-y-auto space-y-4 block">
-                    <div class="bg-teal-50 border border-teal-200 p-3 rounded-xl">
-                        <p class="text-[10px] text-teal-800 font-bold uppercase mb-1">Paso 1: Detalles de la Reunión</p>
-                        <input type="text" id="acta-titulo" placeholder="Título (Ej: Coord. Mensual)" class="w-full border rounded-lg p-2 text-sm bg-white font-bold mb-2 focus:outline-none">
-                        <textarea id="acta-detalle" rows="5" placeholder="Temas tratados y acuerdos..." class="w-full border rounded-lg p-2 text-sm bg-white focus:outline-none"></textarea>
-                    </div>
-                    
-                    <div class="bg-white border p-3 rounded-xl shadow-sm">
-                        <p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Paso 2: Seleccionar Asistentes</p>
-                        <p class="text-[9px] text-gray-400 mb-2">Selecciona a los usuarios que participaron. Se les enviará una notificación para que firmen.</p>
-                        <div id="contenedor-asistentes-acta" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1">
-                            <!-- Los checkboxes se cargan dinámicamente aquí -->
-                        </div>
-                    </div>
-                    
-                    <button onclick="guardarActa()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">
-                        <i class="fa-solid fa-paper-plane mr-1"></i> Publicar Acta para Firmas
-                    </button>
-                </div>
-
-                <!-- Pestaña: Registro de Actas (Para todos) -->
-                <div id="actas-Registro" class="p-4 flex-1 overflow-y-auto hidden">
+                <div class="p-4 flex-1 overflow-y-auto">
                     <div id="contenedor-registro-actas" class="space-y-4"></div>
+                </div>
+                
+                <!-- Botón flotante para Jefaturas -->
+                <button id="btn-flotante-acta" onclick="abrirModalNuevaActa()" class="hidden absolute bottom-6 right-6 bg-teal-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl hover:bg-teal-700 border-2 border-white">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <!-- 6. VISTA ADMIN (GESTIÓN USUARIOS) -->
+            <div id="vista-admin" class="hidden flex flex-col h-full bg-gray-50">
+                <div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10">
+                    <span class="text-red-700"><i class="fa-solid fa-users-gear mr-2"></i> Gestión de Usuarios</span>
+                </div>
+                <div class="p-4 flex-1 overflow-y-auto">
+                    <button onclick="abrirModalAdminUsuario('')" class="w-full bg-white border border-red-200 text-red-700 rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-sm mb-4 hover:bg-red-50">
+                        <i class="fa-solid fa-user-plus"></i> Crear Nuevo Usuario
+                    </button>
+                    <div id="contenedor-lista-usuarios" class="space-y-3"></div>
                 </div>
             </div>
 
@@ -247,7 +257,7 @@
             <div class="flex justify-around items-center h-16 px-1">
                 <button id="btn-foros" onclick="cambiarVista('foros')" class="flex flex-col items-center justify-center w-full text-teal-700"><i class="fa-solid fa-users-rectangle text-xl mb-1"></i><span class="text-[10px] font-bold">Foros</span></button>
                 <button id="btn-secciones" onclick="cambiarVista('secciones')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-network-wired text-xl mb-1"></i><span class="text-[10px] font-bold">Secciones</span></button>
-                <button id="btn-equipo" onclick="cambiarVista('equipo')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-shield-heart text-xl mb-1"></i><span class="text-[10px] font-bold">Equipo</span></button>
+                <button id="btn-equipo" onclick="cambiarVista('equipo')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-medal text-xl mb-1"></i><span class="text-[10px] font-bold">Equipo</span></button>
             </div>
         </nav>
     </div>
@@ -262,13 +272,12 @@
                     <div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="perfil-nombre" class="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-teal-500 text-sm"></div>
                     <div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="perfil-apellido" class="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-teal-500 text-sm"></div>
                 </div>
-                <div><label class="text-xs font-bold text-gray-500">URL Foto Perfil (Pegar Enlace Web)</label><input type="text" id="perfil-foto" class="w-full border-b border-gray-300 py-1 focus:outline-none text-xs text-gray-600"></div>
+                <div><label class="text-xs font-bold text-gray-500">URL Foto Perfil</label><input type="text" id="perfil-foto" placeholder="Pegar enlace web..." class="w-full border-b border-gray-300 py-1 focus:outline-none text-xs text-gray-600"></div>
                 <button onclick="guardarPerfil()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md mt-2">Guardar Cambios</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DIRECTORIO ACTUALIZADO -->
     <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white">
@@ -276,7 +285,6 @@
                 <button onclick="cerrarModal('modal-anexos')" class="text-gray-400 text-2xl">&times;</button>
             </div>
             <div class="space-y-4">
-                
                 <div>
                     <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Secretarías</h3>
                     <div class="space-y-2">
@@ -286,56 +294,43 @@
                         <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Secretaría Ventana (Recepción)</span><span class="text-teal-700 font-bold">553406</span></div>
                     </div>
                 </div>
-
                 <div>
                     <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Oficina TM 1 & 2</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Roxana Parra</span><span class="text-teal-700 font-bold">552836</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Paulina Aguilar</span><span class="text-teal-700 font-bold">552841</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Fernanda Jara</span><span class="text-teal-700 font-bold">552842</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Valentina Paredes</span><span class="text-teal-700 font-bold">552847</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Camila Arzola</span><span class="text-teal-700 font-bold">552827</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Andrés Estay</span><span class="text-teal-700 font-bold">552828</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">TM Alejandro Aedo</span><span class="text-teal-700 font-bold">553026</span></div>
-                    </div>
+                    <div class="space-y-2 text-sm font-bold"><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>TM Roxana Parra</span><span class="text-teal-700">552836</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>TM Paulina Aguilar</span><span class="text-teal-700">552841</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>TM Fernanda Jara</span><span class="text-teal-700">552842</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>TM Valentina Paredes</span><span class="text-teal-700">552847</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>TM Camila Arzola</span><span class="text-teal-700">552827</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>TM Andrés Estay</span><span class="text-teal-700">552828</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>TM Alejandro Aedo</span><span class="text-teal-700">553026</span></div></div>
                 </div>
-
                 <div>
                     <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Oficina Patólogos</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Benitez</span><span class="text-teal-700 font-bold">552643</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Garcia</span><span class="text-teal-700 font-bold">552835</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Humeres</span><span class="text-teal-700 font-bold">552849</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Vidal</span><span class="text-teal-700 font-bold">552845</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Cerón</span><span class="text-teal-700 font-bold">552846</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dra. Beltrán</span><span class="text-teal-700 font-bold">552833</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dr. Rojas</span><span class="text-teal-700 font-bold">552840</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Dra. Alfaro</span><span class="text-teal-700 font-bold">552838</span></div>
-                    </div>
+                    <div class="space-y-2 text-sm font-bold"><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Dr. Benitez</span><span class="text-teal-700">552643</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Dr. Garcia</span><span class="text-teal-700">552835</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Dr. Humeres</span><span class="text-teal-700">552849</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Dr. Vidal</span><span class="text-teal-700">552845</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Dr. Cerón</span><span class="text-teal-700">552846</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Dra. Beltrán</span><span class="text-teal-700">552833</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Dr. Rojas</span><span class="text-teal-700">552840</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Dra. Alfaro</span><span class="text-teal-700">552838</span></div></div>
                 </div>
-                
                 <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Laboratorios</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citodiagnóstico</span><span class="text-teal-700 font-bold">----</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Histopatología</span><span class="text-teal-700 font-bold">----</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citogenética</span><span class="text-teal-700 font-bold">552839</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Inmunohistoquimica</span><span class="text-teal-700 font-bold">552830</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Técnicas histológicas</span><span class="text-teal-700 font-bold">553417</span></div>
-                    </div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Laboratorios y Otros</h3>
+                    <div class="space-y-2 text-sm font-bold"><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Citogenética</span><span class="text-teal-700">552839</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Inmunohistoquimica</span><span class="text-teal-700">552830</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Técnicas histológicas</span><span class="text-teal-700">553417</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Sala de archivo</span><span class="text-teal-700">553027</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Sala de macroscopia</span><span class="text-teal-700">553067</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span>Morgue</span><span class="text-teal-700">553049</span></div></div>
                 </div>
-                
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Otros</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Informática (Soporte)</span><span class="text-teal-700 font-bold">----</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Bodega</span><span class="text-teal-700 font-bold">----</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Sala de archivo</span><span class="text-teal-700 font-bold">553027</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Sala de macroscopia</span><span class="text-teal-700 font-bold">553067</span></div>
-                        <div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Morgue</span><span class="text-teal-700 font-bold">553049</span></div>
-                    </div>
-                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- MODAL NUEVA ACTA (Formulario emergente) -->
+    <div id="modal-nueva-acta" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
+        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white z-10">
+                <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-file-signature text-teal-600 mr-2"></i> Crear Nueva Acta</h2>
+                <button onclick="cerrarModal('modal-nueva-acta')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-teal-50 border border-teal-200 p-3 rounded-xl">
+                    <input type="text" id="acta-titulo" placeholder="Título (Ej: Coord. Mensual)" class="w-full border rounded-lg p-2 text-sm bg-white font-bold mb-2 focus:outline-none">
+                    <textarea id="acta-detalle" rows="4" placeholder="Temas tratados y acuerdos..." class="w-full border rounded-lg p-2 text-sm bg-white focus:outline-none"></textarea>
+                </div>
+                <div class="bg-white border p-3 rounded-xl shadow-sm">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Seleccionar Asistentes</p>
+                    <div id="contenedor-asistentes-acta" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1">
+                        <!-- Checkboxes dinámicos -->
+                    </div>
+                </div>
+                <button onclick="guardarActa()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">
+                    <i class="fa-solid fa-paper-plane mr-1"></i> Publicar Acta para Firmas
+                </button>
             </div>
         </div>
     </div>
@@ -348,71 +343,86 @@
                 <button onclick="cerrarModal('modal-firma-acta')" class="text-gray-400 text-2xl">&times;</button>
             </div>
             <p class="text-xs text-gray-500 mb-4">Usa tu dedo o ratón para firmar en el recuadro blanco.</p>
-            
             <div class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 relative h-40 mb-3">
                 <canvas id="canvas-firma" class="w-full h-full touch-none cursor-crosshair"></canvas>
             </div>
-            
             <div class="flex gap-2">
                 <button onclick="limpiarFirma()" class="w-1/3 bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-lg shadow-sm hover:bg-red-100 text-xs">
                     <i class="fa-solid fa-eraser"></i> Limpiar
                 </button>
                 <button onclick="guardarMiFirma()" class="w-2/3 bg-teal-600 text-white font-bold py-3 rounded-lg shadow-sm hover:bg-teal-700 text-sm">
-                    <i class="fa-solid fa-check mr-1"></i> Aceptar y Guardar
+                    <i class="fa-solid fa-check mr-1"></i> Aceptar
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="modal-protocolos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 mx-auto shadow-2xl max-h-[85vh] overflow-y-auto">
+    <!-- MODAL ADMIN USUARIO -->
+    <div id="modal-admin-user" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-book-medical text-teal-600 mr-2"></i> Biblioteca de Protocolos</h2>
-                <button onclick="cerrarModal('modal-protocolos')" class="text-gray-400 text-2xl">&times;</button>
+                <h2 id="tit-admin-user" class="font-bold text-lg text-red-700">Gestión de Usuario</h2>
+                <button onclick="cerrarModal('modal-admin-user')" class="text-gray-400 text-2xl">&times;</button>
             </div>
             <div class="space-y-3">
-                <details class="bg-gray-50 rounded-lg border group"><summary class="font-bold p-4 cursor-pointer flex justify-between items-center">Criterios Rechazo PAP <i class="fa-solid fa-chevron-down text-gray-400"></i></summary><div class="p-4 pt-0 text-sm text-gray-600 border-t"><ul class="list-disc pl-5 mt-2"><li>Placa rota irreparablemente.</li><li>Discordancia orden/placa.</li></ul></div></details>
-                <details class="bg-gray-50 rounded-lg border group"><summary class="font-bold p-4 cursor-pointer flex justify-between items-center">Contingencia Citoweb <i class="fa-solid fa-chevron-down text-gray-400"></i></summary><div class="p-4 pt-0 text-sm text-gray-600 border-t"><ol class="list-decimal pl-5 mt-2"><li>Llamar a Informática (4040).</li><li>Cuaderno Rojo.</li></ol></div></details>
+                <input type="hidden" id="admin-u-mode"> <!-- 'new' o el ID original -->
+                <div><label class="text-xs font-bold text-gray-500">ID de Acceso (Usuario Login)</label><input type="text" id="admin-u-id" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none" placeholder="Ej: p.aguilar"></div>
+                <div><label class="text-xs font-bold text-gray-500">Contraseña</label><input type="text" id="admin-u-pass" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="admin-u-n" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
+                    <div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="admin-u-a" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
+                </div>
+                <div><label class="text-xs font-bold text-gray-500">Rol Institucional</label>
+                    <select id="admin-u-rol" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50 font-bold">
+                        <option>Supervisión</option><option>Encargado Área</option><option>Tecnólogo Médico</option><option>Técnico (TENS)</option><option>Secretaría</option>
+                    </select>
+                </div>
+                <button onclick="guardarAdminUsuario()" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-md mt-2">Guardar Usuario</button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL POST, BITACORA NUEVA, ETC (Reutilizados del original) -->
+    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg text-gray-800">Nueva Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Destino:</label><select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Todos</option><option>Supervisión</option><option>Encargados</option><option>Tecnólogos</option><option>TENS</option><option>Secretaría</option></select></div><div id="campo-fecha-evento" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Fecha y Hora:</label><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none"><textarea id="post-cuerpo" rows="4" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea><div id="div-img-post"><label class="text-xs font-bold text-gray-500"><i class="fa-solid fa-image"></i> URL de Imagen</label><input type="text" id="post-img" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50"></div><button id="btn-submit-post" onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
+    <div id="modal-bitacora-nueva" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh]"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Traspaso de Turno</h2><button onclick="cerrarModal('modal-bitacora-nueva')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500">Unidad</label><select id="bit-unidad" class="w-full border rounded p-2 text-sm mt-1 font-bold bg-gray-50"><option>Citopatología - Secretaría</option><option>Citopatología - TENS</option><option>Histopatología</option><option>Macroscopía</option></select></div><div><label class="text-xs font-bold text-gray-500">Tipo Traspaso</label><select id="bit-tipo" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Diario</option><option>Semanal</option></select></div></div><div><label class="text-xs font-bold text-gray-500">Novedades y Pendientes</label><textarea id="bit-nov" rows="5" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea></div><button onclick="guardarBitacora()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg">Guardar Traspaso</button></div></div></div>
+    <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center"><h2 class="font-bold text-lg text-gray-800 mb-2">Evento en Calendario</h2><p class="text-sm text-gray-500 mb-6">Día: <span id="txt-fecha-accion" class="font-bold text-teal-700"></span> Agosto 2026</p><div class="space-y-2"><button onclick="registrarAccionCal('Eliminación')" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-lg"></i> Eliminación</button><button onclick="registrarAccionCal('Relleno')" class="w-full bg-teal-50 text-teal-700 border border-teal-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-lg"></i> Relleno Batería</button><div class="border-t mt-3 pt-3"><input type="text" id="cal-evento-propio" placeholder="Escribir evento propio..." class="w-full border rounded p-2 text-sm mb-2 focus:outline-none"><button onclick="registrarAccionCal('Propio')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-xl text-sm"><i class="fa-solid fa-plus mr-1"></i> Guardar Evento</button></div></div><button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline">Cancelar</button></div></div>
+    <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Rellenar Reactivos</h2><button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button></div><div id="form-reactivos" class="space-y-3"></div><button onclick="guardarReactivos()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg mt-4">Actualizar % Sistema</button></div></div>
+    <div id="modal-protocolos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 mx-auto shadow-2xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-book-medical text-teal-600 mr-2"></i> Biblioteca de Protocolos</h2><button onclick="cerrarModal('modal-protocolos')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-3"><details class="bg-gray-50 rounded-lg border group"><summary class="font-bold p-4 cursor-pointer flex justify-between items-center">Criterios Rechazo PAP <i class="fa-solid fa-chevron-down text-gray-400"></i></summary><div class="p-4 pt-0 text-sm text-gray-600 border-t"><ul class="list-disc pl-5 mt-2"><li>Placa rota irreparablemente.</li><li>Discordancia orden/placa.</li></ul></div></details><details class="bg-gray-50 rounded-lg border group"><summary class="font-bold p-4 cursor-pointer flex justify-between items-center">Contingencia Citoweb <i class="fa-solid fa-chevron-down text-gray-400"></i></summary><div class="p-4 pt-0 text-sm text-gray-600 border-t"><ol class="list-decimal pl-5 mt-2"><li>Llamar a Informática (4040).</li><li>Cuaderno Rojo.</li></ol></div></details></div></div></div>
     <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
 
-    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg text-gray-800">Nueva Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Destino:</label><select id="post-audiencia" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Todos</option><option>Supervisión</option><option>Encargados</option><option>Tecnólogos</option><option>TENS</option><option>Secretaría</option></select></div><div id="campo-fecha-evento" class="hidden"><label class="text-xs font-bold text-gray-500 uppercase">Fecha y Hora:</label><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold text-gray-800 focus:outline-none"><textarea id="post-cuerpo" rows="4" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea><div id="div-img-post"><label class="text-xs font-bold text-gray-500"><i class="fa-solid fa-image"></i> URL de Imagen</label><input type="text" id="post-img" class="w-full border rounded p-2 text-xs mt-1 bg-gray-50"></div><button id="btn-submit-post" onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
-    
-    <div id="modal-bitacora-nueva" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh]"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Traspaso de Turno</h2><button onclick="cerrarModal('modal-bitacora-nueva')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500">Unidad</label><select id="bit-unidad" class="w-full border rounded p-2 text-sm mt-1 font-bold bg-gray-50"><option>Citopatología - Secretaría</option><option>Citopatología - TENS</option><option>Histopatología</option><option>Macroscopía</option></select></div><div><label class="text-xs font-bold text-gray-500">Tipo Traspaso</label><select id="bit-tipo" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50"><option>Diario</option><option>Semanal</option></select></div></div><div><label class="text-xs font-bold text-gray-500">Novedades y Pendientes</label><textarea id="bit-nov" rows="5" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none"></textarea></div><button onclick="guardarBitacora()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg">Guardar Traspaso</button></div></div></div>
-
-    <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center">
-            <h2 class="font-bold text-lg text-gray-800 mb-2">Evento en Calendario</h2>
-            <p class="text-sm text-gray-500 mb-6">Día: <span id="txt-fecha-accion" class="font-bold text-teal-700"></span> Agosto 2026</p>
-            <div class="space-y-2">
-                <button onclick="registrarAccionCal('Eliminación')" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-lg"></i> Eliminación</button>
-                <button onclick="registrarAccionCal('Relleno')" class="w-full bg-teal-50 text-teal-700 border border-teal-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-lg"></i> Relleno Batería</button>
-                <div class="border-t mt-3 pt-3">
-                    <input type="text" id="cal-evento-propio" placeholder="Escribir evento propio..." class="w-full border rounded p-2 text-sm mb-2 focus:outline-none">
-                    <button onclick="registrarAccionCal('Propio')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-xl text-sm"><i class="fa-solid fa-plus mr-1"></i> Guardar Evento</button>
-                </div>
-            </div><button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-5"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Rellenar Reactivos</h2><button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button></div><div id="form-reactivos" class="space-y-3"></div><button onclick="guardarReactivos()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg mt-4">Actualizar % Sistema</button></div>
-    </div>
-
-    <!-- ==================== SCRIPT ==================== -->
+    <!-- ==================== SCRIPT PRINCIPAL ==================== -->
     <script>
-        const configRoles = { 'Supervisión': { nombre: 'Supervisión', badge: 'bg-purple-100 text-purple-800' }, 'Encargado Área': { nombre: 'Encargado Área', badge: 'bg-blue-100 text-blue-800' }, 'Tecnólogo': { nombre: 'Tecnólogo Médico', badge: 'bg-teal-100 text-teal-800' }, 'Técnico (TENS)': { nombre: 'Técnico (TENS)', badge: 'bg-orange-100 text-orange-800' }, 'Secretaría': { nombre: 'Secretaría', badge: 'bg-pink-100 text-pink-800' } };
-        const dbLogros = { 'cito_master': { nombre: 'Master Citoweb', icono: 'fa-laptop-medical', color: 'text-blue-500' }, 'looter': { nombre: 'Looter de Insumos', icono: 'fa-box-open', color: 'text-orange-500' }, 'support': { nombre: 'Soporte Lvl 99', icono: 'fa-shield-heart', color: 'text-pink-500' }, 'guardian': { nombre: 'Guardián', icono: 'fa-khanda', color: 'text-teal-500' } };
-        const baseUsuarios = {
-            'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'Supervisión', equipo: 'Jefatura', logros: ['cito_master', 'support'] },
-            'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'Encargado Área', equipo: 'Citodiagnóstico', logros: ['cito_master'] },
-            'tm': { pass: '1234', n: 'TM', a: 'Central', rol: 'Tecnólogo', equipo: 'Citodiagnóstico', logros: ['cito_master', 'guardian'] },
-            'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'Técnico (TENS)', equipo: 'Citodiagnóstico', logros: ['looter'] },
-            'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'Secretaría', equipo: 'Secretaría', logros: ['support'] }
+        // 1. BASE DE DATOS DE LOGROS (GAMIFICACIÓN)
+        const dbLogros = {
+            'pionero': { n: 'Pionero Mavrogeni', i: 'fa-rocket', c: 'text-blue-500', desc: 'Inició sesión en la app.' },
+            'pluma': { n: 'La Pluma de Oro', i: 'fa-pen-fancy', c: 'text-yellow-500', desc: 'Firmó 5 actas.' },
+            'guardian': { n: 'Guardián del Turno', i: 'fa-shield-halved', c: 'text-teal-500', desc: 'Creó 10 bitácoras.' },
+            'alquimista': { n: 'El Alquimista', i: 'fa-flask', c: 'text-purple-500', desc: 'Rellenó batería 5 veces.' },
+            'voz': { n: 'Voz del Laboratorio', i: 'fa-bullhorn', c: 'text-orange-500', desc: 'Creó 3 publicaciones.' },
+            'limpieza': { n: 'Limpieza Extrema', i: 'fa-broom', c: 'text-green-500', desc: 'Registró 5 eliminaciones.' }
         };
+
+        // 2. SISTEMA DE USUARIOS DINÁMICO (MEMORIA)
+        let usuariosDB = {};
+        const usuariosDefault = {
+            'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'Supervisión', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' },
+            'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'Encargado Área', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' },
+            'tm': { pass: '1234', n: 'TM', a: 'Central', rol: 'Tecnólogo Médico', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' },
+            'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'Técnico (TENS)', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' },
+            'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'Secretaría', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }
+        };
+
+        function initUsuarios() {
+            const guardados = localStorage.getItem('mvrg_usuarios');
+            if (guardados) {
+                usuariosDB = JSON.parse(guardados);
+                // Patch de seguridad por si hay usuarios sin objeto stats en versiones anteriores
+                for(let k in usuariosDB) { if(!usuariosDB[k].stats) usuariosDB[k].stats = {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}; }
+            } else {
+                usuariosDB = JSON.parse(JSON.stringify(usuariosDefault));
+                localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB));
+            }
+        }
 
         let usuarioActual = null; let foroActual = 'Avisos'; let tabNotifActual = 'nuevas'; let diaSeleccionado = 0;
         let publicaciones=[], bitacoraData=[], actasData=[], notificaciones=[], calendarioData={}, reactivosStock={};
@@ -422,10 +432,11 @@
         function iniciarSesion() {
             const user = document.getElementById('login-user').value.toLowerCase().trim();
             const pass = document.getElementById('login-pass').value;
-            if (baseUsuarios[user] && baseUsuarios[user].pass === pass) {
-                const u = baseUsuarios[user];
-                usuarioActual = { id: user, ...u, iniciales: (u.n.charAt(0) + u.a.charAt(0)).toUpperCase(), foto:'' };
+            if (usuariosDB[user] && usuariosDB[user].pass === pass) {
+                const u = usuariosDB[user];
+                usuarioActual = { id: user, ...u, iniciales: (u.n.charAt(0) + u.a.charAt(0)).toUpperCase() };
                 localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
+                sumarStat('login'); // Asegurar logro pionero
                 entrarApp();
             } else document.getElementById('error-login').classList.remove('hidden');
         }
@@ -434,7 +445,13 @@
             document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta');
             document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
 
-            actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); actualizarCampana(); 
+            // Seguridad panel Admin/Actas
+            if(usuarioActual.rol === 'Supervisión' || usuarioActual.rol === 'Encargado Área') {
+                document.getElementById('seccion-admin').style.display = 'block';
+                document.getElementById('btn-flotante-acta').style.display = 'flex';
+            }
+
+            actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); renderActas(); renderAdminUsuarios(); actualizarCampana(); 
         }
 
         function actualizarUIUsuario() {
@@ -446,6 +463,8 @@
             document.getElementById('header-avatar').innerHTML = av;
             document.getElementById('menu-avatar').innerHTML = av;
         }
+
+        // PERFIL
         function abrirModalPerfil() {
             document.getElementById('perfil-nombre').value = usuarioActual.n;
             document.getElementById('perfil-apellido').value = usuarioActual.a;
@@ -457,92 +476,176 @@
             usuarioActual.a = document.getElementById('perfil-apellido').value;
             usuarioActual.foto = document.getElementById('perfil-foto').value;
             usuarioActual.iniciales = (usuarioActual.n.charAt(0) + usuarioActual.a.charAt(0)).toUpperCase();
+            
+            // Actualizar BD central y sesion
+            usuariosDB[usuarioActual.id].n = usuarioActual.n;
+            usuariosDB[usuarioActual.id].a = usuarioActual.a;
+            usuariosDB[usuarioActual.id].foto = usuarioActual.foto;
+            localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB));
             localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
-            actualizarUIUsuario(); renderPosts(); cerrarModal('modal-perfil');
+            
+            actualizarUIUsuario(); renderEquipo(); renderPosts(); cerrarModal('modal-perfil');
         }
         function cerrarSesion() { localStorage.removeItem('mvrg_sesion'); location.reload(); }
 
         function toggleMenu() { const m = document.getElementById('menu-lateral'), o = document.getElementById('overlay-menu'); if(m.classList.contains('menu-cerrado')){m.classList.remove('menu-cerrado');m.classList.add('menu-abierto');o.classList.remove('hidden');}else{m.classList.remove('menu-abierto');m.classList.add('menu-cerrado');o.classList.add('hidden');} }
         
         function cambiarVista(vista) { 
-            // Vistas principales disponibles
-            ['foros', 'secciones', 'equipo', 'bitacora', 'actas'].forEach(v => { 
+            ['foros', 'secciones', 'equipo', 'bitacora', 'actas', 'admin'].forEach(v => { 
                 const e = document.getElementById('vista-' + v); 
                 if(e){e.classList.add('hidden');e.classList.remove('block', 'flex');} 
             }); 
-            
             document.getElementById('vista-' + vista).classList.remove('hidden'); 
             document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex'); 
             
-            // Botones inferiores fijos
             ['foros', 'secciones', 'equipo'].forEach(id => { 
                 const b = document.getElementById('btn-' + id); 
-                if(b){
-                    if(id === vista) b.classList.replace('text-gray-400', 'text-teal-700'); 
-                    else b.classList.replace('text-teal-700', 'text-gray-400');
-                } 
+                if(b){ if(id === vista) b.classList.replace('text-gray-400', 'text-teal-700'); else b.classList.replace('text-teal-700', 'text-gray-400'); } 
             });
             
-            // Si entra a herramientas del menú lateral
-            if(vista === 'bitacora' || vista === 'actas') {
-                ['foros', 'secciones', 'equipo'].forEach(id => { 
-                    const b = document.getElementById('btn-' + id); 
-                    if(b) b.classList.replace('text-teal-700', 'text-gray-400');
-                });
-            }
-
-            if(vista === 'actas') {
-                evaluarPermisosActas();
+            if(['bitacora', 'actas', 'admin'].includes(vista)) {
+                ['foros', 'secciones', 'equipo'].forEach(id => { const b = document.getElementById('btn-' + id); if(b) b.classList.replace('text-teal-700', 'text-gray-400'); });
             }
         }
+        function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); }
+        function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
 
-        // ---------- LÓGICA DE ACTAS DE REUNIÓN ----------
-        
-        function evaluarPermisosActas() {
-            const tabNueva = document.getElementById('tab-actas-Nueva');
-            // Solo Supervisión y Encargado Área pueden crear actas
-            if (usuarioActual.rol === 'Supervisión' || usuarioActual.rol === 'Encargado Área') {
-                tabNueva.style.display = 'block';
-                renderAsistentesActa();
-                cambiarSubActas('Nueva');
-            } else {
-                tabNueva.style.display = 'none';
-                cambiarSubActas('Registro'); // Forzar directo al registro
+        // ---------- MOTOR DE LOGROS (GAMIFICACIÓN) ----------
+        function sumarStat(statName) {
+            let uDB = usuariosDB[usuarioActual.id];
+            uDB.stats[statName] = (uDB.stats[statName] || 0) + 1;
+            let val = uDB.stats[statName];
+            let nuevoLogro = null;
+            
+            if(statName==='login' && !uDB.logros.includes('pionero')) nuevoLogro = 'pionero';
+            if(statName==='pluma' && val===5 && !uDB.logros.includes('pluma')) nuevoLogro = 'pluma';
+            if(statName==='guardian' && val===10 && !uDB.logros.includes('guardian')) nuevoLogro = 'guardian';
+            if(statName==='alquimista' && val===5 && !uDB.logros.includes('alquimista')) nuevoLogro = 'alquimista';
+            if(statName==='voz' && val===3 && !uDB.logros.includes('voz')) nuevoLogro = 'voz';
+            if(statName==='limpieza' && val===5 && !uDB.logros.includes('limpieza')) nuevoLogro = 'limpieza';
+            
+            if(nuevoLogro) {
+                uDB.logros.push(nuevoLogro);
+                generarNotificacion(`¡LOGRO DESBLOQUEADO: ${dbLogros[nuevoLogro].n}! 🏆`, 'equipo', '');
             }
+            
+            localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB));
+            usuarioActual.stats = uDB.stats; usuarioActual.logros = uDB.logros;
+            localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
+            renderEquipo();
         }
 
-        function cambiarSubActas(tab) {
-            if(tab === 'Nueva') {
-                document.getElementById('actas-Nueva').style.display = 'block';
-                document.getElementById('actas-Registro').style.display = 'none';
-                document.getElementById('tab-actas-Nueva').classList.replace('border-transparent', 'border-teal-700');
-                document.getElementById('tab-actas-Nueva').classList.replace('text-gray-500', 'text-teal-700');
-                document.getElementById('tab-actas-Registro').classList.replace('border-teal-700', 'border-transparent');
-                document.getElementById('tab-actas-Registro').classList.replace('text-teal-700', 'text-gray-500');
-            } else {
-                document.getElementById('actas-Registro').style.display = 'block';
-                document.getElementById('actas-Nueva').style.display = 'none';
-                document.getElementById('tab-actas-Registro').classList.replace('border-transparent', 'border-teal-700');
-                document.getElementById('tab-actas-Registro').classList.replace('text-gray-500', 'text-teal-700');
-                document.getElementById('tab-actas-Nueva').classList.replace('border-teal-700', 'border-transparent');
-                document.getElementById('tab-actas-Nueva').classList.replace('text-teal-700', 'text-gray-500');
-                renderActas();
-            }
+        // ---------- 1. GESTIÓN DE EQUIPO AGRUPADO POR ROL ----------
+        function renderEquipo() {
+            const c = document.getElementById('contenedor-equipo'); c.innerHTML = '';
+            // El orden exacto de los roles
+            const rolesOrden = ['Supervisión', 'Encargado Área', 'Tecnólogo Médico', 'Técnico (TENS)', 'Secretaría'];
+            
+            rolesOrden.forEach(rolBuscado => {
+                let usuariosDelRol = Object.values(usuariosDB).filter(u => u.rol === rolBuscado);
+                if(usuariosDelRol.length > 0) {
+                    let html = `<div class="mb-6"><h3 class="font-bold text-gray-500 uppercase text-xs mb-3 border-b border-gray-300 pb-1">${rolBuscado}</h3><div class="grid grid-cols-1 gap-3">`;
+                    
+                    usuariosDelRol.forEach(u => {
+                        // Vitrina de logros
+                        let lHtml = ''; 
+                        Object.keys(dbLogros).forEach(lKey => {
+                            const lDef = dbLogros[lKey];
+                            const tiene = u.logros.includes(lKey);
+                            const cssClase = tiene ? `medalla-on ${lDef.c}` : `medalla-off text-gray-400`;
+                            const tooltip = tiene ? `Ganado: ${lDef.n}` : `Bloqueado: ${lDef.desc}`;
+                            lHtml += `<div class="p-1 rounded-full bg-gray-50 text-center ${cssClase} transition-all" title="${tooltip}"><i class="fa-solid ${lDef.i} text-xl"></i></div>`;
+                        });
+                        
+                        let iniciales = (u.n.charAt(0)+u.a.charAt(0)).toUpperCase();
+                        let av = u.foto ? `<img src="${u.foto}" class="w-full h-full object-cover">` : iniciales;
+                        
+                        html += `
+                        <div class="bg-white rounded-xl shadow-sm border p-4 flex flex-col gap-3">
+                            <div class="flex gap-3 items-center">
+                                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 border-2 border-gray-300 overflow-hidden shadow-inner">${av}</div>
+                                <div class="flex-1"><h4 class="font-bold text-sm leading-tight text-gray-800">${u.n} ${u.a}</h4><p class="text-[9px] text-gray-400 uppercase font-bold">${u.rol}</p></div>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg flex justify-around border shadow-inner">${lHtml}</div>
+                        </div>`;
+                    });
+                    c.innerHTML += html + '</div></div>';
+                }
+            });
         }
 
-        function renderAsistentesActa() {
-            const c = document.getElementById('contenedor-asistentes-acta');
-            c.innerHTML = '';
-            for(const [id, u] of Object.entries(baseUsuarios)) {
+        // ---------- 2. PANEL ADMINISTRACIÓN DE USUARIOS ----------
+        function renderAdminUsuarios() {
+            const c = document.getElementById('contenedor-lista-usuarios'); c.innerHTML = '';
+            for(const [id, u] of Object.entries(usuariosDB)) {
                 c.innerHTML += `
-                <label class="flex items-center gap-3 p-2 bg-gray-50 border rounded cursor-pointer hover:bg-teal-50 transition-colors">
-                    <input type="checkbox" value="${id}" class="chk-asistente w-4 h-4 text-teal-600 rounded">
-                    <div>
-                        <p class="text-xs font-bold text-gray-800">${u.n} ${u.a}</p>
-                        <p class="text-[9px] text-gray-500 uppercase">${u.rol}</p>
+                <div class="bg-white p-3 rounded-lg border shadow-sm flex justify-between items-center">
+                    <div><p class="text-sm font-bold">${u.n} ${u.a}</p><p class="text-[10px] text-gray-500 font-mono">ID: ${id} | ${u.rol}</p></div>
+                    <div class="flex gap-2">
+                        <button onclick="abrirModalAdminUsuario('${id}')" class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs hover:bg-gray-200"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="eliminarAdminUsuario('${id}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs hover:bg-red-100 border border-red-100"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
-                </label>`;
+                </div>`;
             }
+        }
+        function abrirModalAdminUsuario(id) {
+            if(id && usuariosDB[id]) {
+                document.getElementById('admin-u-mode').value = id;
+                document.getElementById('admin-u-id').value = id; document.getElementById('admin-u-id').disabled = true;
+                document.getElementById('admin-u-pass').value = usuariosDB[id].pass;
+                document.getElementById('admin-u-n').value = usuariosDB[id].n;
+                document.getElementById('admin-u-a').value = usuariosDB[id].a;
+                document.getElementById('admin-u-rol').value = usuariosDB[id].rol;
+                document.getElementById('tit-admin-user').innerText = 'Editar Usuario';
+            } else {
+                document.getElementById('admin-u-mode').value = 'new';
+                document.getElementById('admin-u-id').value = ''; document.getElementById('admin-u-id').disabled = false;
+                document.getElementById('admin-u-pass').value = ''; document.getElementById('admin-u-n').value = ''; document.getElementById('admin-u-a').value = '';
+                document.getElementById('admin-u-rol').selectedIndex = 0;
+                document.getElementById('tit-admin-user').innerText = 'Nuevo Usuario';
+            }
+            abrirModal('modal-admin-user');
+        }
+        function guardarAdminUsuario() {
+            const mode = document.getElementById('admin-u-mode').value;
+            const id = document.getElementById('admin-u-id').value.toLowerCase().trim();
+            const pass = document.getElementById('admin-u-pass').value;
+            const n = document.getElementById('admin-u-n').value;
+            const a = document.getElementById('admin-u-a').value;
+            const rol = document.getElementById('admin-u-rol').value;
+            
+            if(!id || !pass || !n || !a) { alert("Llena todos los campos"); return; }
+            if(mode === 'new' && usuariosDB[id]) { alert("Este ID de usuario ya existe."); return; }
+            
+            if(mode === 'new') {
+                usuariosDB[id] = { pass: pass, n: n, a: a, rol: rol, logros: ['pionero'], stats: {login:0, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' };
+            } else {
+                usuariosDB[id].pass = pass; usuariosDB[id].n = n; usuariosDB[id].a = a; usuariosDB[id].rol = rol;
+                if(id === usuarioActual.id) { // Me actualicé a mi mismo
+                    usuarioActual.n = n; usuarioActual.a = a; usuarioActual.rol = rol;
+                    localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual)); actualizarUIUsuario();
+                }
+            }
+            localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB));
+            renderAdminUsuarios(); renderEquipo(); cerrarModal('modal-admin-user');
+        }
+        function eliminarAdminUsuario(id) {
+            if(id === usuarioActual.id) { alert("Por seguridad, no puedes eliminar tu propia cuenta mientras estés conectado."); return; }
+            if(confirm(`¿Seguro que deseas eliminar al usuario ${usuariosDB[id].n}?`)) {
+                delete usuariosDB[id];
+                localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB));
+                renderAdminUsuarios(); renderEquipo();
+            }
+        }
+
+        // ---------- 3. LÓGICA DE ACTAS DE REUNIÓN ----------
+        function abrirModalNuevaActa() {
+            const c = document.getElementById('contenedor-asistentes-acta'); c.innerHTML = '';
+            for(const [id, u] of Object.entries(usuariosDB)) {
+                c.innerHTML += `<label class="flex items-center gap-3 p-2 bg-gray-50 border rounded cursor-pointer hover:bg-teal-50"><input type="checkbox" value="${id}" class="chk-asistente w-4 h-4 text-teal-600 rounded"><div><p class="text-xs font-bold text-gray-800">${u.n} ${u.a}</p><p class="text-[9px] text-gray-500 uppercase">${u.rol}</p></div></label>`;
+            }
+            document.getElementById('acta-titulo').value = ''; document.getElementById('acta-detalle').value = '';
+            abrirModal('modal-nueva-acta');
         }
 
         function guardarActa() {
@@ -551,241 +654,110 @@
             const chks = document.querySelectorAll('.chk-asistente:checked');
             const asisIds = Array.from(chks).map(c => c.value);
             
-            if(!tit || !det) { alert("Por favor, completa el título y los detalles de la reunión."); return; }
-            if(asisIds.length === 0) { alert("Debes seleccionar al menos un asistente."); return; }
+            if(!tit || !det) { alert("Completa el título y detalle."); return; }
+            if(asisIds.length === 0) { alert("Selecciona al menos un asistente."); return; }
 
-            const nuevaActa = {
-                id: Date.now(),
-                fecha: new Date().toLocaleString('es-CL'),
-                titulo: tit,
-                detalle: det,
-                autor: usuarioActual,
-                asistentesIds: asisIds,
-                firmas: {} // Almacenará: { "usuario_id": "base64_img" }
-            };
-
-            actasData.unshift(nuevaActa);
-            localStorage.setItem('mvrg_actas', JSON.stringify(actasData));
+            const nuevaActa = { id: Date.now(), fecha: new Date().toLocaleString('es-CL'), titulo: tit, detalle: det, autor: usuarioActual, asistentesIds: asisIds, firmas: {} };
+            actasData.unshift(nuevaActa); localStorage.setItem('mvrg_actas', JSON.stringify(actasData));
             
-            // Limpiar formulario
-            document.getElementById('acta-titulo').value = '';
-            document.getElementById('acta-detalle').value = '';
-            chks.forEach(c => c.checked = false);
-            
-            // Notificar y redirigir
-            generarNotificacion(`Nueva Acta: ${tit} (Requiere tu firma)`, 'actas', 'Registro');
-            cambiarSubActas('Registro');
+            generarNotificacion(`Nueva Acta: ${tit} (Requiere tu firma)`, 'actas', '');
+            cerrarModal('modal-nueva-acta'); renderActas();
         }
 
         function renderActas() {
-            const c = document.getElementById('contenedor-registro-actas');
-            c.innerHTML = '';
-            if(actasData.length === 0) { 
-                c.innerHTML = '<p class="text-xs text-gray-400 text-center mt-10"><i class="fa-solid fa-inbox block text-3xl mb-2 text-gray-200"></i> No hay actas registradas aún.</p>'; 
-                return; 
-            }
+            const c = document.getElementById('contenedor-registro-actas'); c.innerHTML = '';
+            if(actasData.length === 0) { c.innerHTML = '<p class="text-xs text-gray-400 text-center mt-10"><i class="fa-solid fa-inbox block text-3xl mb-2 text-gray-200"></i> No hay actas registradas.</p>'; return; }
             
             actasData.forEach(a => {
-                // Compatibilidad con datos viejos si los hubiera
-                const asisIds = a.asistentesIds || [];
-                const firmas = a.firmas || {};
-                let pendientes = 0;
-                
-                // Generar grilla de firmas
+                const asisIds = a.asistentesIds || []; const firmas = a.firmas || {}; let pendientes = 0;
                 let firmasHtml = '<div class="grid grid-cols-2 gap-2 mt-2">';
                 asisIds.forEach(asisId => {
-                    const u = baseUsuarios[asisId];
-                    if(!u) return;
-                    if(firmas[asisId]) {
-                        // Ya firmó
-                        firmasHtml += `<div class="border border-teal-200 rounded p-2 text-center bg-white"><p class="text-[9px] text-gray-600 font-bold mb-1">${u.n} ${u.a}</p><img src="${firmas[asisId]}" class="h-10 mx-auto object-contain"><p class="text-[8px] text-teal-600 mt-1 font-bold"><i class="fa-solid fa-check-circle"></i> Firmado</p></div>`;
-                    } else {
-                        // Pendiente
-                        pendientes++;
-                        firmasHtml += `<div class="border border-dashed border-gray-300 rounded p-2 text-center bg-gray-50 opacity-70"><p class="text-[9px] text-gray-500 font-bold mb-1">${u.n} ${u.a}</p><div class="h-10 flex items-center justify-center text-[10px] text-gray-400"><i class="fa-solid fa-clock mr-1"></i> Pendiente</div></div>`;
-                    }
+                    const u = usuariosDB[asisId]; if(!u) return;
+                    if(firmas[asisId]) { firmasHtml += `<div class="border border-teal-200 rounded p-2 text-center bg-white"><p class="text-[9px] text-gray-600 font-bold mb-1">${u.n} ${u.a}</p><img src="${firmas[asisId]}" class="h-10 mx-auto object-contain"><p class="text-[8px] text-teal-600 mt-1 font-bold"><i class="fa-solid fa-check-circle"></i> Firmado</p></div>`; } 
+                    else { pendientes++; firmasHtml += `<div class="border border-dashed border-gray-300 rounded p-2 text-center bg-gray-50 opacity-70"><p class="text-[9px] text-gray-500 font-bold mb-1">${u.n} ${u.a}</p><div class="h-10 flex items-center justify-center text-[10px] text-gray-400"><i class="fa-solid fa-clock mr-1"></i> Pendiente</div></div>`; }
                 });
                 firmasHtml += '</div>';
 
-                // Mostrar botón de firmar solo si soy asistente y aún no he firmado
                 let btnFirmaHtml = '';
                 if(asisIds.includes(usuarioActual.id) && !firmas[usuarioActual.id]) {
                     btnFirmaHtml = `<button onclick="abrirModalFirma(${a.id})" class="mt-4 w-full bg-yellow-400 text-yellow-900 font-bold py-2 rounded-lg text-sm shadow-sm hover:bg-yellow-500 animate-pulse"><i class="fa-solid fa-pen-nib mr-1"></i> Firmar Esta Acta</button>`;
                 }
 
-                // Etiqueta de estado global del acta
-                let estadoGlobal = pendientes === 0 
-                    ? '<span class="bg-teal-100 text-teal-800 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-wider"><i class="fa-solid fa-check-double mr-1"></i> Completada</span>' 
-                    : `<span class="bg-yellow-100 text-yellow-800 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-wider"><i class="fa-solid fa-clock mr-1"></i> Pendiente (${pendientes})</span>`;
+                let btnEliminar = (usuarioActual.rol === 'Supervisión' || usuarioActual.rol === 'Encargado Área') ? `<button onclick="eliminarActa(${a.id})" class="mt-2 w-full bg-red-50 text-red-600 font-bold py-2 rounded-lg text-xs border border-red-200 hover:bg-red-100"><i class="fa-solid fa-trash-can mr-1"></i> Eliminar Acta</button>` : '';
+
+                let estadoGlobal = pendientes === 0 ? '<span class="bg-teal-100 text-teal-800 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-wider"><i class="fa-solid fa-check-double mr-1"></i> Completada</span>' : `<span class="bg-yellow-100 text-yellow-800 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-wider"><i class="fa-solid fa-clock mr-1"></i> Pendiente (${pendientes})</span>`;
 
                 c.innerHTML += `
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 page-break-inside-avoid">
                     <div id="acta-imprimir-${a.id}" class="p-4 bg-white">
                         <div class="flex justify-between items-start border-b pb-3 mb-3">
-                            <div>
-                                <h3 class="font-bold text-teal-800 text-lg leading-tight mb-1">${a.titulo}</h3>
-                                <p class="text-[10px] text-gray-500"><i class="fa-regular fa-calendar text-teal-600 mr-1"></i> ${a.fecha}</p>
-                            </div>
+                            <div><h3 class="font-bold text-teal-800 text-lg leading-tight mb-1">${a.titulo}</h3><p class="text-[10px] text-gray-500"><i class="fa-regular fa-calendar text-teal-600 mr-1"></i> ${a.fecha}</p></div>
                             <div>${estadoGlobal}</div>
                         </div>
                         <div class="text-sm text-gray-800 whitespace-pre-wrap mb-4 bg-gray-50 p-3 rounded-lg border border-gray-100">${a.detalle}</div>
-                        
-                        <div class="border-t pt-3">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold mb-2">Registro de Firmas</p>
-                            ${firmasHtml}
-                        </div>
+                        <div class="border-t pt-3"><p class="text-[10px] text-gray-400 uppercase font-bold mb-2">Registro de Firmas</p>${firmasHtml}</div>
                     </div>
-                    
                     <div class="bg-gray-50 p-3 border-t flex flex-col gap-2">
                         ${btnFirmaHtml}
-                        <button onclick="exportarActaEspecificaPDF(${a.id})" class="w-full bg-white hover:bg-gray-100 border text-gray-700 font-bold py-2 rounded-lg text-xs flex items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> Descargar PDF Oficial
-                        </button>
+                        <button onclick="exportarActaEspecificaPDF(${a.id})" class="w-full bg-white hover:bg-gray-100 border text-gray-700 font-bold py-2 rounded-lg text-xs flex items-center justify-center shadow-sm"><i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> Descargar PDF Oficial</button>
+                        ${btnEliminar}
                     </div>
-                </div>
-                `;
+                </div>`;
             });
         }
-
-        // --- Lógica del Canvas para Firmar ---
-        const canvas = document.getElementById('canvas-firma');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let actaFirmaActual = null; // Guarda el ID del acta que se está firmando
-
-        function initCanvas() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            if (rect.width > 0) {
-                canvas.width = rect.width;
-                canvas.height = rect.height;
-                ctx.lineWidth = 3;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = '#0f766e'; // teal-700
+        
+        function eliminarActa(id) {
+            if(confirm("¿Estás seguro de que deseas eliminar esta acta? Esta acción no se puede deshacer.")) {
+                actasData = actasData.filter(a => a.id !== id);
+                localStorage.setItem('mvrg_actas', JSON.stringify(actasData));
+                renderActas();
             }
         }
 
-        function startPos(e) { isDrawing = true; draw(e); }
-        function endPos() { isDrawing = false; ctx.beginPath(); }
-        function draw(e) {
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-        }
+        // CANVAS FIRMA
+        const canvas = document.getElementById('canvas-firma'); const ctx = canvas.getContext('2d');
+        let isDrawing = false; let actaFirmaActual = null;
+        function initCanvas() { const rect = canvas.parentElement.getBoundingClientRect(); if (rect.width > 0) { canvas.width = rect.width; canvas.height = rect.height; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#0f766e'; } }
+        function startPos(e) { isDrawing = true; draw(e); } function endPos() { isDrawing = false; ctx.beginPath(); }
+        function draw(e) { if (!isDrawing) return; const rect = canvas.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y); }
         function startPosTouch(e) { e.preventDefault(); isDrawing = true; drawTouch(e); }
-        function drawTouch(e) {
-            e.preventDefault();
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-        }
-
-        canvas.addEventListener('mousedown', startPos);
-        canvas.addEventListener('mouseup', endPos);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('touchstart', startPosTouch, {passive: false});
-        canvas.addEventListener('touchend', endPos, {passive: false});
-        canvas.addEventListener('touchmove', drawTouch, {passive: false});
-
+        function drawTouch(e) { e.preventDefault(); if (!isDrawing) return; const rect = canvas.getBoundingClientRect(); const touch = e.touches[0]; const x = touch.clientX - rect.left; const y = touch.clientY - rect.top; ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y); }
+        canvas.addEventListener('mousedown', startPos); canvas.addEventListener('mouseup', endPos); canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchstart', startPosTouch, {passive: false}); canvas.addEventListener('touchend', endPos, {passive: false}); canvas.addEventListener('touchmove', drawTouch, {passive: false});
+        
         function limpiarFirma() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-        function abrirModalFirma(idActa) {
-            actaFirmaActual = idActa;
-            abrirModal('modal-firma-acta');
-            // Damos un pequeño retraso para que el modal se renderice y el canvas calcule su tamaño real
-            setTimeout(() => {
-                initCanvas();
-                limpiarFirma();
-            }, 100);
-        }
-
+        function abrirModalFirma(idActa) { actaFirmaActual = idActa; abrirModal('modal-firma-acta'); setTimeout(() => { initCanvas(); limpiarFirma(); }, 150); }
         function guardarMiFirma() {
             if(!actaFirmaActual) return;
-            
-            // Buscar el acta correspondiente
-            const actaIdx = actasData.findIndex(a => a.id === actaFirmaActual);
-            if(actaIdx !== -1) {
-                // Guardar la firma base64 en la propiedad del usuario
-                const imgFirma = canvas.toDataURL("image/png");
-                
-                if(!actasData[actaIdx].firmas) actasData[actaIdx].firmas = {};
-                actasData[actaIdx].firmas[usuarioActual.id] = imgFirma;
-                
+            const idx = actasData.findIndex(a => a.id === actaFirmaActual);
+            if(idx !== -1) {
+                if(!actasData[idx].firmas) actasData[idx].firmas = {};
+                actasData[idx].firmas[usuarioActual.id] = canvas.toDataURL("image/png");
                 localStorage.setItem('mvrg_actas', JSON.stringify(actasData));
-                cerrarModal('modal-firma-acta');
-                renderActas(); // Refrescar la vista
+                cerrarModal('modal-firma-acta'); renderActas();
                 
-                // Verificar si con esta firma se completaron todas
-                const totalFirmas = Object.keys(actasData[actaIdx].firmas).length;
-                const totalAsistentes = actasData[actaIdx].asistentesIds.length;
-                if(totalFirmas === totalAsistentes) {
-                    generarNotificacion(`¡Acta completada al 100%: ${actasData[actaIdx].titulo}!`, 'actas', 'Registro');
-                }
+                sumarStat('pluma'); // GAMIFICACION
+                
+                const tf = Object.keys(actasData[idx].firmas).length; const ta = actasData[idx].asistentesIds.length;
+                if(tf === ta) generarNotificacion(`¡Acta completada: ${actasData[idx].titulo}!`, 'actas', 'Registro');
             }
         }
+        function exportarActaEspecificaPDF(id) { const e = document.getElementById('acta-imprimir-' + id); html2pdf().set({margin: 0.5, filename: `Acta_${id}.pdf`, image: {type: 'jpeg', quality: 0.98}, html2canvas: {scale: 2}, jsPDF: {unit: 'in', format: 'letter', orientation: 'portrait'}}).from(e).save(); }
 
-        function exportarActaEspecificaPDF(id) {
-            const e = document.getElementById('acta-imprimir-' + id);
-            html2pdf().set({
-                margin: 0.5, 
-                filename: `Acta_Reunion_${id}.pdf`, 
-                image: {type: 'jpeg', quality: 0.98}, 
-                html2canvas: {scale: 2}, 
-                jsPDF: {unit: 'in', format: 'letter', orientation: 'portrait'}
-            }).from(e).save();
-        }
-        
-        // -------------------------------------------------
-
+        // ---------- OTRAS FUNCIONES ORIGINALES ADAPTADAS ----------
         function cambiarSubCitodiagnostico(tab) {
-            if(tab === 'Procesamiento') {
-                document.getElementById('cito-Procesamiento').style.display = 'block';
-                document.getElementById('cito-Bitacora').style.display = 'none';
-                document.getElementById('tab-cito-Procesamiento').classList.replace('border-transparent', 'border-teal-700');
-                document.getElementById('tab-cito-Procesamiento').classList.replace('text-gray-500', 'text-teal-700');
-                document.getElementById('tab-cito-Bitacora').classList.replace('border-teal-700', 'border-transparent');
-                document.getElementById('tab-cito-Bitacora').classList.replace('text-teal-700', 'text-gray-500');
-            } else {
-                document.getElementById('cito-Bitacora').style.display = 'flex';
-                document.getElementById('cito-Procesamiento').style.display = 'none';
-                document.getElementById('tab-cito-Bitacora').classList.replace('border-transparent', 'border-teal-700');
-                document.getElementById('tab-cito-Bitacora').classList.replace('text-gray-500', 'text-teal-700');
-                document.getElementById('tab-cito-Procesamiento').classList.replace('border-teal-700', 'border-transparent');
-                document.getElementById('tab-cito-Procesamiento').classList.replace('text-teal-700', 'text-gray-500');
-            }
+            if(tab === 'Procesamiento') { document.getElementById('cito-Procesamiento').style.display = 'block'; document.getElementById('cito-Bitacora').style.display = 'none'; document.getElementById('tab-cito-Procesamiento').classList.replace('border-transparent', 'border-teal-700'); document.getElementById('tab-cito-Procesamiento').classList.replace('text-gray-500', 'text-teal-700'); document.getElementById('tab-cito-Bitacora').classList.replace('border-teal-700', 'border-transparent'); document.getElementById('tab-cito-Bitacora').classList.replace('text-teal-700', 'text-gray-500'); } 
+            else { document.getElementById('cito-Bitacora').style.display = 'flex'; document.getElementById('cito-Procesamiento').style.display = 'none'; document.getElementById('tab-cito-Bitacora').classList.replace('border-transparent', 'border-teal-700'); document.getElementById('tab-cito-Bitacora').classList.replace('text-gray-500', 'text-teal-700'); document.getElementById('tab-cito-Procesamiento').classList.replace('border-teal-700', 'border-transparent'); document.getElementById('tab-cito-Procesamiento').classList.replace('text-teal-700', 'text-gray-500'); }
         }
+        function abrirUnidad(u) { document.getElementById('secciones-lista-unidades').classList.replace('block', 'hidden'); document.getElementById('secciones-citodiagnostico').classList.replace('hidden', 'flex'); cambiarSubCitodiagnostico('Procesamiento'); }
+        function cerrarUnidad() { document.getElementById('secciones-citodiagnostico').classList.replace('flex', 'hidden'); document.getElementById('secciones-lista-unidades').classList.replace('hidden', 'block'); }
 
-        function abrirUnidad(u) { 
-            document.getElementById('secciones-lista-unidades').classList.replace('block', 'hidden'); 
-            document.getElementById('secciones-citodiagnostico').classList.replace('hidden', 'flex'); 
-            cambiarSubCitodiagnostico('Procesamiento'); 
-        }
-        function cerrarUnidad() { 
-            document.getElementById('secciones-citodiagnostico').classList.replace('flex', 'hidden'); 
-            document.getElementById('secciones-lista-unidades').classList.replace('hidden', 'block'); 
-        }
-        
-        function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); }
-        function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
-
-        // CALENDARIO
         function generarCalendarioGrid() {
             const grid = document.getElementById('grid-calendario'); let html = '';
             ['L','M','M','J','V','S','D'].forEach(d => html += `<div class="font-bold text-teal-800 pb-1">${d}</div>`);
             for(let i=0; i<5; i++) html += `<div></div>`; 
             for(let i=1; i<=31; i++) {
-                const ev = calendarioData[`dia_${i}`];
-                let bg = 'bg-gray-50 text-gray-700', icon = '';
+                const ev = calendarioData[`dia_${i}`]; let bg = 'bg-gray-50 text-gray-700', icon = '';
                 if(ev) {
                     if(ev === 'Eliminación') { bg = 'bg-red-100 text-red-800 border-red-300'; icon='<i class="fa-solid fa-trash-can text-[8px] mt-1"></i>'; }
                     else if(ev === 'Relleno') { bg = 'bg-teal-100 text-teal-800 border-teal-300'; icon='<i class="fa-solid fa-fill-drip text-[8px] mt-1"></i>'; }
@@ -797,13 +769,15 @@
         }
         function abrirOpcionesCalendario(dia) { diaSeleccionado = dia; document.getElementById('txt-fecha-accion').innerText = dia; document.getElementById('cal-evento-propio').value = ''; abrirModal('modal-accion-bateria'); }
         function registrarAccionCal(tipo) {
-            let val = tipo;
-            if(tipo === 'Propio') { val = document.getElementById('cal-evento-propio').value; if(!val) return; }
+            let val = tipo; if(tipo === 'Propio') { val = document.getElementById('cal-evento-propio').value; if(!val) return; }
             calendarioData[`dia_${diaSeleccionado}`] = val; localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData));
+            
+            if(val === 'Relleno') sumarStat('alquimista'); // GAMIFICACION
+            if(val === 'Eliminación') sumarStat('limpieza'); // GAMIFICACION
+            
             generarCalendarioGrid(); cerrarModal('modal-accion-bateria'); generarNotificacion(`Calendario: ${val} registrado el día ${diaSeleccionado}`, 'secciones', '');
         }
 
-        // REACTIVOS %
         function renderReactivos() {
             const c = document.getElementById('contenedor-reactivos'); c.innerHTML='';
             for(const [n,l] of Object.entries(reactivosStock)) {
@@ -811,40 +785,12 @@
                 c.innerHTML += `<div><div class="flex justify-between text-xs font-bold mb-1 ${txt}"><span>${n}</span><span>${l}%</span></div><div class="w-full bg-gray-200 rounded-full h-2.5"><div class="${bg} h-2.5 rounded-full barra-nivel" style="width:${l}%"></div></div></div>`;
             }
         }
-        function abrirRellenoReactivos() {
-            const cont = document.getElementById('form-reactivos'); cont.innerHTML = '';
-            for(const [n, l] of Object.entries(reactivosStock)) cont.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded mb-2 border"><label class="text-xs font-bold text-gray-700">${n}</label><div class="flex items-center gap-1"><input type="number" id="inp-r-${n}" value="${l}" class="w-16 border rounded text-xs text-center font-bold p-1"><span class="text-xs">%</span></div></div>`;
-            abrirModal('modal-reactivos');
-        }
-        function guardarReactivos() {
-            for(const k of Object.keys(reactivosStock)) reactivosStock[k] = Math.min(100, Math.max(0, parseInt(document.getElementById('inp-r-'+k).value)||0));
-            localStorage.setItem('mvrg_stock', JSON.stringify(reactivosStock)); cerrarModal('modal-reactivos'); renderReactivos();
-        }
+        function abrirRellenoReactivos() { const cont = document.getElementById('form-reactivos'); cont.innerHTML = ''; for(const [n, l] of Object.entries(reactivosStock)) cont.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded mb-2 border"><label class="text-xs font-bold text-gray-700">${n}</label><div class="flex items-center gap-1"><input type="number" id="inp-r-${n}" value="${l}" class="w-16 border rounded text-xs text-center font-bold p-1"><span class="text-xs">%</span></div></div>`; abrirModal('modal-reactivos'); }
+        function guardarReactivos() { for(const k of Object.keys(reactivosStock)) reactivosStock[k] = Math.min(100, Math.max(0, parseInt(document.getElementById('inp-r-'+k).value)||0)); localStorage.setItem('mvrg_stock', JSON.stringify(reactivosStock)); cerrarModal('modal-reactivos'); renderReactivos(); }
 
-        // EQUIPO Y LOGROS
-        function renderEquipo() {
-            const c = document.getElementById('contenedor-equipo'); c.innerHTML = '';
-            const eq = [...new Set(Object.values(baseUsuarios).map(u => u.equipo))];
-            eq.forEach(e => {
-                let html = `<h3 class="font-bold text-gray-500 uppercase text-xs mb-3 border-b pb-1 mt-4">${e}</h3><div class="grid grid-cols-1 gap-3">`;
-                for(const u of Object.values(baseUsuarios)) {
-                    if(u.equipo === e) {
-                        let lHtml = ''; u.logros.forEach(l => lHtml += `<div class="bg-gray-50 p-1.5 rounded-lg border text-center" title="${dbLogros[l].nombre}"><i class="fa-solid ${dbLogros[l].icono} ${dbLogros[l].color} text-lg"></i></div>`);
-                        html += `<div class="bg-white rounded-xl shadow-sm border p-3 flex gap-3 items-center"><div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold border-2 border-gray-300 overflow-hidden">${u.foto?`<img src="${u.foto}" class="w-full h-full object-cover">`:(u.n.charAt(0)+u.a.charAt(0)).toUpperCase()}</div><div class="flex-1"><h4 class="font-bold text-sm leading-tight text-gray-800">${u.n} ${u.a}</h4><p class="text-[10px] text-gray-500 uppercase">${u.rol}</p><div class="flex gap-2 mt-2">${lHtml}</div></div></div>`;
-                    }
-                }
-                c.innerHTML += html + '</div>';
-            });
-        }
-
-        // FOROS Y EVENTOS
         function cambiarSubForo(f) {
             foroActual = f;
-            ['Avisos', 'Offtopic', 'Ventas', 'Eventos'].forEach(x => {
-                const t = document.getElementById('tab-'+x);
-                if(x===f){if(x==='Eventos')t.classList.replace('border-transparent','border-purple-600');else{t.classList.replace('text-gray-500','text-teal-700');t.classList.replace('border-transparent','border-teal-700');}}
-                else{if(x==='Eventos')t.classList.replace('border-purple-600','border-transparent');else{t.classList.replace('text-teal-700','text-gray-500');t.classList.replace('border-teal-700','border-transparent');}}
-            });
+            ['Avisos', 'Offtopic', 'Ventas', 'Eventos'].forEach(x => { const t = document.getElementById('tab-'+x); if(x===f){if(x==='Eventos')t.classList.replace('border-transparent','border-purple-600');else{t.classList.replace('text-gray-500','text-teal-700');t.classList.replace('border-transparent','border-teal-700');}} else{if(x==='Eventos')t.classList.replace('border-purple-600','border-transparent');else{t.classList.replace('text-teal-700','text-gray-500');t.classList.replace('border-teal-700','border-transparent');}} });
             document.getElementById('contenedor-posts').style.display = f==='Eventos'?'none':'block'; document.getElementById('contenedor-eventos').style.display = f==='Eventos'?'block':'none';
             evaluarPermisosForo(); renderPosts();
         }
@@ -853,18 +799,12 @@
             if(foroActual==='Avisos'){if(usuarioActual.rol==='Supervisión'||usuarioActual.rol==='Encargado Área'){b.style.display='flex';txt.innerText='Publicar Aviso';}else b.style.display='none';}
             else if(foroActual==='Eventos'){b.style.display='flex';txt.innerText='Agendar Evento';} else{b.style.display='flex';txt.innerText='Crear Publicación';}
         }
-        function abrirModalPost() {
-            document.getElementById('post-titulo').value = ''; document.getElementById('post-cuerpo').value = '';
-            document.getElementById('campo-roles-destino').style.display = (foroActual==='Avisos'||foroActual==='Eventos')?'block':'none';
-            document.getElementById('campo-fecha-evento').style.display = foroActual==='Eventos'?'block':'none';
-            document.getElementById('div-img-post').style.display = foroActual==='Eventos'?'none':'block';
-            document.getElementById('tit-mod-post').innerText = foroActual==='Eventos'?'Agendar Evento':'Nueva Publicación';
-            abrirModal('modal-post');
-        }
+        function abrirModalPost() { document.getElementById('post-titulo').value = ''; document.getElementById('post-cuerpo').value = ''; document.getElementById('campo-roles-destino').style.display = (foroActual==='Avisos'||foroActual==='Eventos')?'block':'none'; document.getElementById('campo-fecha-evento').style.display = foroActual==='Eventos'?'block':'none'; document.getElementById('div-img-post').style.display = foroActual==='Eventos'?'none':'block'; document.getElementById('tit-mod-post').innerText = foroActual==='Eventos'?'Agendar Evento':'Nueva Publicación'; abrirModal('modal-post'); }
         function guardarPost() {
             const tit = document.getElementById('post-titulo').value; if(!tit) return;
             publicaciones.unshift({ id: Date.now(), foro: foroActual, titulo: tit, autor: usuarioActual, cuerpo: document.getElementById('post-cuerpo').value, audiencia: document.getElementById('post-audiencia').value, fechaEvento: foroActual==='Eventos'?document.getElementById('ev-fecha').value:null, img: document.getElementById('post-img').value, likes: [], comentarios: [] });
             localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); generarNotificacion(`Nuevo en ${foroActual}: ${tit}`, 'foros', foroActual); cerrarModal('modal-post'); renderPosts();
+            sumarStat('voz'); // GAMIFICACION
         }
         function renderPosts() {
             const cP = document.getElementById('contenedor-posts'), cE = document.getElementById('contenedor-eventos'); cP.innerHTML=''; cE.innerHTML='';
@@ -873,10 +813,8 @@
                     const fF = p.fechaEvento ? new Date(p.fechaEvento).toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
                     cE.innerHTML += `<div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-4"><div class="flex justify-between"><b>${p.titulo}</b><span class="text-[10px] bg-purple-50 text-purple-700 px-2 py-1 rounded font-bold">${fF}</span></div><p class="text-[9px] font-bold text-gray-400 mt-1">Para: ${p.audiencia}</p><p class="text-xs text-gray-600 mt-2">${p.cuerpo}</p></div>`;
                 } else if(p.foro === foroActual && p.foro !== 'Eventos') {
-                    const img = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : '';
-                    const aud = p.foro==='Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : '';
-                    const colCor = p.likes.includes(usuarioActual.id) ? 'text-pink-500' : 'text-gray-400';
-                    let coms = ''; p.comentarios.forEach(c => coms += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><b>${c.autor}:</b> ${c.txt}</div>`);
+                    const img = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : ''; const aud = p.foro==='Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : '';
+                    const colCor = p.likes.includes(usuarioActual.id) ? 'text-pink-500' : 'text-gray-400'; let coms = ''; p.comentarios.forEach(c => coms += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><b>${c.autor}:</b> ${c.txt}</div>`);
                     cP.innerHTML += `<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4" id="post-${p.id}"><div class="flex justify-between items-start mb-2"><div class="flex gap-2 items-center"><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs overflow-hidden">${p.autor.foto?`<img src="${p.autor.foto}" class="w-full h-full object-cover">`:p.autor.iniciales}</div><div><p class="text-xs font-bold">${p.autor.n} ${p.autor.a}</p><span class="text-[9px] bg-gray-100 px-1 rounded">${p.autor.rol}</span></div></div>${aud}</div><h4 class="font-bold text-sm">${p.titulo}</h4><p class="text-sm text-gray-600">${p.cuerpo}</p>${img}<div class="border-t border-gray-100 mt-3 pt-2 flex gap-4"><button onclick="toggleLike(${p.id})" class="text-xs font-bold ${colCor}"><i class="fa-solid fa-heart"></i> ${p.likes.length}</button></div><div class="mt-2">${coms}<div class="flex gap-2 mt-2"><input type="text" id="inp-c-${p.id}" placeholder="Comentar..." class="flex-1 bg-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none"><button onclick="comentar(${p.id})" class="text-teal-600"><i class="fa-solid fa-paper-plane"></i></button></div></div></div>`;
                 }
             });
@@ -884,50 +822,33 @@
         function toggleLike(id) { const p = publicaciones.find(x=>x.id===id); if(p){ const idx = p.likes.indexOf(usuarioActual.id); if(idx===-1) p.likes.push(usuarioActual.id); else p.likes.splice(idx,1); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
         function comentar(id) { const i = document.getElementById('inp-c-'+id); if(i.value){ publicaciones.find(x=>x.id===id).comentarios.push({ autor: usuarioActual.n, txt: i.value }); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
 
-        // BITÁCORA Y PDF
         function guardarBitacora() {
             const b = { id: Date.now(), fecha: new Date().toLocaleString('es-CL'), autor: usuarioActual, unidad: document.getElementById('bit-unidad').value, tipo: document.getElementById('bit-tipo').value, nov: document.getElementById('bit-nov').value };
             bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); cerrarModal('modal-bitacora-nueva'); renderBitacora(); generarNotificacion(`Traspaso en ${b.unidad}`, 'secciones', 'bitacora');
+            sumarStat('guardian'); // GAMIFICACION
         }
         function renderBitacora() {
-            const c = document.getElementById('contenedor-bitacora-items'); c.innerHTML = '';
-            const uSel = document.getElementById('filtro-bitacora').value;
-            const filt = bitacoraData.filter(b => b.unidad === uSel);
+            const c = document.getElementById('contenedor-bitacora-items'); c.innerHTML = ''; const uSel = document.getElementById('filtro-bitacora').value; const filt = bitacoraData.filter(b => b.unidad === uSel);
             if(filt.length===0) { c.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No hay traspasos aquí.</p>'; return; }
-            filt.forEach(b => {
-                c.innerHTML += `<div class="bg-white p-4 rounded-lg border-l-4 border-teal-500 mb-4 page-break-inside-avoid"><div class="flex justify-between border-b pb-2 mb-2"><span class="text-sm font-bold text-teal-800">Traspaso ${b.tipo}</span><span class="text-xs text-gray-500">${b.fecha}</span></div><p class="text-xs font-bold text-gray-600 mb-2"><i class="fa-solid fa-user-pen mr-1"></i> ${b.autor.n} ${b.autor.a} (${b.autor.rol})</p><div class="text-sm text-gray-800 whitespace-pre-wrap">${b.nov || 'Sin novedades.'}</div></div>`;
-            });
+            filt.forEach(b => { c.innerHTML += `<div class="bg-white p-4 rounded-lg border-l-4 border-teal-500 mb-4 page-break-inside-avoid"><div class="flex justify-between border-b pb-2 mb-2"><span class="text-sm font-bold text-teal-800">Traspaso ${b.tipo}</span><span class="text-xs text-gray-500">${b.fecha}</span></div><p class="text-xs font-bold text-gray-600 mb-2"><i class="fa-solid fa-user-pen mr-1"></i> ${b.autor.n} ${b.autor.a} (${b.autor.rol})</p><div class="text-sm text-gray-800 whitespace-pre-wrap">${b.nov || 'Sin novedades.'}</div></div>`; });
         }
-        function exportarPDF() {
-            const u = document.getElementById('filtro-bitacora').value, e = document.getElementById('print-area'), t = document.getElementById('titulo-print');
-            t.innerText = `Bitácora Oficial: ${u}\nGenerado: ${new Date().toLocaleDateString('es-CL')}`; t.classList.remove('hidden');
-            html2pdf().set({margin: 0.5, filename: `Bitacora_${u.replace(/\s/g,'')}.pdf`, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'in',format:'letter',orientation:'portrait'}}).from(e).save().then(() => t.classList.add('hidden'));
-        }
+        function exportarPDF() { const u = document.getElementById('filtro-bitacora').value, e = document.getElementById('print-area'), t = document.getElementById('titulo-print'); t.innerText = `Bitácora Oficial: ${u}\nGenerado: ${new Date().toLocaleDateString('es-CL')}`; t.classList.remove('hidden'); html2pdf().set({margin: 0.5, filename: `Bitacora_${u.replace(/\s/g,'')}.pdf`, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'in',format:'letter',orientation:'portrait'}}).from(e).save().then(() => t.classList.add('hidden')); }
 
-        // NOTIFICACIONES
         function generarNotificacion(t, vD, sD) { notificaciones.unshift({ id: Date.now(), txt: t, leida: false, targetV: vD, targetS: sD }); localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); actualizarCampana(); }
         function actualizarCampana() { document.getElementById('badge-notif').style.display = notificaciones.some(n=>!n.leida) ? 'block' : 'none'; }
         function abrirModalNotificaciones() { renderNotificaciones(); abrirModal('modal-notificaciones'); }
         function cambiarTabNotif(t) { tabNotifActual = t; const n = document.getElementById('tab-notif-nuevas'), l = document.getElementById('tab-notif-leidas'); if(t==='nuevas'){n.classList.replace('text-gray-400','text-teal-700');n.classList.add('border-teal-700');l.classList.replace('text-teal-700','text-gray-400');l.classList.remove('border-teal-700');}else{l.classList.replace('text-gray-400','text-teal-700');l.classList.add('border-teal-700');n.classList.replace('text-teal-700','text-gray-400');n.classList.remove('border-teal-700');} renderNotificaciones(); }
         function renderNotificaciones() {
-            const c = document.getElementById('lista-notificaciones'); c.innerHTML=''; 
-            const f = notificaciones.filter(n => tabNotifActual==='nuevas'?!n.leida:n.leida); 
+            const c = document.getElementById('lista-notificaciones'); c.innerHTML=''; const f = notificaciones.filter(n => tabNotifActual==='nuevas'?!n.leida:n.leida); 
             f.forEach(n => c.innerHTML += `<div onclick="irDestinoNotificacion(${n.id})" class="bg-gray-50 p-3 rounded border flex flex-col gap-1 cursor-pointer hover:bg-teal-50"><p class="text-xs font-bold text-gray-800">${n.txt}</p><span class="text-[9px] text-teal-600">Click para ver &rarr;</span></div>`);
         }
         function irDestinoNotificacion(id) {
             const n = notificaciones.find(x=>x.id===id);
             if(n) { 
                 n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); 
-                
                 if(n.targetV) cambiarVista(n.targetV); 
-                
-                if(n.targetV === 'secciones' && n.targetS === 'bitacora') {
-                    abrirUnidad('citodiagnostico');
-                    cambiarSubCitodiagnostico('Bitacora');
-                } else if(n.targetS) {
-                    cambiarSubForo(n.targetS); 
-                }
-                
+                if(n.targetV === 'secciones' && n.targetS === 'bitacora') { abrirUnidad('citodiagnostico'); cambiarSubCitodiagnostico('Bitacora'); } 
+                else if(n.targetS) { cambiarSubForo(n.targetS); }
                 actualizarCampana(); 
             }
         }
@@ -935,28 +856,27 @@
         // CARGA INICIAL
         window.onload = function() {
             try {
+                initUsuarios(); // Inicializa la DB dinámica
+                
                 let s = localStorage.getItem('mvrg_sesion');
-                let st = localStorage.getItem('mvrg_stock');
-                let po = localStorage.getItem('mvrg_posts');
-                let ev = localStorage.getItem('mvrg_cal');
-                let bi = localStorage.getItem('mvrg_bitacora');
-                let ac = localStorage.getItem('mvrg_actas');
+                let st = localStorage.getItem('mvrg_stock'); let po = localStorage.getItem('mvrg_posts');
+                let ev = localStorage.getItem('mvrg_cal'); let bi = localStorage.getItem('mvrg_bitacora'); let ac = localStorage.getItem('mvrg_actas');
                 
                 if(st) reactivosStock = JSON.parse(st); else reactivosStock = {'EA50': 20, 'ORANGE': 45, 'HEMATOXILINA': 80, 'OH70': 95, 'OH95': 15, 'OH100': 60, 'HISTOCLEAR': 30};
-                if(po) publicaciones = JSON.parse(po);
-                if(ev) calendarioData = JSON.parse(ev);
-                if(bi) bitacoraData = JSON.parse(bi);
-                if(ac) actasData = JSON.parse(ac);
+                if(po) publicaciones = JSON.parse(po); if(ev) calendarioData = JSON.parse(ev);
+                if(bi) bitacoraData = JSON.parse(bi); if(ac) actasData = JSON.parse(ac);
                 
                 if(s) { 
-                    usuarioActual = JSON.parse(s); 
-                    document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta');
-                    document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
-                    entrarApp(); 
+                    const storedSession = JSON.parse(s); 
+                    // Asegurar que si hubo cambios admin, la sesion tenga lo ultimo de la DB
+                    if(usuariosDB[storedSession.id]) {
+                        usuarioActual = { ...storedSession, ...usuariosDB[storedSession.id] };
+                        document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta');
+                        document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
+                        entrarApp(); 
+                    }
                 }
-            } catch (e) {
-                console.error("Error cargando memoria", e);
-            }
+            } catch (e) { console.error("Error cargando memoria", e); }
         };
     </script>
 </body>
