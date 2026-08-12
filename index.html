@@ -87,11 +87,15 @@
                 </button>
                 
                 <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-4">Herramientas</p>
-                <button onclick="cambiarVista('bitacora'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2">
+                <button onclick="cambiarVista('bitacora'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 mb-2">
                     <i class="fa-solid fa-folder-open w-5 text-teal-600"></i> Ver Bitácoras
                 </button>
-                <button onclick="abrirModal('modal-protocolos'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700">
+                <button onclick="abrirModal('modal-protocolos'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 mb-2">
                     <i class="fa-solid fa-book-medical w-5 text-teal-600"></i> Protocolos
+                </button>
+                <!-- BOTÓN NUEVO DE ACTAS DE REUNIÓN -->
+                <button onclick="cambiarVista('actas'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2">
+                    <i class="fa-solid fa-file-signature w-5 text-teal-600"></i> Actas de Reunión
                 </button>
                 
                 <div class="mt-auto border-t pt-4">
@@ -200,6 +204,48 @@
                         <h2 id="titulo-print" class="font-bold text-lg text-center mb-4 hidden border-b pb-2">Bitácora Oficial</h2>
                         <div id="contenedor-bitacora-items" class="space-y-4"></div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- 5. VISTA ACTAS DE REUNIÓN (NUEVA) -->
+            <div id="vista-actas" class="hidden flex flex-col h-full bg-gray-50">
+                <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky top-0 z-10 overflow-x-auto">
+                    <button onclick="cambiarSubActas('Nueva')" id="tab-actas-Nueva" class="flex-1 py-3 px-2 border-b-2 border-teal-700 text-teal-700 font-bold whitespace-nowrap">📝 Nueva Acta</button>
+                    <button onclick="cambiarSubActas('Registro')" id="tab-actas-Registro" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500 whitespace-nowrap">🗂️ Registro de Actas</button>
+                </div>
+                
+                <!-- Pestaña: Nueva Acta -->
+                <div id="actas-Nueva" class="p-4 flex-1 overflow-y-auto space-y-4 block">
+                    <div class="bg-teal-50 border border-teal-200 p-3 rounded-xl">
+                        <p class="text-[10px] text-teal-800 font-bold uppercase mb-1">Paso 1: Detalles de la Reunión</p>
+                        <input type="text" id="acta-titulo" placeholder="Título (Ej: Coord. Mensual)" class="w-full border rounded-lg p-2 text-sm bg-white font-bold mb-2 focus:outline-none">
+                        <textarea id="acta-detalle" rows="5" placeholder="Temas tratados y acuerdos..." class="w-full border rounded-lg p-2 text-sm bg-white focus:outline-none"></textarea>
+                    </div>
+                    
+                    <div class="bg-white border p-3 rounded-xl shadow-sm">
+                        <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Paso 2: Asistentes</p>
+                        <input type="text" id="acta-asistentes" placeholder="Ej: Dra. Silva, Roxana P., Carlos..." class="w-full border-b border-gray-300 p-1 text-sm bg-white focus:outline-none focus:border-teal-500">
+                    </div>
+
+                    <div class="bg-white border p-3 rounded-xl shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-[10px] text-gray-500 font-bold uppercase">Paso 3: Firma Responsable</p>
+                            <button onclick="limpiarFirma()" class="text-[10px] text-red-500 bg-red-50 px-2 py-1 rounded border border-red-100 hover:bg-red-100"><i class="fa-solid fa-eraser"></i> Limpiar</button>
+                        </div>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 relative h-40">
+                            <!-- El elemento canvas para dibujar -->
+                            <canvas id="canvas-firma" class="w-full h-full touch-none cursor-crosshair"></canvas>
+                        </div>
+                    </div>
+                    
+                    <button onclick="guardarActa()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">
+                        <i class="fa-solid fa-check mr-1"></i> Aceptar y Guardar Acta
+                    </button>
+                </div>
+
+                <!-- Pestaña: Registro de Actas -->
+                <div id="actas-Registro" class="p-4 flex-1 overflow-y-auto hidden">
+                    <div id="contenedor-registro-actas" class="space-y-4"></div>
                 </div>
             </div>
 
@@ -359,7 +405,7 @@
         };
 
         let usuarioActual = null; let foroActual = 'Avisos'; let tabNotifActual = 'nuevas'; let diaSeleccionado = 0;
-        let publicaciones=[], bitacoraData=[], notificaciones=[], calendarioData={}, reactivosStock={};
+        let publicaciones=[], bitacoraData=[], actasData=[], notificaciones=[], calendarioData={}, reactivosStock={};
 
         setInterval(() => { const d = new Date(); document.getElementById('topbar-reloj').innerText = d.toLocaleDateString('es-CL') + ' ' + d.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }, 1000);
 
@@ -378,7 +424,7 @@
             document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta');
             document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
 
-            actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); actualizarCampana();
+            actualizarUIUsuario(); evaluarPermisosForo(); renderPosts(); renderEquipo(); renderBitacora(); generarCalendarioGrid(); renderReactivos(); actualizarCampana(); renderActas();
         }
 
         function actualizarUIUsuario() {
@@ -409,13 +455,16 @@
         function toggleMenu() { const m = document.getElementById('menu-lateral'), o = document.getElementById('overlay-menu'); if(m.classList.contains('menu-cerrado')){m.classList.remove('menu-cerrado');m.classList.add('menu-abierto');o.classList.remove('hidden');}else{m.classList.remove('menu-abierto');m.classList.add('menu-cerrado');o.classList.add('hidden');} }
         
         function cambiarVista(vista) { 
-            ['foros', 'secciones', 'equipo', 'bitacora'].forEach(v => { 
+            // Vistas principales disponibles
+            ['foros', 'secciones', 'equipo', 'bitacora', 'actas'].forEach(v => { 
                 const e = document.getElementById('vista-' + v); 
                 if(e){e.classList.add('hidden');e.classList.remove('block', 'flex');} 
             }); 
+            
             document.getElementById('vista-' + vista).classList.remove('hidden'); 
             document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex'); 
             
+            // Botones inferiores fijos
             ['foros', 'secciones', 'equipo'].forEach(id => { 
                 const b = document.getElementById('btn-' + id); 
                 if(b){
@@ -424,13 +473,184 @@
                 } 
             });
             
-            if(vista === 'bitacora') {
+            // Si entra a herramientas del menú lateral, apaga botones inferiores
+            if(vista === 'bitacora' || vista === 'actas') {
                 ['foros', 'secciones', 'equipo'].forEach(id => { 
                     const b = document.getElementById('btn-' + id); 
                     if(b) b.classList.replace('text-teal-700', 'text-gray-400');
                 });
             }
+
+            // Inicializar canvas si es la primera vez que se abre la vista actas
+            if(vista === 'actas') {
+                setTimeout(initCanvas, 100); 
+            }
         }
+
+        // ---------- NUEVO MÓDULO: ACTAS Y FIRMA ----------
+        function cambiarSubActas(tab) {
+            if(tab === 'Nueva') {
+                document.getElementById('actas-Nueva').style.display = 'block';
+                document.getElementById('actas-Registro').style.display = 'none';
+                document.getElementById('tab-actas-Nueva').classList.replace('border-transparent', 'border-teal-700');
+                document.getElementById('tab-actas-Nueva').classList.replace('text-gray-500', 'text-teal-700');
+                document.getElementById('tab-actas-Registro').classList.replace('border-teal-700', 'border-transparent');
+                document.getElementById('tab-actas-Registro').classList.replace('text-teal-700', 'text-gray-500');
+                setTimeout(initCanvas, 100); // Re-ajusta el canvas si es necesario al volver
+            } else {
+                document.getElementById('actas-Registro').style.display = 'block';
+                document.getElementById('actas-Nueva').style.display = 'none';
+                document.getElementById('tab-actas-Registro').classList.replace('border-transparent', 'border-teal-700');
+                document.getElementById('tab-actas-Registro').classList.replace('text-gray-500', 'text-teal-700');
+                document.getElementById('tab-actas-Nueva').classList.replace('border-teal-700', 'border-transparent');
+                document.getElementById('tab-actas-Nueva').classList.replace('text-teal-700', 'text-gray-500');
+                renderActas();
+            }
+        }
+
+        const canvas = document.getElementById('canvas-firma');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let canvasIniciado = false;
+
+        function initCanvas() {
+            if (canvasIniciado) return; // Evita reiniciarlo cada vez si ya tiene tamaño
+            const rect = canvas.parentElement.getBoundingClientRect();
+            if (rect.width > 0) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#0f766e'; // teal-700
+                canvasIniciado = true;
+            }
+        }
+
+        // Lógica de dibujo en Canvas (Mouse y Touch)
+        function startPos(e) { isDrawing = true; draw(e); }
+        function endPos() { isDrawing = false; ctx.beginPath(); }
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        function startPosTouch(e) { e.preventDefault(); isDrawing = true; drawTouch(e); }
+        function drawTouch(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Eventos de ratón
+        canvas.addEventListener('mousedown', startPos);
+        canvas.addEventListener('mouseup', endPos);
+        canvas.addEventListener('mousemove', draw);
+        // Eventos táctiles
+        canvas.addEventListener('touchstart', startPosTouch, {passive: false});
+        canvas.addEventListener('touchend', endPos, {passive: false});
+        canvas.addEventListener('touchmove', drawTouch, {passive: false});
+
+        function limpiarFirma() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function guardarActa() {
+            const tit = document.getElementById('acta-titulo').value.trim();
+            const det = document.getElementById('acta-detalle').value.trim();
+            const asis = document.getElementById('acta-asistentes').value.trim();
+            
+            if(!tit || !det) { alert("Por favor, completa el título y los detalles de la reunión."); return; }
+            
+            // Capturar la imagen del canvas en base64
+            const imgFirma = canvas.toDataURL("image/png");
+
+            const nuevaActa = {
+                id: Date.now(),
+                fecha: new Date().toLocaleString('es-CL'),
+                titulo: tit,
+                detalle: det,
+                asistentes: asis,
+                firma: imgFirma,
+                autor: usuarioActual
+            };
+
+            actasData.unshift(nuevaActa);
+            localStorage.setItem('mvrg_actas', JSON.stringify(actasData));
+            
+            // Limpiar formulario
+            document.getElementById('acta-titulo').value = '';
+            document.getElementById('acta-detalle').value = '';
+            document.getElementById('acta-asistentes').value = '';
+            limpiarFirma();
+            
+            // Notificar y redirigir al registro
+            generarNotificacion(`Nueva Acta Guardada: ${tit}`, 'actas', '');
+            cambiarSubActas('Registro');
+        }
+
+        function renderActas() {
+            const c = document.getElementById('contenedor-registro-actas');
+            c.innerHTML = '';
+            if(actasData.length === 0) { 
+                c.innerHTML = '<p class="text-xs text-gray-400 text-center mt-10"><i class="fa-solid fa-inbox block text-3xl mb-2 text-gray-200"></i> No hay actas registradas aún.</p>'; 
+                return; 
+            }
+            
+            actasData.forEach(a => {
+                c.innerHTML += `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 page-break-inside-avoid">
+                    <div id="acta-imprimir-${a.id}" class="p-4 bg-white">
+                        <div class="flex justify-between items-start border-b pb-3 mb-3">
+                            <div>
+                                <h3 class="font-bold text-teal-800 text-lg leading-tight mb-1">${a.titulo}</h3>
+                                <p class="text-[10px] text-gray-500"><i class="fa-regular fa-calendar text-teal-600 mr-1"></i> ${a.fecha}</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-700 mb-3"><b class="text-gray-500 uppercase text-[10px] block mb-1">Asistentes:</b> ${a.asistentes || 'No especificados.'}</p>
+                        <div class="text-sm text-gray-800 whitespace-pre-wrap mb-4 bg-gray-50 p-3 rounded-lg border border-gray-100">${a.detalle}</div>
+                        
+                        <div class="border-t pt-3 flex justify-between items-end">
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Firma Responsable</p>
+                                <img src="${a.firma}" class="h-16 w-32 object-contain bg-white border border-gray-200 rounded">
+                                <p class="text-[10px] font-bold text-teal-700 mt-1">${a.autor.n} ${a.autor.a}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-2 border-t flex justify-end">
+                        <button onclick="exportarActaEspecificaPDF(${a.id})" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-lg text-xs flex items-center shadow-sm">
+                            <i class="fa-solid fa-file-pdf mr-2"></i> Descargar PDF
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+        }
+
+        function exportarActaEspecificaPDF(id) {
+            const e = document.getElementById('acta-imprimir-' + id);
+            // El acta se ve bien visualmente, usamos html2pdf en ese contenedor específico.
+            html2pdf().set({
+                margin: 0.5, 
+                filename: `Acta_Reunion_${id}.pdf`, 
+                image: {type: 'jpeg', quality: 0.98}, 
+                html2canvas: {scale: 2}, 
+                jsPDF: {unit: 'in', format: 'letter', orientation: 'portrait'}
+            }).from(e).save();
+        }
+        // -------------------------------------------------
 
         function cambiarSubCitodiagnostico(tab) {
             if(tab === 'Procesamiento') {
@@ -625,11 +845,13 @@
                 let po = localStorage.getItem('mvrg_posts');
                 let ev = localStorage.getItem('mvrg_cal');
                 let bi = localStorage.getItem('mvrg_bitacora');
+                let ac = localStorage.getItem('mvrg_actas');
                 
                 if(st) reactivosStock = JSON.parse(st); else reactivosStock = {'EA50': 20, 'ORANGE': 45, 'HEMATOXILINA': 80, 'OH70': 95, 'OH95': 15, 'OH100': 60, 'HISTOCLEAR': 30};
                 if(po) publicaciones = JSON.parse(po);
                 if(ev) calendarioData = JSON.parse(ev);
                 if(bi) bitacoraData = JSON.parse(bi);
+                if(ac) actasData = JSON.parse(ac);
                 
                 if(s) { 
                     usuarioActual = JSON.parse(s); 
