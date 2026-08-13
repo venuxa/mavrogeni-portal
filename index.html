@@ -79,7 +79,7 @@
             </div>
         </nav>
 
-        <!-- ÁREA CENTRAL (Con pb-32 para evitar que la barra inferior tape el contenido) -->
+        <!-- ÁREA CENTRAL -->
         <main class="flex-1 overflow-y-auto bg-gray-100 pb-32 relative">
             
             <!-- 1. VISTA FOROS -->
@@ -115,7 +115,7 @@
                     <!-- ================= AREA SECRETARÍA ================= -->
                     <div id="cito-area-sec" class="hidden flex-col h-full">
                         <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky z-10">
-                            <button onclick="switchTabCito('sec', 'reg')" id="tab-sec-reg" class="flex-1 py-3 px-2 border-b-2 border-pink-500 text-pink-600 font-bold"><i class="fa-solid fa-folder-open mr-1"></i> Registros</button>
+                            <button onclick="switchTabCito('sec', 'reg')" id="tab-sec-reg" class="flex-1 py-3 px-2 border-b-2 border-pink-500 text-pink-600 font-bold"><i class="fa-solid fa-folder-open mr-1"></i> Registros y Trazabilidad</button>
                             <button onclick="switchTabCito('sec', 'tras')" id="tab-sec-tras" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list mr-1"></i> Traspaso</button>
                         </div>
                         <div id="view-sec-reg" class="p-4 flex-1 overflow-y-auto block space-y-4">
@@ -123,6 +123,27 @@
                                 <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1 mb-2"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Último Traspaso Registrado</h3>
                                 <div id="widget-ultimo-traspaso-sec" class="bg-gray-50 p-2 rounded">Cargando...</div>
                             </div>
+                            
+                            <!-- CREAR LOTE (Secretaría) -->
+                            <div class="bg-white border border-pink-200 p-3 rounded-xl shadow-sm space-y-2">
+                                <h3 class="font-bold text-pink-800 text-xs uppercase"><i class="fa-solid fa-plus-circle mr-1"></i> Registrar Nueva Entrega (Rutina)</h3>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="text-[9px] font-bold text-gray-400">TM Responsable:</label><input type="text" id="lote-tm" placeholder="Ej: FJ" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                    <div><label class="text-[9px] font-bold text-gray-400">Rango Folios:</label><input type="text" id="lote-rango" placeholder="Ej: 17068-17097" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="text-[9px] font-bold text-gray-400">Cantidad:</label><input type="number" id="lote-cant" placeholder="30" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                    <div><label class="text-[9px] font-bold text-gray-400">N° TENS:</label><input type="text" id="lote-ntens" placeholder="1 o AV" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                </div>
+                                <button onclick="crearLoteRutina()" class="w-full bg-pink-500 text-white font-bold py-2 rounded-lg text-xs shadow-sm">Enviar Lote a TENS</button>
+                            </div>
+
+                            <!-- BANDEJA DE TRAZABILIDAD (Secretaría) -->
+                            <div class="bg-white border p-3 rounded-xl shadow-sm">
+                                <h3 class="font-bold text-gray-700 text-xs uppercase border-b pb-1 mb-2">Estado de Lotes (Trazabilidad)</h3>
+                                <div id="bandeja-trazabilidad-sec" class="space-y-2"></div>
+                            </div>
+
                             <div class="bg-pink-50 border border-pink-200 p-3 rounded-xl shadow-sm overflow-x-auto">
                                 <h3 class="font-bold text-pink-800 text-[10px] uppercase mb-2"><i class="fa-solid fa-table border mr-1"></i> Rutina Semanal Vigente</h3>
                                 <div id="display-rutina-sec" class="bg-white border rounded"></div>
@@ -148,7 +169,7 @@
                     <!-- ================= AREA TENS ================= -->
                     <div id="cito-area-tens" class="hidden flex-col h-full">
                         <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky z-10">
-                            <button onclick="switchTabCito('tens', 'proc')" id="tab-tens-proc" class="flex-1 py-3 px-2 border-b-2 border-orange-500 text-orange-600 font-bold"><i class="fa-solid fa-vial-circle-check mr-1"></i> Procesamiento</button>
+                            <button onclick="switchTabCito('tens', 'proc')" id="tab-tens-proc" class="flex-1 py-3 px-2 border-b-2 border-orange-500 text-orange-600 font-bold"><i class="fa-solid fa-vial-circle-check mr-1"></i> Procesamiento y Trazabilidad</button>
                             <button onclick="switchTabCito('tens', 'tras')" id="tab-tens-tras" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list mr-1"></i> Traspaso</button>
                         </div>
                         <div id="view-tens-proc" class="p-4 flex-1 overflow-y-auto space-y-4 block">
@@ -156,6 +177,13 @@
                                 <h3 class="font-bold text-orange-800 text-[10px] uppercase mb-2"><i class="fa-solid fa-table mr-1"></i> Rutina Asignada</h3>
                                 <div id="display-rutina-tens" class="bg-white border rounded"></div>
                             </div>
+                            
+                            <!-- BANDEJA DE TRAZABILIDAD (TENS - Aceptar lotes de Secretaría) -->
+                            <div class="bg-white border p-3 rounded-xl shadow-sm">
+                                <h3 class="font-bold text-gray-700 text-xs uppercase border-b pb-1 mb-2">Recepción de Lotes (TENS)</h3>
+                                <div id="bandeja-trazabilidad-tens" class="space-y-2"></div>
+                            </div>
+
                             <!-- Calendario TENS -->
                             <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
                                 <h3 class="font-bold text-gray-800 text-xs mb-2 border-b pb-1"><i class="fa-regular fa-calendar-check text-orange-500 mr-1"></i> Calendario de Tareas</h3>
@@ -179,16 +207,16 @@
                         </div>
                     </div>
 
-                    <!-- ================= AREA TECNÓLOGOS (TORRE DE CONTROL) ================= -->
+                    <!-- ================= AREA TECNÓLOGOS (TORRE DE CONTROL Y ESTADÍSTICAS) ================= -->
                     <div id="cito-area-tm" class="hidden flex-col h-full">
                         <div class="bg-white border-b flex text-[10px] font-medium shadow-sm sticky z-10">
                             <button onclick="switchTabCito('tm', 'rutina')" id="tab-tm-rutina" class="flex-1 py-3 px-1 border-b-2 border-teal-600 text-teal-700 font-bold"><i class="fa-solid fa-pen-to-square"></i> Asignar</button>
                             <button onclick="switchTabCito('tm', 'monitor')" id="tab-tm-monitor" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-satellite-dish"></i> Monitor Vivo</button>
+                            <button onclick="switchTabCito('tm', 'estadisticas')" id="tab-tm-estadisticas" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
                             <button onclick="switchTabCito('tm', 'tras')" id="tab-tm-tras" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list"></i> Traspaso</button>
                         </div>
                         
                         <div id="view-tm-rutina" class="p-4 flex-1 overflow-y-auto block space-y-4">
-                            <!-- Eliminada la mini ventana superior de rutina, ahora queda limpio el editor Excel -->
                             <div class="bg-white p-3 rounded-xl shadow-sm border overflow-x-auto">
                                 <h3 class="font-bold text-teal-800 text-xs mb-2"><i class="fa-solid fa-table-cells"></i> Editor Rutina Semanal</h3>
                                 <table class="excel-table w-full text-[9px] bg-white">
@@ -252,11 +280,28 @@
                             </div>
                         </div>
                         
-                        <div id="view-tm-monitor" class="p-3 flex-1 overflow-y-auto hidden bg-gray-200">
+                        <div id="view-tm-monitor" class="p-3 flex-1 overflow-y-auto hidden bg-gray-200 space-y-3">
+                            <!-- BANDEJA DE VALIDACIÓN TM (Paso 3) -->
+                            <div class="bg-white p-3 rounded-xl shadow-sm border">
+                                <h3 class="font-bold text-teal-800 text-xs uppercase mb-2"><i class="fa-solid fa-check-double mr-1"></i> Validación Final de Lotes (TM)</h3>
+                                <div id="bandeja-trazabilidad-tm" class="space-y-2"></div>
+                            </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="grid-monitor-vivo"></div>
                         </div>
 
-                        <!-- Traspasos de Torre de Control (TM) ahora quedan archivados aquí correctamente -->
+                        <!-- ESTADÍSTICAS MENSUALES PARA JEFATURA -->
+                        <div id="view-tm-estadisticas" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-bold text-teal-800 text-sm">Estadística Laboratorio Citopatología</h3>
+                                    <button onclick="exportarEstadisticasPDF()" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> Exportar Reporte</button>
+                                </div>
+                                <div id="contenedor-tabla-estadistica" class="overflow-x-auto text-[10px]">
+                                    <!-- Se genera dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="view-tm-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
                             <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-teal-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso Torre de Control (TM)</h3><textarea id="bit-nov-tm" rows="4" placeholder="Novedades del turno..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-teal-400"></textarea><button onclick="guardarTraspaso('Torre de Control - TM', 'bit-nov-tm')" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Registrar Traspaso</button></div>
                             
@@ -301,7 +346,6 @@
     <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-phone text-teal-600 mr-2"></i> Directorio</h2><button onclick="cerrarModal('modal-anexos')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Secretarías</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">VPH</span><span class="text-teal-700 font-bold">552826</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citología</span><span class="text-teal-700 font-bold">552543</span></div></div></div></div></div></div>
     <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
     
-    <!-- MODAL GESTIÓN DE USUARIO (Con selector nativo de archivo para foto) -->
     <div id="modal-admin-user" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -330,7 +374,6 @@
     <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center"><h2 class="font-bold text-lg text-gray-800 mb-2">Calendario Tareas</h2><p class="text-sm text-gray-500 mb-6">Día: <span id="txt-fecha-accion" class="font-bold text-orange-600"></span> Agosto 2026</p><div id="opciones-jefe-cal" class="space-y-2 hidden"><button onclick="asignarEventoCal('Eliminación')" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-lg"></i> Programar Eliminación</button><button onclick="asignarEventoCal('Relleno')" class="w-full bg-orange-50 text-orange-600 border border-orange-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-lg"></i> Programar Relleno</button><button onclick="eliminarEventoCal()" class="text-xs text-gray-400 mt-2 underline">Borrar evento asignado</button></div><div id="opciones-tens-cal" class="space-y-2 hidden"><div id="info-evento-tens" class="bg-gray-50 p-3 rounded border mb-3 font-bold text-sm text-gray-700"></div><button id="btn-completar-evento" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-teal-700"><i class="fa-solid fa-check text-lg"></i> Marcar Completado</button></div><button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline block w-full">Cerrar</button></div></div></div>
     <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Actualizar Stock</h2><button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button></div><p class="text-xs text-gray-500 mb-3">Indica el % restante de cada reactivo.</p><div id="form-reactivos" class="space-y-3"></div><button onclick="guardarReactivosYCompletar()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg mt-4 shadow-md">Guardar y Completar Tarea</button></div></div>
     
-    <!-- MODAL MI PERFIL (Con subida de archivo local) -->
     <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Mi Perfil</h2><button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button></div>
@@ -344,48 +387,28 @@
             </div>
         </div>
     </div>
-
-    <!-- MODAL POST (Con soporte de imagen nativa y WhatsApp para ventas) -->
-    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
-        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 id="tit-mod-post" class="font-bold text-lg">Publicación</h2>
-                <button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-            <div class="space-y-4">
-                <div id="campo-roles-destino" class="hidden"><select id="post-audiencia" class="w-full border rounded p-2 text-sm bg-gray-50"><option>Todos</option></select></div>
-                <div id="campo-fecha-evento" class="hidden"><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm bg-gray-50"></div>
-                <input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold">
-                <textarea id="post-cuerpo" rows="3" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50"></textarea>
-                <div id="campo-whatsapp" class="hidden"><input type="text" id="post-wsp" placeholder="Número de WhatsApp (Ej: +56912345678)" class="w-full border rounded p-2 text-xs bg-gray-50"></div>
-                <div id="div-img-post"><label class="text-[10px] font-bold text-gray-500 block mb-1">Adjuntar Imagen</label><input type="file" id="post-file" accept="image/*" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                <button onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button>
-            </div>
-        </div>
-    </div>
+    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg">Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><select id="post-audiencia" class="w-full border rounded p-2 text-sm bg-gray-50"><option>Todos</option></select></div><div id="campo-fecha-evento" class="hidden"><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold"><textarea id="post-cuerpo" rows="3" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50"></textarea><div id="campo-whatsapp" class="hidden"><input type="text" id="post-wsp" placeholder="Número de WhatsApp (Ej: +56912345678)" class="w-full border rounded p-2 text-xs bg-gray-50"></div><div id="div-img-post"><label class="text-[10px] font-bold text-gray-500 block mb-1">Adjuntar Imagen</label><input type="file" id="post-file" accept="image/*" class="w-full border rounded p-1 text-xs bg-gray-50"></div><button onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
     
     <div id="modal-nueva-acta" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white z-10"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-file-signature text-teal-600 mr-2"></i> Crear Nueva Acta</h2><button onclick="cerrarModal('modal-nueva-acta')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="bg-teal-50 border border-teal-200 p-3 rounded-xl"><input type="text" id="acta-titulo" placeholder="Título (Ej: Coord. Mensual)" class="w-full border rounded-lg p-2 text-sm bg-white font-bold mb-2 focus:outline-none"><textarea id="acta-detalle" rows="4" placeholder="Temas tratados y acuerdos..." class="w-full border rounded-lg p-2 text-sm bg-white focus:outline-none"></textarea></div><div class="bg-white border p-3 rounded-xl shadow-sm"><p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Seleccionar Asistentes</p><div id="contenedor-asistentes-acta" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1"></div></div><button onclick="guardarActa()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Publicar Acta para Firmas</button></div></div></div>
     <div id="modal-firma-acta" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl"><div class="flex justify-between items-center mb-2 border-b pb-2"><h2 class="font-bold text-lg"><i class="fa-solid fa-pen-nib text-teal-600 mr-2"></i> Dibujar Firma</h2><button onclick="cerrarModal('modal-firma-acta')" class="text-gray-400 text-2xl">&times;</button></div><p class="text-xs text-gray-500 mb-4">Usa tu dedo o ratón.</p><div class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 relative h-40 mb-3"><canvas id="canvas-firma" class="w-full h-full touch-none cursor-crosshair"></canvas></div><div class="flex gap-2"><button onclick="limpiarFirmaCanvas()" class="w-1/3 bg-red-50 text-red-600 font-bold py-3 rounded-lg text-xs"><i class="fa-solid fa-eraser"></i> Limpiar</button><button onclick="guardarMiFirma()" class="w-2/3 bg-teal-600 text-white font-bold py-3 rounded-lg shadow-sm text-sm"><i class="fa-solid fa-check"></i> Aceptar</button></div></div></div>
 
-    <!-- MODAL PROTOCOLOS (Con miniaturas de Google Drive) -->
-    <div id="modal-protocolos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 mx-auto shadow-2xl max-h-[85vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-book-medical text-teal-600 mr-2"></i> Biblioteca de Protocolos</h2>
-                <button onclick="cerrarModal('modal-protocolos')" class="text-gray-400 text-2xl">&times;</button>
+    <!-- MODAL VALIDAR TM (Paso 3) -->
+    <div id="modal-validar-tm" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
+            <div class="flex justify-between items-center border-b pb-2"><h2 class="font-bold text-teal-800 text-base">Validación Tecnólogo (TM)</h2><button onclick="cerrarModal('modal-validar-tm')" class="text-gray-400 text-xl">&times;</button></div>
+            <input type="hidden" id="tm-lote-id">
+            <p id="tm-lote-info" class="text-xs text-gray-600 font-bold bg-gray-50 p-2 rounded"></p>
+            <div class="grid grid-cols-2 gap-2">
+                <div><label class="text-[10px] font-bold text-gray-500">Negativos:</label><input type="number" id="tm-neg" class="w-full border rounded p-1.5 text-xs bg-gray-50" placeholder="0"></div>
+                <div><label class="text-[10px] font-bold text-gray-500">Positivos:</label><input type="number" id="tm-pos" class="w-full border rounded p-1.5 text-xs bg-gray-50" placeholder="0"></div>
             </div>
-            
-            <div id="contenedor-lista-protocolos" class="space-y-3 mb-4">
-                <!-- Se renderiza dinámicamente -->
+            <div>
+                <label class="text-[10px] font-bold text-gray-500">Patólogo Asignado:</label>
+                <select id="tm-patologo" class="w-full border rounded p-1.5 text-xs bg-gray-50 font-bold">
+                    <option>DR BENITEZ</option><option>DRA GARCIA</option><option>DR VIDAL</option><option>DR CERON</option><option>DRA BELTRAN</option><option>DRA ALFARO</option><option>DR ROJAS</option>
+                </select>
             </div>
-
-            <!-- Botón exclusivo para encargados de agregar protocolos con enlace a Drive -->
-            <div id="seccion-agregar-protocolo" class="hidden border-t pt-3 mt-3">
-                <h3 class="text-xs font-bold text-teal-800 uppercase mb-2">Añadir Protocolo Google Drive</h3>
-                <input type="text" id="proto-titulo" placeholder="Título del protocolo..." class="w-full border rounded p-2 text-xs mb-2 bg-gray-50">
-                <input type="url" id="proto-link" placeholder="Enlace de Google Drive (https://...)" class="w-full border rounded p-2 text-xs mb-2 bg-gray-50">
-                <button onclick="guardarProtocoloDrive()" class="w-full bg-teal-600 text-white font-bold py-2 rounded-lg text-xs shadow-sm">Agregar Protocolo</button>
-            </div>
+            <button onclick="guardarValidacionTM()" class="w-full bg-teal-600 text-white font-bold py-2.5 rounded-lg text-xs shadow-md">Validar y Finalizar Lote</button>
         </div>
     </div>
 
@@ -417,7 +440,7 @@
         let usuariosDB = {}; const usuariosDefault = { 'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'Supervisión', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'Encargado Área', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'tm': { pass: '1234', n: 'TM', a: 'Central', rol: 'Tecnólogo Médico', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'Técnico (TENS)', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'Secretaría', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' } };
         
         let usuarioActual=null; let foroActual='Avisos'; let tabNotifActual='nuevas'; let diaSeleccionado=0;
-        let publicaciones=[], bitacoraData=[], actasData=[], notificaciones=[], calendarioData={}, reactivosStock={}, rutinasData=[], protocolosData=[];
+        let publicaciones=[], bitacoraData=[], actasData=[], notificaciones=[], calendarioData={}, reactivosStock={}, rutinasData=[], protocolosData=[], lotesTrazabilidad=[];
 
         setInterval(() => { const d = new Date(); document.getElementById('topbar-reloj').innerText = d.toLocaleDateString('es-CL') + ' ' + d.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}); }, 1000);
 
@@ -430,6 +453,7 @@
             let ac = localStorage.getItem('mvrg_actas'); if(ac) actasData = JSON.parse(ac);
             let ru = localStorage.getItem('mvrg_rutinas'); if(ru) rutinasData = JSON.parse(ru);
             let no = localStorage.getItem('mvrg_notif'); if(no) notificaciones = JSON.parse(no);
+            let lt = localStorage.getItem('mvrg_lotes'); if(lt) lotesTrazabilidad = JSON.parse(lt);
             let pr = localStorage.getItem('mvrg_protos'); if(pr) protocolosData = JSON.parse(pr); else {
                 protocolosData = [
                     { id: 1, titulo: 'Criterios Rechazo PAP', link: 'https://drive.google.com' },
@@ -457,7 +481,7 @@
         function actualizarUI() {
             const nom = `${usuarioActual.n} ${usuarioActual.a}`; document.getElementById('header-nombre').innerText = nom; document.getElementById('menu-nombre').innerText = nom; document.getElementById('menu-rol').innerText = usuarioActual.rol;
             const av = usuarioActual.foto ? `<img src="${usuarioActual.foto}" class="w-full h-full object-cover">` : usuarioActual.iniciales; document.getElementById('header-avatar').innerHTML = av; document.getElementById('menu-avatar').innerHTML = av;
-            evaluarPermisosForo(); renderPosts(); renderEquipo(); generarCalendarioGrid(); renderReactivos(); renderActas(); renderAdminUsuarios(); renderRutinas(); renderHistorialTraspasos(); actualizarCampana(); 
+            evaluarPermisosForo(); renderPosts(); renderEquipo(); generarCalendarioGrid(); renderReactivos(); renderActas(); renderAdminUsuarios(); renderRutinas(); renderHistorialTraspasos(); renderBandejasTrazabilidad(); renderEstadisticasMensuales(); actualizarCampana(); 
         }
 
         function sumarStat(stat) {
@@ -483,7 +507,7 @@
         function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); } function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
         function cerrarSesion() { localStorage.removeItem('mvrg_sesion'); window.location.reload(true); }
 
-        // --- BIBLIOTECA DE PROTOCOLOS (Google Drive Miniaturas) ---
+        // --- BIBLIOTECA DE PROTOCOLOS ---
         function abrirModalProtocolos() {
             renderProtocolos();
             let secEnc = document.getElementById('seccion-agregar-protocolo');
@@ -512,7 +536,7 @@
             renderProtocolos(); alert("Protocolo agregado exitosamente.");
         }
 
-        // --- MI PERFIL (Con subida local de imagen) ---
+        // --- MI PERFIL ---
         function abrirModalPerfil() {
             document.getElementById('perfil-nombre').value = usuarioActual.n;
             document.getElementById('perfil-apellido').value = usuarioActual.a;
@@ -553,10 +577,10 @@
             document.getElementById('cito-menu-areas').style.display = 'none'; document.getElementById('cito-area-' + area).style.display = 'flex';
             if(area==='sec') switchTabCito('sec', 'reg'); 
             if(area==='tens') { switchTabCito('tens', 'proc'); setTimeout(() => generarCalendarioGrid(), 50); } 
-            if(area==='tm') { switchTabCito('tm', 'rutina'); renderMonitorVivo(); }
+            if(area==='tm') { switchTabCito('tm', 'rutina'); renderMonitorVivo(); renderEstadisticasMensuales(); }
         }
         function switchTabCito(area, tab) {
-            let tabsSec = ['reg','tras'], tabsTens = ['proc','tras'], tabsTm = ['rutina','monitor','tras']; let arr = area==='sec'?tabsSec:area==='tens'?tabsTens:tabsTm; let colores = { sec: 'pink', tens: 'orange', tm: 'teal' }; let col = colores[area];
+            let tabsSec = ['reg','tras'], tabsTens = ['proc','tras'], tabsTm = ['rutina','monitor','estadisticas','tras']; let arr = area==='sec'?tabsSec:area==='tens'?tabsTens:tabsTm; let colores = { sec: 'pink', tens: 'orange', tm: 'teal' }; let col = colores[area];
             arr.forEach(t => {
                 let btn = document.getElementById(`tab-${area}-${t}`); let view = document.getElementById(`view-${area}-${t}`);
                 if(t===tab) { btn.classList.add(`border-${col}-500`, `text-${col}-600`); btn.classList.remove('border-transparent', 'text-gray-500'); view.style.display='block'; }
@@ -564,6 +588,176 @@
             });
             if(area==='tens' && tab==='proc') { setTimeout(() => generarCalendarioGrid(), 50); }
             if(area==='tm' && tab==='monitor') renderMonitorVivo();
+            if(area==='tm' && tab==='estadisticas') renderEstadisticasMensuales();
+        }
+
+        // --- FLUJO DE TRAZABILIDAD (Secretaría -> TENS -> TM) ---
+        function crearLoteRutina() {
+            let tm = document.getElementById('lote-tm').value.trim();
+            let rango = document.getElementById('lote-rango').value.trim();
+            let cant = parseInt(document.getElementById('lote-cant').value) || 0;
+            let ntens = document.getElementById('lote-ntens').value.trim();
+
+            if(!tm || !rango || !cant) { alert("Completa al menos TM, Rango y Cantidad."); return; }
+
+            let nuevoLote = {
+                id: Date.now(),
+                fecha: new Date().toLocaleDateString('es-CL'),
+                tm: tm.toUpperCase(),
+                rango: rango,
+                cantidad: cant,
+                ntens: ntens || 'AV',
+                estado: 'secretaria', // secretaria -> tens -> validado
+                tensAutor: '',
+                negativos: 0,
+                positivos: 0,
+                patologo: ''
+            };
+
+            lotesTrazabilidad.unshift(nuevoLote);
+            localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
+
+            document.getElementById('lote-tm').value = '';
+            document.getElementById('lote-rango').value = '';
+            document.getElementById('lote-cant').value = '';
+            document.getElementById('lote-ntens').value = '';
+
+            generarNotificacion(`📦 Nuevo Lote de Rutina (${rango}) enviado por Secretaría`, 'secciones', '');
+            renderBandejasTrazabilidad();
+            alert("Lote registrado y enviado a TENS.");
+        }
+
+        function tensAceptarLote(id) {
+            let l = lotesTrazabilidad.find(x => x.id === id);
+            if(l) {
+                l.estado = 'tens';
+                l.tensAutor = usuarioActual.n + " " + usuarioActual.a;
+                localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
+                renderBandejasTrazabilidad();
+                alert("Lote confirmado por TENS. Ahora pasa a Torre de Control para validación.");
+            }
+        }
+
+        function abrirModalValidarTM(id) {
+            document.getElementById('tm-lote-id').value = id;
+            let l = lotesTrazabilidad.find(x => x.id == id);
+            document.getElementById('tm-lote-info').innerText = `TM: ${l.tm} | Rango: ${l.rango} | Cantidad: ${l.cantidad}`;
+            document.getElementById('tm-neg').value = l.cantidad; // Sugerencia inicial
+            document.getElementById('tm-pos').value = 0;
+            abrirModal('modal-validar-tm');
+        }
+
+        function guardarValidacionTM() {
+            let id = document.getElementById('tm-lote-id').value;
+            let neg = parseInt(document.getElementById('tm-neg').value) || 0;
+            let pos = parseInt(document.getElementById('tm-pos').value) || 0;
+            let pat = document.getElementById('tm-patologo').value;
+
+            let l = lotesTrazabilidad.find(x => x.id == id);
+            if(l) {
+                l.estado = 'validado';
+                l.negativos = neg;
+                l.positivos = pos;
+                l.patologo = pat;
+                localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
+                cerrarModal('modal-validar-tm');
+                renderBandejasTrazabilidad();
+                renderEstadisticasMensuales();
+                alert("Lote validado y registrado en estadísticas con éxito.");
+            }
+        }
+
+        function renderBandejasTrazabilidad() {
+            // 1. Secretaría
+            const bSec = document.getElementById('bandeja-trazabilidad-sec'); bSec.innerHTML = '';
+            if(lotesTrazabilidad.length === 0) bSec.innerHTML = '<p class="text-[10px] text-gray-400">No hay lotes ingresados.</p>';
+            lotesTrazabilidad.forEach(l => {
+                let badge = l.estado==='secretaria'? '<span class="bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded text-[8px] font-bold">Pendiente TENS</span>' : (l.estado==='tens'? '<span class="bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded text-[8px] font-bold">En TM</span>' : '<span class="bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded text-[8px] font-bold">Validado</span>');
+                bSec.innerHTML += `<div class="bg-gray-50 p-2 rounded border text-xs flex justify-between items-center"><div><b>${l.fecha} | TM: ${l.tm}</b><br><span class="text-[10px] text-gray-600">Rango: ${l.rango} (Cant: ${l.cantidad})</span></div><div>${badge}</div></div>`;
+            });
+
+            // 2. TENS
+            const bTens = document.getElementById('bandeja-trazabilidad-tens'); bTens.innerHTML = '';
+            lotesTrazabilidad.forEach(l => {
+                let accion = l.estado === 'secretaria' ? `<button onclick="tensAceptarLote(${l.id})" class="bg-orange-500 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm">Aceptar Recepción</button>` : `<span class="text-teal-700 font-bold text-[10px]"><i class="fa-solid fa-check"></i> Aceptado</span>`;
+                bTens.innerHTML += `<div class="bg-gray-50 p-2 rounded border text-xs flex justify-between items-center"><div><b>${l.fecha} | TM: ${l.tm}</b><br><span class="text-[10px] text-gray-600">Rango: ${l.rango} (Cant: ${l.cantidad})</span></div><div>${accion}</div></div>`;
+            });
+
+            // 3. Torre de Control (TM)
+            const bTm = document.getElementById('bandeja-trazabilidad-tm'); bTm.innerHTML = '';
+            lotesTrazabilidad.forEach(l => {
+                let accionTM = l.estado === 'validado' ? `<span class="text-teal-700 font-bold text-[10px]"><i class="fa-solid fa-check-double"></i> Patólogo: ${l.patologo} (Neg: ${l.negativos}, Pos: ${l.positivos})</span>` : (l.estado === 'tens' ? `<button onclick="abrirModalValidarTM(${l.id})" class="bg-teal-600 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm animate-pulse">Validar y Registrar Resultados</button>` : `<span class="text-yellow-600 font-bold text-[10px]">Esperando TENS</span>`);
+                bTm.innerHTML += `<div class="bg-gray-50 p-2 rounded border text-xs flex justify-between items-center"><div><b>${l.fecha} | TM: ${l.tm}</b><br><span class="text-[10px] text-gray-600">Rango: ${l.rango} (Cant: ${l.cantidad})</span></div><div>${accionTM}</div></div>`;
+            });
+        }
+
+        // --- REPORTE DE ESTADÍSTICAS MENSUALES ---
+        function renderEstadisticasMensuales() {
+            let container = document.getElementById('contenedor-tabla-estadistica');
+            if(!container) return;
+
+            // Calcular acumulados por Patólogo
+            let patologosTotales = { 'DR BENITEZ': {neg:0, pos:0}, 'DRA GARCIA': {neg:0, pos:0}, 'DR VIDAL': {neg:0, pos:0}, 'DR CERON': {neg:0, pos:0}, 'DRA BELTRAN': {neg:0, pos:0}, 'DRA ALFARO': {neg:0, pos:0}, 'DR ROJAS': {neg:0, pos:0} };
+            let tmTotales = { 'FERNANDA JARA': 0, 'PAULINA AGUILAR': 0, 'CAMILA ARAVENA': 0, 'STEPHANIE ACEVEDO': 0 };
+
+            lotesTrazabilidad.filter(l => l.estado === 'validado').forEach(l => {
+                if(patologosTotales[l.patologo]) {
+                    patologosTotales[l.patologo].neg += l.negativos;
+                    patologosTotales[l.patologo].pos += l.positivos;
+                }
+                // Mapeo inicial por iniciales de TM
+                if(l.tm === 'FJ') tmTotales['FERNANDA JARA'] += l.cantidad;
+                if(l.tm === 'PA') tmTotales['PAULINA AGUILAR'] += l.cantidad;
+                if(l.tm === 'SA') tmTotales['CAMILA ARAVENA'] += l.cantidad; // Simulación de mapeo
+            });
+
+            let sumNeg = 0, sumPos = 0;
+            Object.values(patologosTotales).forEach(p => { sumNeg += p.neg; sumPos += p.pos; });
+            let sumTm = 0; Object.values(tmTotales).forEach(t => sumTm += t);
+
+            let html = `
+            <table class="w-full border-collapse border border-gray-800 text-center">
+                <thead>
+                    <tr class="bg-yellow-200"><th colspan="2" class="border border-gray-800 p-1">NEGATIVO POR PATOLOGO</th><th colspan="2" class="border border-gray-800 p-1">POSITIVO POR PATOLOGO</th><th colspan="2" class="border border-gray-800 p-1">PAP POR TECNOLOGO MEDICO</th></tr>
+                </thead>
+                <tbody>`;
+
+            let patKeys = Object.keys(patologosTotales);
+            let tmKeys = Object.keys(tmTechno = tmTotales);
+            let maxLen = Math.max(patKeys.length, tmKeys.length);
+
+            for(let i=0; i<maxLen; i++) {
+                let pName = patKeys[i] || '';
+                let pData = pName ? patologosTotales[pName] : {neg:'', pos:''};
+                let tName = tmKeys[i] || '';
+                let tVal = tName ? tmTotales[tName] : '';
+
+                html += `<tr>
+                    <td class="border border-gray-800 p-1 text-left font-bold">${pName}</td>
+                    <td class="border border-gray-800 p-1">${pData.neg}</td>
+                    <td class="border border-gray-800 p-1 text-left font-bold">${pName}</td>
+                    <td class="border border-gray-800 p-1">${pData.pos}</td>
+                    <td class="border border-gray-800 p-1 text-left font-bold">${tName}</td>
+                    <td class="border border-gray-800 p-1">${tVal}</td>
+                </tr>`;
+            }
+
+            html += `
+                <tr class="bg-yellow-100 font-bold">
+                    <td class="border border-gray-800 p-1 text-left">TOTAL NEGATIVOS</td><td class="border border-gray-800 p-1">${sumNeg}</td>
+                    <td class="border border-gray-800 p-1 text-left">TOTAL POSITIVO</td><td class="border border-gray-800 p-1">${sumPos}</td>
+                    <td class="border border-gray-800 p-1 text-left">TOTAL</td><td class="border border-gray-800 p-1">${sumTm}</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="mt-2 text-center bg-yellow-100 border border-gray-800 p-1 font-bold">TOTAL NEGATIVOS Y POSITIVOS: ${sumNeg + sumPos}</div>`;
+
+            container.innerHTML = html;
+        }
+
+        function exportarEstadisticasPDF() {
+            let elem = document.getElementById('contenedor-tabla-estadistica');
+            html2pdf().set({margin: 0.5, filename: `Estadisticas_Citopatologia.pdf`, html2canvas:{scale:2}}).from(elem).save();
         }
 
         // --- GESTOR DE RUTINA EXCEL ---
@@ -613,7 +807,7 @@
             }
         }
 
-        // --- TRASPASO DE TURNO (Con etiquetas independientes para Secretaría, TENS y Torre de Control) ---
+        // --- TRASPASO DE TURNO E HISTORIALES Y EXPORTACIÓN POR FECHA ---
         function guardarTraspaso(unidadFija, inputId) {
             let txt = document.getElementById(inputId).value.trim(); if(!txt) { alert("Escribe alguna novedad."); return; }
             const b = { id: Date.now(), fechaIso: new Date().toISOString().split('T')[0], fecha: new Date().toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}), autor: usuarioActual, unidad: unidadFija, tipo: 'Diario', nov: txt };
@@ -623,7 +817,6 @@
         }
 
         function renderHistorialTraspasos() {
-            // Secretaría
             const tsSec = bitacoraData.filter(b => b.unidad === 'Citopatología - Secretaría');
             const wU = document.getElementById('widget-ultimo-traspaso-sec');
             if(tsSec.length > 0) { wU.innerHTML = `<p class="text-[10px] text-pink-700 font-bold"><i class="fa-regular fa-clock"></i> ${tsSec[0].fecha} - ${tsSec[0].autor.n} ${tsSec[0].autor.a}</p><p class="text-xs text-gray-800 mt-1">${tsSec[0].nov}</p>`; } 
@@ -632,12 +825,10 @@
             const lS = document.getElementById('historial-tras-sec'); lS.innerHTML = '';
             tsSec.slice(0, 10).forEach(b => { lS.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-pink-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
 
-            // TENS
             const tsTens = bitacoraData.filter(b => b.unidad === 'Citopatología - TENS');
             const lT = document.getElementById('historial-tras-tens'); lT.innerHTML = '';
             tsTens.slice(0, 10).forEach(b => { lT.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-orange-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
 
-            // Torre de Control (TM) - Muestra últimos 3
             const tsTm = bitacoraData.filter(b => b.unidad === 'Torre de Control - TM');
             const lTM = document.getElementById('historial-tras-tm'); lTM.innerHTML = '';
             tsTm.slice(0, 3).forEach(b => { lTM.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-teal-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
@@ -730,7 +921,7 @@
             g.innerHTML = `<div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Stock Actual (TENS)</p>${stockHtml}</div><div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Calendario TENS (Hoy ${dHoy})</p><div class="text-xs p-2 bg-gray-50 rounded border">${txtCal}</div></div><div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100 md:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Últimos Traspasos Globales</p>${bitHtml||'<p class="text-[10px] text-gray-400">No hay traspasos.</p>'}</div>`;
         }
 
-        // --- EQUIPO (Tarjetas compactas "Meet the Team") ---
+        // --- EQUIPO ---
         function renderEquipo() {
             const c = document.getElementById('contenedor-equipo'); c.innerHTML = ''; const roles = ['Supervisión', 'Encargado Área', 'Tecnólogo Médico', 'Técnico (TENS)', 'Secretaría'];
             roles.forEach(rolB => {
@@ -810,13 +1001,8 @@
         function guardarMiFirma() { if(!actaFActual) return; const i = actasData.findIndex(a=>a.id===actaFActual); if(i !== -1) { if(!actasData[i].firmas) actasData[i].firmas = {}; actasData[i].firmas[usuarioActual.id] = cvsF.toDataURL("image/png"); localStorage.setItem('mvrg_actas', JSON.stringify(actasData)); cerrarModal('modal-firma-acta'); renderActas(); sumarStat('pluma'); if(Object.keys(actasData[i].firmas).length === actasData[i].asistentesIds.length) generarNotificacion(`¡Acta completada: ${actasData[i].titulo}!`, 'actas', ''); } }
         function exportarActaEspecificaPDF(id) { html2pdf().set({margin: 0.5, filename: `Acta_${id}.pdf`, html2canvas: {scale: 2}}).from(document.getElementById('acta-imprimir-' + id)).save(); }
 
-        // --- ADMINISTRACIÓN DE USUARIOS (Con render automático al abrir) ---
-        function renderAdminUsuarios() { 
-            const c = document.getElementById('contenedor-lista-usuarios'); c.innerHTML = ''; 
-            for(const [id, u] of Object.entries(usuariosDB)) { 
-                c.innerHTML += `<div class="bg-white p-3 rounded-lg border shadow-sm flex justify-between items-center"><div><p class="text-sm font-bold">${u.n} ${u.a}</p><p class="text-[10px] text-gray-500 font-mono">ID: ${id} | ${u.rol}</p></div><div class="flex gap-2"><button onclick="abrirModalAdminUsuario('${id}')" class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="eliminarAdminUsuario('${id}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs border border-red-100"><i class="fa-solid fa-trash-can"></i></button></div></div>`; 
-            } 
-        }
+        // --- ADMINISTRACIÓN DE USUARIOS ---
+        function renderAdminUsuarios() { const c = document.getElementById('contenedor-lista-usuarios'); c.innerHTML = ''; for(const [id, u] of Object.entries(usuariosDB)) { c.innerHTML += `<div class="bg-white p-3 rounded-lg border shadow-sm flex justify-between items-center"><div><p class="text-sm font-bold">${u.n} ${u.a}</p><p class="text-[10px] text-gray-500 font-mono">ID: ${id} | ${u.rol}</p></div><div class="flex gap-2"><button onclick="abrirModalAdminUsuario('${id}')" class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="eliminarAdminUsuario('${id}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs border border-red-100"><i class="fa-solid fa-trash-can"></i></button></div></div>`; } }
         function abrirModalAdminUsuario(id) { if(id && usuariosDB[id]) { document.getElementById('admin-u-mode').value = id; document.getElementById('admin-u-id').value = id; document.getElementById('admin-u-id').disabled = true; document.getElementById('admin-u-pass').value = usuariosDB[id].pass; document.getElementById('admin-u-n').value = usuariosDB[id].n; document.getElementById('admin-u-a').value = usuariosDB[id].a; document.getElementById('admin-u-rol').value = usuariosDB[id].rol; document.getElementById('admin-u-file').value = ''; document.getElementById('tit-admin-user').innerText = 'Editar Usuario'; } else { document.getElementById('admin-u-mode').value = 'new'; document.getElementById('admin-u-id').value = ''; document.getElementById('admin-u-id').disabled = false; document.getElementById('admin-u-pass').value = ''; document.getElementById('admin-u-n').value = ''; document.getElementById('admin-u-a').value = ''; document.getElementById('admin-u-rol').selectedIndex = 0; document.getElementById('admin-u-file').value = ''; document.getElementById('tit-admin-user').innerText = 'Nuevo Usuario'; } abrirModal('modal-admin-user'); }
         function guardarAdminUsuario() { 
             const mode = document.getElementById('admin-u-mode').value; const id = document.getElementById('admin-u-id').value.toLowerCase().trim(); const pass = document.getElementById('admin-u-pass').value; const n = document.getElementById('admin-u-n').value; const a = document.getElementById('admin-u-a').value; const rol = document.getElementById('admin-u-rol').value; 
@@ -845,7 +1031,7 @@
         }
         function eliminarAdminUsuario(id) { if(id===usuarioActual.id) { alert("No puedes eliminar tu cuenta conectada."); return; } if(confirm(`¿Eliminar a ${usuariosDB[id].n}?`)) { delete usuariosDB[id]; localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB)); renderAdminUsuarios(); renderEquipo(); } }
 
-        // --- FOROS Y VENTAS (Con WhatsApp y subida de archivos) ---
+        // --- FOROS Y VENTAS (Con soporte de publicación garantizado) ---
         function cambiarSubForo(f) { 
             foroActual = f; 
             ['Avisos', 'Offtopic', 'Ventas', 'Eventos'].forEach(x => { 
@@ -868,7 +1054,7 @@
             abrirModal('modal-post'); 
         }
         function guardarPost() {
-            const tit = document.getElementById('post-titulo').value; if(!tit) return;
+            const tit = document.getElementById('post-titulo').value; if(!tit) { alert("Escribe un título."); return; }
             let wsp = document.getElementById('post-wsp').value.trim();
             let fileInput = document.getElementById('post-file');
 
