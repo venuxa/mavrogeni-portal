@@ -2,1103 +2,172 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mavrogeni App</title>
-    <link rel="manifest" href="manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mavrogeni - Gestión Citopatología</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
-    <style>
-        body { touch-action: manipulation; }
-        button { user-select: none; }
-        ::-webkit-scrollbar { display: none; }
-        .pantalla-oculta { display: none !important; }
-        .pantalla-activa { display: flex !important; }
-        .modal-abierto { display: flex !important; }
-        #menu-lateral { transition: transform 0.3s ease-in-out; }
-        .menu-abierto { transform: translateX(0%); }
-        .menu-cerrado { transform: translateX(-100%); }
-        details > summary { list-style: none; }
-        details > summary::-webkit-details-marker { display: none; }
-        
-        .medalla-on { opacity: 1; filter: grayscale(0%); transform: scale(1.1); cursor: pointer; }
-        .medalla-off { opacity: 0.3; filter: grayscale(100%); cursor: pointer; }
-        
-        .excel-table th, .excel-table td { border: 1px solid #1f2937; padding: 4px; text-align: center; }
-        .excel-input { width: 100%; height: 100%; text-align: center; outline: none; background: transparent; }
-        .excel-input:focus { background-color: #e6fffa; }
-    </style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col font-sans antialiased overflow-hidden">
+<body class="bg-gray-100 h-screen flex flex-col font-sans">
 
-    <!-- ==================== LOGIN ==================== -->
-    <div id="vista-login" class="flex-col h-full bg-teal-900 text-white justify-center px-8 relative z-50 pantalla-activa">
-        <div class="text-center mb-10"><i class="fa-solid fa-microscope text-5xl mb-4 text-teal-400"></i><h1 class="text-4xl font-bold tracking-wide">Mavrogeni</h1></div>
-        <div class="bg-white rounded-2xl p-6 shadow-2xl text-gray-800">
-            <input type="text" id="login-user" placeholder="Usuario" class="w-full bg-gray-50 border rounded-lg py-3 px-3 mb-4">
-            <input type="password" id="login-pass" placeholder="Clave" class="w-full bg-gray-50 border rounded-lg py-3 px-3 mb-6">
-            <button onclick="iniciarSesion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 shadow-md">Ingresar</button>
-            <p id="error-login" class="text-xs text-red-500 text-center mt-4 hidden font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Usuario o clave incorrectos.</p>
-        </div>
-    </div>
+    <!-- TOPBAR -->
+    <header class="bg-teal-800 text-white p-4 flex justify-between items-center shadow-lg">
+        <h1 class="font-bold text-lg"><i class="fa-solid fa-microscope mr-2"></i> Mavrogeni HRA</h1>
+        <div id="usuario-display" class="text-xs font-bold bg-teal-900 px-3 py-1 rounded-full"></div>
+    </header>
 
-    <!-- ==================== APP PRINCIPAL ==================== -->
-    <div id="app-principal" class="flex-col h-full relative pantalla-oculta">
-        
-        <!-- TOPBAR -->
-        <header class="bg-teal-700 text-white shadow-md sticky top-0 z-30">
-            <div class="flex justify-between items-center px-4 h-14">
-                <button onclick="toggleMenu()" class="flex items-center gap-2 hover:bg-teal-600 p-1 rounded-lg">
-                    <i class="fa-solid fa-bars text-xl mr-1"></i><div id="header-avatar" class="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center font-bold text-xs border border-teal-400 overflow-hidden"></div>
+    <!-- MAIN APP -->
+    <main class="flex-1 p-4 overflow-y-auto pb-32">
+        <!-- ÁREA CITODIAGNÓSTICO -->
+        <div id="section-cito" class="space-y-6">
+            
+            <!-- CABECERA ACCIONES -->
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">Flujo de Muestras</h2>
+                <button onclick="abrirModal('modal-ingreso')" class="bg-teal-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow hover:bg-teal-700">
+                    <i class="fa-solid fa-plus mr-1"></i> Ingresar Nueva Rutina
                 </button>
-                <div class="text-center"><h1 class="text-sm font-bold tracking-wide leading-tight">Mavrogeni</h1><p id="topbar-reloj" class="text-[10px] text-teal-200 font-mono"></p></div>
-                <div class="flex gap-1">
-                    <button onclick="abrirModal('modal-anexos')" class="p-2 hover:bg-teal-600 rounded-full"><i class="fa-solid fa-phone text-lg"></i></button>
-                    <button onclick="abrirModalNotificaciones()" class="relative p-2 hover:bg-teal-600 rounded-full"><i class="fa-regular fa-bell text-xl"></i><span id="badge-notif" class="absolute top-2 right-2 bg-red-500 rounded-full w-2.5 h-2.5 border-2 border-white hidden"></span></button>
+            </div>
+
+            <!-- TABLERO KANBAN -->
+            <div class="flex gap-4 overflow-x-auto pb-4 h-[400px]">
+                <div class="w-64 bg-gray-200 rounded-xl p-3 flex flex-col"><h3 class="font-bold text-xs mb-2">Recepción</h3><div id="col-secretaria" class="flex-1 space-y-2"></div></div>
+                <div class="w-64 bg-gray-200 rounded-xl p-3 flex flex-col"><h3 class="font-bold text-xs mb-2">En Proceso (TENS)</h3><div id="col-tens" class="flex-1 space-y-2"></div></div>
+                <div class="w-64 bg-gray-200 rounded-xl p-3 flex flex-col"><h3 class="font-bold text-xs mb-2">Validación (TM)</h3><div id="col-tm" class="flex-1 space-y-2"></div></div>
+                <div class="w-64 bg-gray-200 rounded-xl p-3 flex flex-col"><h3 class="font-bold text-xs mb-2">Médico Patólogo</h3><div id="col-final" class="flex-1 space-y-2"></div></div>
+            </div>
+
+            <!-- REGISTRO HISTÓRICO Y BUSCADOR -->
+            <div class="bg-white p-4 rounded-xl shadow border">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-700">Registro Histórico</h3>
+                    <input type="date" id="filtro-fecha" onchange="renderHistorial()" class="border rounded p-1 text-sm bg-gray-50">
                 </div>
-            </div>
-        </header>
-
-        <!-- MENÚ LATERAL -->
-        <div id="overlay-menu" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleMenu()"></div>
-        <nav id="menu-lateral" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 menu-cerrado flex flex-col">
-            <div class="bg-teal-700 p-6 text-white text-center relative">
-                <button onclick="toggleMenu()" class="absolute top-3 right-4 text-2xl text-teal-300">&times;</button>
-                <div id="menu-avatar" class="w-16 h-16 mx-auto bg-white text-teal-700 rounded-full flex items-center justify-center text-2xl font-bold shadow-md mb-3 overflow-hidden"></div>
-                <h2 id="menu-nombre" class="font-bold text-lg">Usuario</h2><p id="menu-rol" class="text-xs text-teal-200 uppercase mt-1 font-bold"></p>
-            </div>
-            <div class="flex-1 py-4 px-3 overflow-y-auto">
-                <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-2">Personal</p>
-                <button onclick="abrirModalPerfil(); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700"><i class="fa-solid fa-user w-5 text-teal-600"></i> Mi Perfil</button>
-                <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-4">Herramientas</p>
-                <button onclick="abrirModalProtocolos(); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 mb-2"><i class="fa-solid fa-book-medical w-5 text-teal-600"></i> Protocolos</button>
-                <button onclick="cambiarVista('actas'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2"><i class="fa-solid fa-file-signature w-5 text-teal-600"></i> Actas de Reunión</button>
-                <div id="seccion-admin" class="hidden"><p class="text-xs font-bold text-red-400 uppercase ml-2 mb-1 mt-4"><i class="fa-solid fa-lock mr-1"></i> Administración</p><button onclick="cambiarVista('admin'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-700 font-bold border border-red-100 mb-2"><i class="fa-solid fa-users-gear w-5"></i> Gestión Usuarios</button></div>
-                <div class="mt-auto border-t pt-4"><button onclick="cerrarSesion()" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-600 font-medium"><i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i> Cerrar Sesión</button></div>
-            </div>
-        </nav>
-
-        <!-- ÁREA CENTRAL -->
-        <main class="flex-1 overflow-y-auto bg-gray-100 pb-32 relative">
-            
-            <!-- 1. VISTA FOROS -->
-            <div id="vista-foros" class="block h-full flex flex-col">
-                <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky top-0 z-20 overflow-x-auto"><button onclick="cambiarSubForo('Avisos')" id="tab-Avisos" class="flex-1 py-3 px-2 border-b-2 border-teal-700 text-teal-700 whitespace-nowrap">Avisos</button><button onclick="cambiarSubForo('Offtopic')" id="tab-Offtopic" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500 whitespace-nowrap">OffTopic</button><button onclick="cambiarSubForo('Ventas')" id="tab-Ventas" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500 whitespace-nowrap">Ventas</button><button onclick="cambiarSubForo('Eventos')" id="tab-Eventos" class="flex-1 py-3 px-2 border-b-2 border-transparent text-purple-600 font-bold whitespace-nowrap"><i class="fa-solid fa-calendar mr-1"></i>Eventos</button></div>
-                <div class="p-4 flex-1 overflow-y-auto"><button id="btn-abrir-modal-post" onclick="abrirModalPost()" class="w-full bg-white border border-teal-200 text-teal-700 rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-sm mb-4"><i class="fa-solid fa-pen"></i> <span id="txt-btn-publicar">Crear Publicación</span></button><div id="contenedor-posts" class="space-y-4"></div><div id="contenedor-eventos" class="space-y-3 hidden"></div></div>
-            </div>
-
-            <!-- 2. VISTA SECCIONES Y CITODIAGNÓSTICO -->
-            <div id="vista-secciones" class="hidden flex flex-col h-full bg-gray-50 relative">
-                
-                <div id="secciones-lista-unidades" class="block p-4">
-                    <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Unidades</h2>
-                    <div class="grid grid-cols-1 gap-3">
-                        <button onclick="abrirUnidad('citodiagnostico')" class="bg-white p-4 rounded-xl shadow-sm border flex items-center justify-between hover:border-teal-400 transition"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-xl"><i class="fa-solid fa-microscope"></i></div><span class="font-bold text-gray-800">Citodiagnóstico</span></div><i class="fa-solid fa-chevron-right text-gray-300"></i></button>
-                        <button class="bg-white p-4 rounded-xl shadow-sm border opacity-60 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl"><i class="fa-solid fa-vial"></i></div><span class="font-bold text-gray-800">Histopatología</span></div></button>
-                        <button class="bg-white p-4 rounded-xl shadow-sm border opacity-60 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl"><i class="fa-solid fa-eye"></i></div><span class="font-bold text-gray-800">Macroscopía</span></div></button>
-                    </div>
-                </div>
-
-                <div id="secciones-citodiagnostico" class="hidden flex-col h-full">
-                    <div class="bg-teal-800 flex text-sm font-bold shadow-md px-4 py-3 text-white items-center gap-3 sticky top-0 z-20">
-                        <button onclick="cerrarUnidad()" class="text-teal-200 hover:text-white text-lg"><i class="fa-solid fa-arrow-left"></i></button><span>Unidad Citodiagnóstico</span>
-                    </div>
-
-                    <!-- MENÚ DE 3 BOTONES -->
-                    <div id="cito-menu-areas" class="p-4 flex-1 flex flex-col justify-center space-y-4">
-                        <button onclick="entrarAreaCito('sec')" class="bg-white p-6 rounded-2xl shadow border-2 border-transparent hover:border-pink-300 flex flex-col items-center gap-2 group"><i class="fa-solid fa-keyboard text-4xl text-pink-500 group-hover:scale-110 transition"></i><span class="font-bold text-gray-700">Área Secretaría</span></button>
-                        <button onclick="entrarAreaCito('tens')" class="bg-white p-6 rounded-2xl shadow border-2 border-transparent hover:border-orange-300 flex flex-col items-center gap-2 group"><i class="fa-solid fa-flask-vial text-4xl text-orange-500 group-hover:scale-110 transition"></i><span class="font-bold text-gray-700">Área TENS</span></button>
-                        <button onclick="entrarAreaCito('tm')" id="btn-area-tm" class="bg-white p-6 rounded-2xl shadow border-2 border-transparent hover:border-teal-300 flex flex-col items-center gap-2 group"><i class="fa-solid fa-satellite-dish text-4xl text-teal-600 group-hover:scale-110 transition"></i><span class="font-bold text-gray-700">Torre de Control (TM)</span></button>
-                    </div>
-
-                    <!-- ================= AREA SECRETARÍA ================= -->
-                    <div id="cito-area-sec" class="hidden flex-col h-full">
-                        <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky z-10">
-                            <button onclick="switchTabCito('sec', 'reg')" id="tab-sec-reg" class="flex-1 py-3 px-2 border-b-2 border-pink-500 text-pink-600 font-bold"><i class="fa-solid fa-folder-open mr-1"></i> Registros y Trazabilidad</button>
-                            <button onclick="switchTabCito('sec', 'tras')" id="tab-sec-tras" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list mr-1"></i> Traspaso</button>
-                        </div>
-                        <div id="view-sec-reg" class="p-4 flex-1 overflow-y-auto block space-y-4">
-                            <div class="bg-white border border-gray-200 p-3 rounded-xl shadow-sm">
-                                <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1 mb-2"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Último Traspaso Registrado</h3>
-                                <div id="widget-ultimo-traspaso-sec" class="bg-gray-50 p-2 rounded">Cargando...</div>
-                            </div>
-                            
-                            <!-- CREAR LOTE (Secretaría) -->
-                            <div class="bg-white border border-pink-200 p-3 rounded-xl shadow-sm space-y-2">
-                                <h3 class="font-bold text-pink-800 text-xs uppercase"><i class="fa-solid fa-plus-circle mr-1"></i> Registrar Nueva Entrega (Rutina)</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="text-[9px] font-bold text-gray-400">TM Responsable:</label><input type="text" id="lote-tm" placeholder="Ej: FJ" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                    <div><label class="text-[9px] font-bold text-gray-400">Rango Folios:</label><input type="text" id="lote-rango" placeholder="Ej: 17068-17097" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="text-[9px] font-bold text-gray-400">Cantidad:</label><input type="number" id="lote-cant" placeholder="30" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                    <div><label class="text-[9px] font-bold text-gray-400">N° TENS:</label><input type="text" id="lote-ntens" placeholder="1 o AV" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                </div>
-                                <button onclick="crearLoteRutina()" class="w-full bg-pink-500 text-white font-bold py-2 rounded-lg text-xs shadow-sm">Enviar Lote a TENS</button>
-                            </div>
-
-                            <!-- BANDEJA DE TRAZABILIDAD (Secretaría) -->
-                            <div class="bg-white border p-3 rounded-xl shadow-sm">
-                                <h3 class="font-bold text-gray-700 text-xs uppercase border-b pb-1 mb-2">Estado de Lotes (Trazabilidad)</h3>
-                                <div id="bandeja-trazabilidad-sec" class="space-y-2"></div>
-                            </div>
-
-                            <div class="bg-pink-50 border border-pink-200 p-3 rounded-xl shadow-sm overflow-x-auto">
-                                <h3 class="font-bold text-pink-800 text-[10px] uppercase mb-2"><i class="fa-solid fa-table border mr-1"></i> Rutina Semanal Vigente</h3>
-                                <div id="display-rutina-sec" class="bg-white border rounded"></div>
-                            </div>
-                        </div>
-                        <div id="view-sec-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-pink-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-sec" rows="4" placeholder="Escribe las novedades de Secretaría..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-pink-400"></textarea><button onclick="guardarTraspaso('Citopatología - Secretaría', 'bit-nov-sec')" class="w-full bg-pink-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-pink-600">Registrar Traspaso</button></div>
-                            
-                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
-                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-sec" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-sec" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                </div>
-                                <button onclick="exportarPDFRango('Citopatología - Secretaría', 'f-desde-sec', 'f-hasta-sec')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF Secretaría</button>
-                            </div>
-
-                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (Secretaría)</h3>
-                            <div id="historial-tras-sec" class="space-y-2"></div>
-                        </div>
-                    </div>
-
-                    <!-- ================= AREA TENS ================= -->
-                    <div id="cito-area-tens" class="hidden flex-col h-full">
-                        <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky z-10">
-                            <button onclick="switchTabCito('tens', 'proc')" id="tab-tens-proc" class="flex-1 py-3 px-2 border-b-2 border-orange-500 text-orange-600 font-bold"><i class="fa-solid fa-vial-circle-check mr-1"></i> Procesamiento y Trazabilidad</button>
-                            <button onclick="switchTabCito('tens', 'tras')" id="tab-tens-tras" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list mr-1"></i> Traspaso</button>
-                        </div>
-                        <div id="view-tens-proc" class="p-4 flex-1 overflow-y-auto space-y-4 block">
-                            <div class="bg-orange-50 border border-orange-200 p-3 rounded-xl shadow-sm overflow-x-auto">
-                                <h3 class="font-bold text-orange-800 text-[10px] uppercase mb-2"><i class="fa-solid fa-table mr-1"></i> Rutina Asignada</h3>
-                                <div id="display-rutina-tens" class="bg-white border rounded"></div>
-                            </div>
-                            
-                            <!-- BANDEJA DE TRAZABILIDAD (TENS - Aceptar lotes de Secretaría) -->
-                            <div class="bg-white border p-3 rounded-xl shadow-sm">
-                                <h3 class="font-bold text-gray-700 text-xs uppercase border-b pb-1 mb-2">Recepción de Lotes (TENS)</h3>
-                                <div id="bandeja-trazabilidad-tens" class="space-y-2"></div>
-                            </div>
-
-                            <!-- Calendario TENS -->
-                            <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
-                                <h3 class="font-bold text-gray-800 text-xs mb-2 border-b pb-1"><i class="fa-regular fa-calendar-check text-orange-500 mr-1"></i> Calendario de Tareas</h3>
-                                <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-[10px]"></div>
-                            </div>
-                        </div>
-                        <div id="view-tens-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-orange-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-tens" rows="4" placeholder="Novedades de Procesamiento..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-orange-400"></textarea><button onclick="guardarTraspaso('Citopatología - TENS', 'bit-nov-tens')" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-orange-600">Registrar Traspaso</button></div>
-                            
-                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
-                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-tens" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-tens" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                </div>
-                                <button onclick="exportarPDFRango('Citopatología - TENS', 'f-desde-tens', 'f-hasta-tens')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF TENS</button>
-                            </div>
-
-                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (TENS)</h3>
-                            <div id="historial-tras-tens" class="space-y-2"></div>
-                        </div>
-                    </div>
-
-                    <!-- ================= AREA TECNÓLOGOS (TORRE DE CONTROL Y ESTADÍSTICAS) ================= -->
-                    <div id="cito-area-tm" class="hidden flex-col h-full">
-                        <div class="bg-white border-b flex text-[10px] font-medium shadow-sm sticky z-10">
-                            <button onclick="switchTabCito('tm', 'rutina')" id="tab-tm-rutina" class="flex-1 py-3 px-1 border-b-2 border-teal-600 text-teal-700 font-bold"><i class="fa-solid fa-pen-to-square"></i> Asignar</button>
-                            <button onclick="switchTabCito('tm', 'monitor')" id="tab-tm-monitor" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-satellite-dish"></i> Monitor Vivo</button>
-                            <button onclick="switchTabCito('tm', 'estadisticas')" id="tab-tm-estadisticas" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
-                            <button onclick="switchTabCito('tm', 'tras')" id="tab-tm-tras" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list"></i> Traspaso</button>
-                        </div>
-                        
-                        <div id="view-tm-rutina" class="p-4 flex-1 overflow-y-auto block space-y-4">
-                            <div class="bg-white p-3 rounded-xl shadow-sm border overflow-x-auto">
-                                <h3 class="font-bold text-teal-800 text-xs mb-2"><i class="fa-solid fa-table-cells"></i> Editor Rutina Semanal</h3>
-                                <table class="excel-table w-full text-[9px] bg-white">
-                                    <thead>
-                                        <tr class="bg-gray-100 font-bold">
-                                            <th colspan="6">CALENDARIO SEMANAL <input type="text" id="rut-fechas" class="excel-input border-b border-gray-400 w-24" placeholder="DD/MM AL DD/MM"></th>
-                                            <th colspan="5">TURNO CITOLOGIA: <input type="text" id="rut-turno" class="excel-input border-b border-gray-400 w-24" placeholder="Nombre"></th>
-                                        </tr>
-                                        <tr class="bg-gray-200 font-bold">
-                                            <th style="width:30px;"></th>
-                                            <th colspan="2">LUNES</th><th colspan="2">MARTES</th><th colspan="2">MIERCOLES</th><th colspan="2">JUEVES</th><th colspan="2">VIERNES</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="rutina-tbody">
-                                        <tr>
-                                            <td class="font-bold bg-gray-100">FJ</td>
-                                            <td><input type="text" id="r-fj-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-fj-m-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-m-c" class="excel-input r-c-mar" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-fj-x-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-x-c" class="excel-input r-c-mie" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-fj-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-fj-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-bold bg-gray-100">PA</td>
-                                            <td><input type="text" id="r-pa-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-pa-m-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-m-c" class="excel-input r-c-mar" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-pa-x-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-x-c" class="excel-input r-c-mie" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-pa-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-pa-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-bold bg-gray-100">SA</td>
-                                            <td><input type="text" id="r-sa-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-sa-m-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-m-c" class="excel-input r-c-mar" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-sa-x-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-x-c" class="excel-input r-c-mie" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-sa-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-sa-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-bold bg-gray-100">LE</td>
-                                            <td><input type="text" id="r-le-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-le-m-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-m-c" class="excel-input r-c-mar" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-le-x-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-x-c" class="excel-input r-c-mie" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-le-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-le-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="font-bold bg-gray-100">
-                                            <td class="text-right pr-1">TOTAL:</td>
-                                            <td colspan="2" id="tot-lun">0</td>
-                                            <td colspan="2" id="tot-mar">0</td>
-                                            <td colspan="2" id="tot-mie">0</td>
-                                            <td colspan="2" id="tot-jue">0</td>
-                                            <td colspan="2" id="tot-vie">0</td>
-                                        </tr>
-                                        <tr class="bg-gray-200 font-bold"><td colspan="11" class="p-1">* RUTINA SUJETA A CAMBIOS</td></tr>
-                                    </tfoot>
-                                </table>
-                                <button onclick="guardarRutinaExcel()" class="w-full mt-3 bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Guardar y Publicar Rutina</button>
-                            </div>
-                        </div>
-                        
-                        <div id="view-tm-monitor" class="p-3 flex-1 overflow-y-auto hidden bg-gray-200 space-y-3">
-                            <!-- BANDEJA DE VALIDACIÓN TM (Paso 3) -->
-                            <div class="bg-white p-3 rounded-xl shadow-sm border">
-                                <h3 class="font-bold text-teal-800 text-xs uppercase mb-2"><i class="fa-solid fa-check-double mr-1"></i> Validación Final de Lotes (TM)</h3>
-                                <div id="bandeja-trazabilidad-tm" class="space-y-2"></div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="grid-monitor-vivo"></div>
-                        </div>
-
-                        <!-- ESTADÍSTICAS MENSUALES PARA JEFATURA -->
-                        <div id="view-tm-estadisticas" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border">
-                                <div class="flex justify-between items-center mb-3">
-                                    <h3 class="font-bold text-teal-800 text-sm">Estadística Laboratorio Citopatología</h3>
-                                    <button onclick="exportarEstadisticasPDF()" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> Exportar Reporte</button>
-                                </div>
-                                <div id="contenedor-tabla-estadistica" class="overflow-x-auto text-[10px]">
-                                    <!-- Se genera dinámicamente -->
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="view-tm-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-teal-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso Torre de Control (TM)</h3><textarea id="bit-nov-tm" rows="4" placeholder="Novedades del turno..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-teal-400"></textarea><button onclick="guardarTraspaso('Torre de Control - TM', 'bit-nov-tm')" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Registrar Traspaso</button></div>
-                            
-                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
-                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-tm" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-tm" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                </div>
-                                <button onclick="exportarPDFRango('Torre de Control - TM', 'f-desde-tm', 'f-hasta-tm')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF Torre de Control</button>
-                            </div>
-
-                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (Últimos 3)</h3>
-                            <div id="historial-tras-tm" class="space-y-2"></div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- VISTAS RESTANTES -->
-            <div id="vista-equipo" class="hidden flex flex-col h-full bg-gray-50">
-                <div class="bg-white border-b shadow-sm px-4 py-3 text-center sticky top-0 z-10"><h2 class="font-bold text-gray-800 text-lg"><i class="fa-solid fa-medal text-teal-600 mr-2"></i> Nuestro Equipo</h2></div>
-                <div class="p-4 flex-1 overflow-y-auto space-y-6" id="contenedor-equipo"></div>
-            </div>
-            
-            <div id="vista-actas" class="hidden flex flex-col h-full bg-gray-50 relative"><div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10"><span class="text-teal-800"><i class="fa-solid fa-file-signature mr-2"></i> Registro de Actas</span></div><div class="p-4 flex-1 overflow-y-auto"><div id="contenedor-registro-actas" class="space-y-4"></div></div><button id="btn-flotante-acta" onclick="abrirModalNuevaActa()" class="hidden absolute bottom-6 right-6 bg-teal-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl hover:bg-teal-700 border-2 border-white"><i class="fa-solid fa-plus"></i></button></div>
-            <div id="vista-admin" class="hidden flex flex-col h-full bg-gray-50"><div class="bg-white border-b flex font-bold shadow-sm px-4 py-3 text-gray-700 justify-between items-center sticky top-0 z-10"><span class="text-red-700"><i class="fa-solid fa-users-gear mr-2"></i> Gestión de Usuarios</span></div><div class="p-4 flex-1 overflow-y-auto"><button onclick="abrirModalAdminUsuario('')" class="w-full bg-white border border-red-200 text-red-700 rounded-xl p-3 font-bold flex items-center justify-center gap-2 shadow-sm mb-4 hover:bg-red-50"><i class="fa-solid fa-user-plus"></i> Crear Nuevo Usuario</button><div id="contenedor-lista-usuarios" class="space-y-3"></div></div></div>
-        </main>
-
-        <!-- BARRA INFERIOR -->
-        <nav class="bg-white border-t border-gray-200 fixed bottom-0 w-full z-20" style="padding-bottom: env(safe-area-inset-bottom);">
-            <div class="flex justify-around items-center h-16 px-1">
-                <button id="btn-foros" onclick="cambiarVista('foros')" class="flex flex-col items-center justify-center w-full text-teal-700"><i class="fa-solid fa-users-rectangle text-xl mb-1"></i><span class="text-[10px] font-bold">Foros</span></button>
-                <button id="btn-secciones" onclick="cambiarVista('secciones')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-network-wired text-xl mb-1"></i><span class="text-[10px] font-bold">Secciones</span></button>
-                <button id="btn-equipo" onclick="cambiarVista('equipo')" class="flex flex-col items-center justify-center w-full text-gray-400"><i class="fa-solid fa-medal text-xl mb-1"></i><span class="text-[10px] font-bold">Equipo</span></button>
-            </div>
-        </nav>
-    </div>
-
-    <!-- MODALES -->
-    <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-phone text-teal-600 mr-2"></i> Directorio</h2><button onclick="cerrarModal('modal-anexos')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Secretarías</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">VPH</span><span class="text-teal-700 font-bold">552826</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citología</span><span class="text-teal-700 font-bold">552543</span></div></div></div></div></div></div>
-    <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
-    
-    <div id="modal-admin-user" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h2 id="tit-admin-user" class="font-bold text-lg text-red-700">Gestión de Usuario</h2>
-                <button onclick="cerrarModal('modal-admin-user')" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-            <div class="space-y-3">
-                <input type="hidden" id="admin-u-mode">
-                <div><label class="text-xs font-bold text-gray-500">ID Usuario</label><input type="text" id="admin-u-id" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
-                <div><label class="text-xs font-bold text-gray-500">Contraseña</label><input type="text" id="admin-u-pass" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="admin-u-n" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
-                    <div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="admin-u-a" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
-                </div>
-                <div><label class="text-xs font-bold text-gray-500">Rol</label>
-                    <select id="admin-u-rol" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50 font-bold">
-                        <option>Supervisión</option><option>Encargado Área</option><option>Tecnólogo Médico</option><option>Técnico (TENS)</option><option>Secretaría</option>
-                    </select>
-                </div>
-                <div><label class="text-xs font-bold text-gray-500">Foto de Perfil</label><input type="file" id="admin-u-file" accept="image/*" class="w-full border rounded p-1 text-xs bg-gray-50 mt-1"></div>
-                <button onclick="guardarAdminUsuario()" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-md mt-2">Guardar</button>
+                <div id="historial-container" class="space-y-2"></div>
             </div>
         </div>
-    </div>
-    
-    <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center"><h2 class="font-bold text-lg text-gray-800 mb-2">Calendario Tareas</h2><p class="text-sm text-gray-500 mb-6">Día: <span id="txt-fecha-accion" class="font-bold text-orange-600"></span> Agosto 2026</p><div id="opciones-jefe-cal" class="space-y-2 hidden"><button onclick="asignarEventoCal('Eliminación')" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-lg"></i> Programar Eliminación</button><button onclick="asignarEventoCal('Relleno')" class="w-full bg-orange-50 text-orange-600 border border-orange-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-lg"></i> Programar Relleno</button><button onclick="eliminarEventoCal()" class="text-xs text-gray-400 mt-2 underline">Borrar evento asignado</button></div><div id="opciones-tens-cal" class="space-y-2 hidden"><div id="info-evento-tens" class="bg-gray-50 p-3 rounded border mb-3 font-bold text-sm text-gray-700"></div><button id="btn-completar-evento" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-teal-700"><i class="fa-solid fa-check text-lg"></i> Marcar Completado</button></div><button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline block w-full">Cerrar</button></div></div></div>
-    <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Actualizar Stock</h2><button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button></div><p class="text-xs text-gray-500 mb-3">Indica el % restante de cada reactivo.</p><div id="form-reactivos" class="space-y-3"></div><button onclick="guardarReactivosYCompletar()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg mt-4 shadow-md">Guardar y Completar Tarea</button></div></div>
-    
-    <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Mi Perfil</h2><button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button></div>
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="perfil-nombre" class="w-full border-b border-gray-300 py-1 text-sm focus:outline-none"></div>
-                    <div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="perfil-apellido" class="w-full border-b border-gray-300 py-1 text-sm focus:outline-none"></div>
-                </div>
-                <div><label class="text-xs font-bold text-gray-500">Foto de Perfil</label><input type="file" id="perfil-file" accept="image/*" class="w-full border rounded p-1 text-xs bg-gray-50 mt-1"></div>
-                <button onclick="guardarPerfil()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Guardar</button>
+    </main>
+
+    <!-- MODAL INGRESO RUTINA (MÚLTIPLE) -->
+    <div id="modal-ingreso" class="fixed inset-0 bg-black/50 z-50 hidden flex-col justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full max-h-[85vh] overflow-y-auto">
+            <h2 class="font-bold text-lg mb-4">Asignar Rutina Diaria</h2>
+            <div id="rutina-inputs-container" class="space-y-4">
+                <!-- 4 Filas de tecnólogos -->
+                <script>
+                    ['FJ', 'PA', 'SA', 'LE'].forEach(tm => {
+                        document.write(`
+                            <div class="border-b pb-2">
+                                <label class="text-[10px] font-bold text-gray-500 uppercase">${tm}</label>
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <input type="text" id="r-${tm}-r" placeholder="Folios (Ej: 1-10)" class="border p-1 text-xs rounded">
+                                    <input type="number" id="r-${tm}-c" placeholder="Cant" class="border p-1 text-xs rounded r-calc" oninput="sumarTotalRutina()">
+                                </div>
+                            </div>
+                        `);
+                    });
+                </script>
             </div>
+            <div class="mt-4 font-bold text-right text-sm bg-gray-100 p-2 rounded">Total Diario: <span id="rutina-total">0</span></div>
+            <button onclick="guardarNuevaRutina()" class="w-full bg-teal-600 text-white font-bold py-3 mt-4 rounded-lg">Publicar Rutina</button>
         </div>
     </div>
-    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg">Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><select id="post-audiencia" class="w-full border rounded p-2 text-sm bg-gray-50"><option>Todos</option></select></div><div id="campo-fecha-evento" class="hidden"><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold"><textarea id="post-cuerpo" rows="3" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50"></textarea><div id="campo-whatsapp" class="hidden"><input type="text" id="post-wsp" placeholder="Número de WhatsApp (Ej: +56912345678)" class="w-full border rounded p-2 text-xs bg-gray-50"></div><div id="div-img-post"><label class="text-[10px] font-bold text-gray-500 block mb-1">Adjuntar Imagen</label><input type="file" id="post-file" accept="image/*" class="w-full border rounded p-1 text-xs bg-gray-50"></div><button onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
-    
-    <div id="modal-nueva-acta" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white z-10"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-file-signature text-teal-600 mr-2"></i> Crear Nueva Acta</h2><button onclick="cerrarModal('modal-nueva-acta')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="bg-teal-50 border border-teal-200 p-3 rounded-xl"><input type="text" id="acta-titulo" placeholder="Título (Ej: Coord. Mensual)" class="w-full border rounded-lg p-2 text-sm bg-white font-bold mb-2 focus:outline-none"><textarea id="acta-detalle" rows="4" placeholder="Temas tratados y acuerdos..." class="w-full border rounded-lg p-2 text-sm bg-white focus:outline-none"></textarea></div><div class="bg-white border p-3 rounded-xl shadow-sm"><p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Seleccionar Asistentes</p><div id="contenedor-asistentes-acta" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1"></div></div><button onclick="guardarActa()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Publicar Acta para Firmas</button></div></div></div>
-    <div id="modal-firma-acta" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl"><div class="flex justify-between items-center mb-2 border-b pb-2"><h2 class="font-bold text-lg"><i class="fa-solid fa-pen-nib text-teal-600 mr-2"></i> Dibujar Firma</h2><button onclick="cerrarModal('modal-firma-acta')" class="text-gray-400 text-2xl">&times;</button></div><p class="text-xs text-gray-500 mb-4">Usa tu dedo o ratón.</p><div class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 relative h-40 mb-3"><canvas id="canvas-firma" class="w-full h-full touch-none cursor-crosshair"></canvas></div><div class="flex gap-2"><button onclick="limpiarFirmaCanvas()" class="w-1/3 bg-red-50 text-red-600 font-bold py-3 rounded-lg text-xs"><i class="fa-solid fa-eraser"></i> Limpiar</button><button onclick="guardarMiFirma()" class="w-2/3 bg-teal-600 text-white font-bold py-3 rounded-lg shadow-sm text-sm"><i class="fa-solid fa-check"></i> Aceptar</button></div></div></div>
 
-    <!-- MODAL VALIDAR TM (Paso 3) -->
-    <div id="modal-validar-tm" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3">
-            <div class="flex justify-between items-center border-b pb-2"><h2 class="font-bold text-teal-800 text-base">Validación Tecnólogo (TM)</h2><button onclick="cerrarModal('modal-validar-tm')" class="text-gray-400 text-xl">&times;</button></div>
+    <!-- MODAL VALIDACIÓN TM -->
+    <div id="modal-tm-validacion" class="fixed inset-0 bg-black/50 z-50 hidden flex-col justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full">
+            <h2 class="font-bold text-lg mb-4">Validación Técnica</h2>
             <input type="hidden" id="tm-lote-id">
-            <p id="tm-lote-info" class="text-xs text-gray-600 font-bold bg-gray-50 p-2 rounded"></p>
-            <div class="grid grid-cols-2 gap-2">
-                <div><label class="text-[10px] font-bold text-gray-500">Negativos:</label><input type="number" id="tm-neg" class="w-full border rounded p-1.5 text-xs bg-gray-50" placeholder="0"></div>
-                <div><label class="text-[10px] font-bold text-gray-500">Positivos:</label><input type="number" id="tm-pos" class="w-full border rounded p-1.5 text-xs bg-gray-50" placeholder="0"></div>
+            <div class="grid grid-cols-2 gap-3">
+                <input type="number" id="tm-neg" placeholder="Negativos" class="border p-2 text-sm rounded">
+                <input type="number" id="tm-pos" placeholder="Positivos" class="border p-2 text-sm rounded">
             </div>
-            <div>
-                <label class="text-[10px] font-bold text-gray-500">Patólogo Asignado:</label>
-                <select id="tm-patologo" class="w-full border rounded p-1.5 text-xs bg-gray-50 font-bold">
-                    <option>DR BENITEZ</option><option>DRA GARCIA</option><option>DR VIDAL</option><option>DR CERON</option><option>DRA BELTRAN</option><option>DRA ALFARO</option><option>DR ROJAS</option>
-                </select>
-            </div>
-            <button onclick="guardarValidacionTM()" class="w-full bg-teal-600 text-white font-bold py-2.5 rounded-lg text-xs shadow-md">Validar y Finalizar Lote</button>
+            <select id="tm-patologo" class="w-full border p-2 text-sm rounded mt-3">
+                <option>DR BENITEZ</option><option>DRA GARCIA</option><option>DR VIDAL</option>
+            </select>
+            <button onclick="guardarValidacion()" class="w-full bg-teal-700 text-white font-bold py-3 mt-4 rounded-lg">Finalizar y Enviar a Patólogo</button>
         </div>
     </div>
 
-    <!-- MODAL DETALLE LOGROS -->
-    <div id="modal-detalle-logro" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl text-center relative">
-            <button onclick="cerrarModal('modal-detalle-logro')" class="absolute top-3 right-4 text-gray-400 text-xl">&times;</button>
-            <div id="logro-modal-icono" class="text-5xl mb-3"></div>
-            <h3 id="logro-modal-titulo" class="font-bold text-lg text-gray-800 mb-1"></h3>
-            <p id="logro-modal-desc" class="text-xs text-gray-500 mb-4"></p>
-            <div class="bg-gray-100 rounded-full h-3 overflow-hidden mb-2 border">
-                <div id="logro-modal-barra" class="bg-teal-600 h-full transition-all" style="width: 0%;"></div>
-            </div>
-            <p id="logro-modal-progreso" class="text-xs font-bold text-teal-700"></p>
-        </div>
-    </div>
-
-    <!-- ==================== SCRIPT JAVASCRIPT ==================== -->
     <script>
-        const dbLogros = { 
-            'pionero': { n: 'Pionero', i: 'fa-rocket', c: 'text-blue-500', desc: 'Inició sesión en la plataforma.', meta: 1, statKey: 'login' }, 
-            'pluma': { n: 'La Pluma', i: 'fa-pen-fancy', c: 'text-yellow-500', desc: 'Firmó 5 actas oficiales.', meta: 5, statKey: 'pluma' }, 
-            'guardian': { n: 'Guardián', i: 'fa-shield-halved', c: 'text-teal-500', desc: 'Registró 10 traspasos de turno.', meta: 10, statKey: 'guardian' }, 
-            'alquimista': { n: 'Alquimista', i: 'fa-flask', c: 'text-purple-500', desc: 'Rellenó la batería de reactivos 5 veces.', meta: 5, statKey: 'alquimista' }, 
-            'voz': { n: 'Voz del Lab', i: 'fa-bullhorn', c: 'text-orange-500', desc: 'Creó 3 publicaciones en los foros.', meta: 3, statKey: 'voz' }, 
-            'limpieza': { n: 'Limpieza', i: 'fa-broom', c: 'text-green-500', desc: 'Marcó 5 eliminaciones de reactivos.', meta: 5, statKey: 'limpieza' } 
-        };
-        
-        let usuariosDB = {}; const usuariosDefault = { 'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'Supervisión', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'Encargado Área', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'tm': { pass: '1234', n: 'TM', a: 'Central', rol: 'Tecnólogo Médico', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'Técnico (TENS)', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'Secretaría', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' } };
-        
-        let usuarioActual=null; let foroActual='Avisos'; let tabNotifActual='nuevas'; let diaSeleccionado=0;
-        let publicaciones=[], bitacoraData=[], actasData=[], notificaciones=[], calendarioData={}, reactivosStock={}, rutinasData=[], protocolosData=[], lotesTrazabilidad=[];
+        let lotes = JSON.parse(localStorage.getItem('mvrg_lotes')) || [];
 
-        setInterval(() => { const d = new Date(); document.getElementById('topbar-reloj').innerText = d.toLocaleDateString('es-CL') + ' ' + d.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}); }, 1000);
+        function abrirModal(id) { document.getElementById(id).classList.replace('hidden', 'flex'); }
+        function cerrarModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
 
-        function initData() {
-            const gu = localStorage.getItem('mvrg_usuarios'); if(gu) { usuariosDB = JSON.parse(gu); for(let k in usuariosDB) if(!usuariosDB[k].stats) usuariosDB[k].stats = {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}; } else { usuariosDB = JSON.parse(JSON.stringify(usuariosDefault)); localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB)); }
-            let st = localStorage.getItem('mvrg_stock'); reactivosStock = st ? JSON.parse(st) : {'EA50': 50, 'ORANGE G': 50, 'HEMATOXILINA': 50, 'OH ACIDO': 50, 'CARBONATO DE LITIO': 50};
-            let po = localStorage.getItem('mvrg_posts'); if(po) publicaciones = JSON.parse(po);
-            let ev = localStorage.getItem('mvrg_cal'); if(ev) calendarioData = JSON.parse(ev);
-            let bi = localStorage.getItem('mvrg_bitacora'); if(bi) bitacoraData = JSON.parse(bi);
-            let ac = localStorage.getItem('mvrg_actas'); if(ac) actasData = JSON.parse(ac);
-            let ru = localStorage.getItem('mvrg_rutinas'); if(ru) rutinasData = JSON.parse(ru);
-            let no = localStorage.getItem('mvrg_notif'); if(no) notificaciones = JSON.parse(no);
-            let lt = localStorage.getItem('mvrg_lotes'); if(lt) lotesTrazabilidad = JSON.parse(lt);
-            let pr = localStorage.getItem('mvrg_protos'); if(pr) protocolosData = JSON.parse(pr); else {
-                protocolosData = [
-                    { id: 1, titulo: 'Criterios Rechazo PAP', link: 'https://drive.google.com' },
-                    { id: 2, titulo: 'Contingencia Citoweb', link: 'https://drive.google.com' }
-                ];
-                localStorage.setItem('mvrg_protos', JSON.stringify(protocolosData));
-            }
+        function sumarTotalRutina() {
+            let total = 0;
+            document.querySelectorAll('.r-calc').forEach(i => total += parseInt(i.value) || 0);
+            document.getElementById('rutina-total').innerText = total;
         }
 
-        function iniciarSesion() {
-            const user = document.getElementById('login-user').value.toLowerCase().trim(); const pass = document.getElementById('login-pass').value;
-            if (usuariosDB[user] && usuariosDB[user].pass === pass) {
-                usuarioActual = { id: user, ...usuariosDB[user], iniciales: (usuariosDB[user].n.charAt(0) + usuariosDB[user].a.charAt(0)).toUpperCase() };
-                localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual)); sumarStat('login'); entrarApp();
-            } else document.getElementById('error-login').classList.remove('hidden');
-        }
-
-        function entrarApp() {
-            document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta'); document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
-            if(['Supervisión', 'Encargado Área'].includes(usuarioActual.rol)) { document.getElementById('seccion-admin').style.display='block'; document.getElementById('btn-flotante-acta').style.display='flex'; }
-            if(!['Supervisión', 'Encargado Área', 'Tecnólogo Médico'].includes(usuarioActual.rol)) { document.getElementById('btn-area-tm').style.display='none'; }
-            actualizarUI();
-        }
-
-        function actualizarUI() {
-            const nom = `${usuarioActual.n} ${usuarioActual.a}`; document.getElementById('header-nombre').innerText = nom; document.getElementById('menu-nombre').innerText = nom; document.getElementById('menu-rol').innerText = usuarioActual.rol;
-            const av = usuarioActual.foto ? `<img src="${usuarioActual.foto}" class="w-full h-full object-cover">` : usuarioActual.iniciales; document.getElementById('header-avatar').innerHTML = av; document.getElementById('menu-avatar').innerHTML = av;
-            evaluarPermisosForo(); renderPosts(); renderEquipo(); generarCalendarioGrid(); renderReactivos(); renderActas(); renderAdminUsuarios(); renderRutinas(); renderHistorialTraspasos(); renderBandejasTrazabilidad(); renderEstadisticasMensuales(); actualizarCampana(); 
-        }
-
-        function sumarStat(stat) {
-            let uDB = usuariosDB[usuarioActual.id]; uDB.stats[stat] = (uDB.stats[stat] || 0) + 1; let val = uDB.stats[stat]; let nL = null;
-            if(stat==='login' && !uDB.logros.includes('pionero')) nL = 'pionero';
-            if(stat==='pluma' && val===5 && !uDB.logros.includes('pluma')) nL = 'pluma';
-            if(stat==='guardian' && val===10 && !uDB.logros.includes('guardian')) nL = 'guardian';
-            if(stat==='alquimista' && val===5 && !uDB.logros.includes('alquimista')) nL = 'alquimista';
-            if(stat==='voz' && val===3 && !uDB.logros.includes('voz')) nL = 'voz';
-            if(stat==='limpieza' && val===5 && !uDB.logros.includes('limpieza')) nL = 'limpieza';
-            if(nL) { uDB.logros.push(nL); generarNotificacion(`¡LOGRO DESBLOQUEADO: ${dbLogros[nL].n}! 🏆`, 'equipo', ''); }
-            localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB)); usuarioActual.stats = uDB.stats; usuarioActual.logros = uDB.logros; localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual)); renderEquipo();
-        }
-
-        // --- NAVEGACIÓN Y MENÚS ---
-        function toggleMenu() { const m = document.getElementById('menu-lateral'), o = document.getElementById('overlay-menu'); if(m.classList.contains('menu-cerrado')){m.classList.remove('menu-cerrado');m.classList.add('menu-abierto');o.classList.remove('hidden');}else{m.classList.remove('menu-abierto');m.classList.add('menu-cerrado');o.classList.add('hidden');} }
-        function cambiarVista(vista) { 
-            ['foros', 'secciones', 'equipo', 'actas', 'admin'].forEach(v => { const e = document.getElementById('vista-' + v); if(e){e.classList.add('hidden');e.classList.remove('block', 'flex');} }); 
-            document.getElementById('vista-' + vista).classList.remove('hidden'); document.getElementById('vista-' + vista).classList.add(vista === 'foros' ? 'block' : 'flex'); 
-            ['foros', 'secciones', 'equipo'].forEach(id => { const b = document.getElementById('btn-' + id); if(b){ if(id === vista) b.classList.replace('text-gray-400', 'text-teal-700'); else b.classList.replace('text-teal-700', 'text-gray-400'); } });
-            if(['actas', 'admin'].includes(vista)) { ['foros', 'secciones', 'equipo'].forEach(id => { const b = document.getElementById('btn-' + id); if(b) b.classList.replace('text-teal-700', 'text-gray-400'); }); }
-        }
-        function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); } function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
-        function cerrarSesion() { localStorage.removeItem('mvrg_sesion'); window.location.reload(true); }
-
-        // --- BIBLIOTECA DE PROTOCOLOS ---
-        function abrirModalProtocolos() {
-            renderProtocolos();
-            let secEnc = document.getElementById('seccion-agregar-protocolo');
-            if(['Supervisión', 'Encargado Área', 'Tecnólogo Médico'].includes(usuarioActual.rol)) secEnc.style.display = 'block';
-            else secEnc.style.display = 'none';
-            abrirModal('modal-protocolos');
-        }
-        function renderProtocolos() {
-            const c = document.getElementById('contenedor-lista-protocolos'); c.innerHTML = '';
-            if(protocolosData.length === 0) { c.innerHTML = '<p class="text-xs text-gray-400 text-center">No hay protocolos.</p>'; return; }
-            protocolosData.forEach(p => {
-                c.innerHTML += `
-                <a href="${p.link}" target="_blank" class="flex items-center gap-3 p-3 bg-gray-50 border rounded-xl hover:bg-teal-50 transition shadow-sm group">
-                    <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition"><i class="fa-brands fa-google-drive"></i></div>
-                    <div class="flex-1 overflow-hidden"><p class="text-xs font-bold text-gray-800 truncate">${p.titulo}</p><p class="text-[9px] text-teal-600 font-medium">Google Drive Document &rarr;</p></div>
-                </a>`;
+        function guardarNuevaRutina() {
+            ['FJ', 'PA', 'SA', 'LE'].forEach(tm => {
+                let rango = document.getElementById(`r-${tm}-r`).value;
+                let cant = parseInt(document.getElementById(`r-${tm}-c`).value) || 0;
+                if(cant > 0) {
+                    lotes.push({ id: Date.now()+Math.random(), tm: tm, rango: rango, cant: cant, estado: 'secretaria', fecha: new Date().toISOString().split('T')[0], trazabilidad: ['Lote creado por Secretaría'] });
+                }
             });
-        }
-        function guardarProtocoloDrive() {
-            let tit = document.getElementById('proto-titulo').value.trim();
-            let lnk = document.getElementById('proto-link').value.trim();
-            if(!tit || !lnk) { alert("Completa ambos campos."); return; }
-            protocolosData.push({ id: Date.now(), titulo: tit, link: lnk });
-            localStorage.setItem('mvrg_protos', JSON.stringify(protocolosData));
-            document.getElementById('proto-titulo').value = ''; document.getElementById('proto-link').value = '';
-            renderProtocolos(); alert("Protocolo agregado exitosamente.");
+            localStorage.setItem('mvrg_lotes', JSON.stringify(lotes));
+            cerrarModal('modal-ingreso');
+            renderTablero();
         }
 
-        // --- MI PERFIL ---
-        function abrirModalPerfil() {
-            document.getElementById('perfil-nombre').value = usuarioActual.n;
-            document.getElementById('perfil-apellido').value = usuarioActual.a;
-            document.getElementById('perfil-file').value = '';
-            abrirModal('modal-perfil');
-        }
-        function guardarPerfil() {
-            usuarioActual.n = document.getElementById('perfil-nombre').value;
-            usuarioActual.a = document.getElementById('perfil-apellido').value;
-            usuarioActual.iniciales = (usuarioActual.n.charAt(0) + usuarioActual.a.charAt(0)).toUpperCase();
-            
-            let fileInput = document.getElementById('perfil-file');
-            if(fileInput.files && fileInput.files[0]) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    usuarioActual.foto = e.target.result;
-                    finalizarGuardadoPerfil();
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                finalizarGuardadoPerfil();
-            }
-        }
-        function finalizarGuardadoPerfil() {
-            usuariosDB[usuarioActual.id].n = usuarioActual.n;
-            usuariosDB[usuarioActual.id].a = usuarioActual.a;
-            usuariosDB[usuarioActual.id].foto = usuarioActual.foto || '';
-            localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB));
-            localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
-            actualizarUI(); renderEquipo(); cerrarModal('modal-perfil');
-        }
-
-        // --- ESTRUCTURA CITODIAGNÓSTICO ---
-        function abrirUnidad(u) { document.getElementById('secciones-lista-unidades').classList.replace('block', 'hidden'); document.getElementById('secciones-citodiagnostico').classList.replace('hidden', 'flex'); document.getElementById('cito-menu-areas').style.display='flex'; ['cito-area-sec','cito-area-tens','cito-area-tm'].forEach(id => document.getElementById(id).style.display='none'); }
-        function cerrarUnidad() { document.getElementById('secciones-citodiagnostico').classList.replace('flex', 'hidden'); document.getElementById('secciones-lista-unidades').classList.replace('hidden', 'block'); }
-        
-        function entrarAreaCito(area) {
-            document.getElementById('cito-menu-areas').style.display = 'none'; document.getElementById('cito-area-' + area).style.display = 'flex';
-            if(area==='sec') switchTabCito('sec', 'reg'); 
-            if(area==='tens') { switchTabCito('tens', 'proc'); setTimeout(() => generarCalendarioGrid(), 50); } 
-            if(area==='tm') { switchTabCito('tm', 'rutina'); renderMonitorVivo(); renderEstadisticasMensuales(); }
-        }
-        function switchTabCito(area, tab) {
-            let tabsSec = ['reg','tras'], tabsTens = ['proc','tras'], tabsTm = ['rutina','monitor','estadisticas','tras']; let arr = area==='sec'?tabsSec:area==='tens'?tabsTens:tabsTm; let colores = { sec: 'pink', tens: 'orange', tm: 'teal' }; let col = colores[area];
-            arr.forEach(t => {
-                let btn = document.getElementById(`tab-${area}-${t}`); let view = document.getElementById(`view-${area}-${t}`);
-                if(t===tab) { btn.classList.add(`border-${col}-500`, `text-${col}-600`); btn.classList.remove('border-transparent', 'text-gray-500'); view.style.display='block'; }
-                else { btn.classList.remove(`border-${col}-500`, `text-${col}-600`); btn.classList.add('border-transparent', 'text-gray-500'); view.style.display='none'; }
+        function renderTablero() {
+            ['secretaria', 'tens', 'tm', 'final'].forEach(col => document.getElementById('col-'+col).innerHTML = '');
+            lotes.forEach(l => {
+                let card = `
+                    <div class="bg-white p-3 rounded-lg shadow text-xs">
+                        <p class="font-bold">${l.tm} | Rango: ${l.rango}</p>
+                        <p class="text-gray-500">Cant: ${l.cant}</p>
+                        <div class="mt-2 flex gap-1">
+                            ${l.estado==='secretaria' ? `<button onclick="cambiarEstado(${l.id}, 'tens')" class="bg-orange-500 text-white px-2 py-1 rounded">Aceptar TENS</button>` : ''}
+                            ${l.estado==='tens' ? `<button onclick="abrirValidacion(${l.id})" class="bg-teal-600 text-white px-2 py-1 rounded">Validar TM</button>` : ''}
+                            <button onclick="alert('${l.trazabilidad.join(' -> ')}')" class="bg-gray-100 text-gray-600 px-2 py-1 rounded"><i class="fa-solid fa-clock"></i></button>
+                        </div>
+                    </div>`;
+                document.getElementById('col-'+l.estado).innerHTML += card;
             });
-            if(area==='tens' && tab==='proc') { setTimeout(() => generarCalendarioGrid(), 50); }
-            if(area==='tm' && tab==='monitor') renderMonitorVivo();
-            if(area==='tm' && tab==='estadisticas') renderEstadisticasMensuales();
+            renderHistorial();
         }
 
-        // --- FLUJO DE TRAZABILIDAD (Secretaría -> TENS -> TM) ---
-        function crearLoteRutina() {
-            let tm = document.getElementById('lote-tm').value.trim();
-            let rango = document.getElementById('lote-rango').value.trim();
-            let cant = parseInt(document.getElementById('lote-cant').value) || 0;
-            let ntens = document.getElementById('lote-ntens').value.trim();
-
-            if(!tm || !rango || !cant) { alert("Completa al menos TM, Rango y Cantidad."); return; }
-
-            let nuevoLote = {
-                id: Date.now(),
-                fecha: new Date().toLocaleDateString('es-CL'),
-                tm: tm.toUpperCase(),
-                rango: rango,
-                cantidad: cant,
-                ntens: ntens || 'AV',
-                estado: 'secretaria', // secretaria -> tens -> validado
-                tensAutor: '',
-                negativos: 0,
-                positivos: 0,
-                patologo: ''
-            };
-
-            lotesTrazabilidad.unshift(nuevoLote);
-            localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
-
-            document.getElementById('lote-tm').value = '';
-            document.getElementById('lote-rango').value = '';
-            document.getElementById('lote-cant').value = '';
-            document.getElementById('lote-ntens').value = '';
-
-            generarNotificacion(`📦 Nuevo Lote de Rutina (${rango}) enviado por Secretaría`, 'secciones', '');
-            renderBandejasTrazabilidad();
-            alert("Lote registrado y enviado a TENS.");
+        function cambiarEstado(id, nuevo) {
+            let l = lotes.find(x => x.id === id);
+            l.estado = nuevo;
+            l.trazabilidad.push(`Movido a ${nuevo}`);
+            localStorage.setItem('mvrg_lotes', JSON.stringify(lotes));
+            renderTablero();
         }
 
-        function tensAceptarLote(id) {
-            let l = lotesTrazabilidad.find(x => x.id === id);
-            if(l) {
-                l.estado = 'tens';
-                l.tensAutor = usuarioActual.n + " " + usuarioActual.a;
-                localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
-                renderBandejasTrazabilidad();
-                alert("Lote confirmado por TENS. Ahora pasa a Torre de Control para validación.");
-            }
-        }
+        function abrirValidacion(id) { document.getElementById('tm-lote-id').value = id; abrirModal('modal-tm-validacion'); }
 
-        function abrirModalValidarTM(id) {
-            document.getElementById('tm-lote-id').value = id;
-            let l = lotesTrazabilidad.find(x => x.id == id);
-            document.getElementById('tm-lote-info').innerText = `TM: ${l.tm} | Rango: ${l.rango} | Cantidad: ${l.cantidad}`;
-            document.getElementById('tm-neg').value = l.cantidad; // Sugerencia inicial
-            document.getElementById('tm-pos').value = 0;
-            abrirModal('modal-validar-tm');
-        }
-
-        function guardarValidacionTM() {
+        function guardarValidacion() {
             let id = document.getElementById('tm-lote-id').value;
-            let neg = parseInt(document.getElementById('tm-neg').value) || 0;
-            let pos = parseInt(document.getElementById('tm-pos').value) || 0;
-            let pat = document.getElementById('tm-patologo').value;
-
-            let l = lotesTrazabilidad.find(x => x.id == id);
-            if(l) {
-                l.estado = 'validado';
-                l.negativos = neg;
-                l.positivos = pos;
-                l.patologo = pat;
-                localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
-                cerrarModal('modal-validar-tm');
-                renderBandejasTrazabilidad();
-                renderEstadisticasMensuales();
-                alert("Lote validado y registrado en estadísticas con éxito.");
-            }
+            let l = lotes.find(x => x.id == id);
+            l.negativos = document.getElementById('tm-neg').value;
+            l.positivos = document.getElementById('tm-pos').value;
+            l.patologo = document.getElementById('tm-patologo').value;
+            l.estado = 'final';
+            l.trazabilidad.push('Validado por TM y enviado a Patólogo');
+            localStorage.setItem('mvrg_lotes', JSON.stringify(lotes));
+            cerrarModal('modal-tm-validacion');
+            renderTablero();
         }
 
-        function renderBandejasTrazabilidad() {
-            // 1. Secretaría
-            const bSec = document.getElementById('bandeja-trazabilidad-sec'); bSec.innerHTML = '';
-            if(lotesTrazabilidad.length === 0) bSec.innerHTML = '<p class="text-[10px] text-gray-400">No hay lotes ingresados.</p>';
-            lotesTrazabilidad.forEach(l => {
-                let badge = l.estado==='secretaria'? '<span class="bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded text-[8px] font-bold">Pendiente TENS</span>' : (l.estado==='tens'? '<span class="bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded text-[8px] font-bold">En TM</span>' : '<span class="bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded text-[8px] font-bold">Validado</span>');
-                bSec.innerHTML += `<div class="bg-gray-50 p-2 rounded border text-xs flex justify-between items-center"><div><b>${l.fecha} | TM: ${l.tm}</b><br><span class="text-[10px] text-gray-600">Rango: ${l.rango} (Cant: ${l.cantidad})</span></div><div>${badge}</div></div>`;
-            });
-
-            // 2. TENS
-            const bTens = document.getElementById('bandeja-trazabilidad-tens'); bTens.innerHTML = '';
-            lotesTrazabilidad.forEach(l => {
-                let accion = l.estado === 'secretaria' ? `<button onclick="tensAceptarLote(${l.id})" class="bg-orange-500 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm">Aceptar Recepción</button>` : `<span class="text-teal-700 font-bold text-[10px]"><i class="fa-solid fa-check"></i> Aceptado</span>`;
-                bTens.innerHTML += `<div class="bg-gray-50 p-2 rounded border text-xs flex justify-between items-center"><div><b>${l.fecha} | TM: ${l.tm}</b><br><span class="text-[10px] text-gray-600">Rango: ${l.rango} (Cant: ${l.cantidad})</span></div><div>${accion}</div></div>`;
-            });
-
-            // 3. Torre de Control (TM)
-            const bTm = document.getElementById('bandeja-trazabilidad-tm'); bTm.innerHTML = '';
-            lotesTrazabilidad.forEach(l => {
-                let accionTM = l.estado === 'validado' ? `<span class="text-teal-700 font-bold text-[10px]"><i class="fa-solid fa-check-double"></i> Patólogo: ${l.patologo} (Neg: ${l.negativos}, Pos: ${l.positivos})</span>` : (l.estado === 'tens' ? `<button onclick="abrirModalValidarTM(${l.id})" class="bg-teal-600 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm animate-pulse">Validar y Registrar Resultados</button>` : `<span class="text-yellow-600 font-bold text-[10px]">Esperando TENS</span>`);
-                bTm.innerHTML += `<div class="bg-gray-50 p-2 rounded border text-xs flex justify-between items-center"><div><b>${l.fecha} | TM: ${l.tm}</b><br><span class="text-[10px] text-gray-600">Rango: ${l.rango} (Cant: ${l.cantidad})</span></div><div>${accionTM}</div></div>`;
+        function renderHistorial() {
+            const container = document.getElementById('historial-container');
+            const fechaFiltro = document.getElementById('filtro-fecha').value;
+            container.innerHTML = '';
+            lotes.filter(l => !fechaFiltro || l.fecha === fechaFiltro).forEach(l => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center p-2 border-b text-xs">
+                        <span>${l.fecha} | TM: ${l.tm} | ${l.rango}</span>
+                        <button onclick="alert('${l.trazabilidad.join(' -> ')}')" class="text-teal-700 font-bold"><i class="fa-solid fa-clock"></i> Trazabilidad</button>
+                    </div>`;
             });
         }
 
-        // --- REPORTE DE ESTADÍSTICAS MENSUALES ---
-        function renderEstadisticasMensuales() {
-            let container = document.getElementById('contenedor-tabla-estadistica');
-            if(!container) return;
-
-            // Calcular acumulados por Patólogo
-            let patologosTotales = { 'DR BENITEZ': {neg:0, pos:0}, 'DRA GARCIA': {neg:0, pos:0}, 'DR VIDAL': {neg:0, pos:0}, 'DR CERON': {neg:0, pos:0}, 'DRA BELTRAN': {neg:0, pos:0}, 'DRA ALFARO': {neg:0, pos:0}, 'DR ROJAS': {neg:0, pos:0} };
-            let tmTotales = { 'FERNANDA JARA': 0, 'PAULINA AGUILAR': 0, 'CAMILA ARAVENA': 0, 'STEPHANIE ACEVEDO': 0 };
-
-            lotesTrazabilidad.filter(l => l.estado === 'validado').forEach(l => {
-                if(patologosTotales[l.patologo]) {
-                    patologosTotales[l.patologo].neg += l.negativos;
-                    patologosTotales[l.patologo].pos += l.positivos;
-                }
-                // Mapeo inicial por iniciales de TM
-                if(l.tm === 'FJ') tmTotales['FERNANDA JARA'] += l.cantidad;
-                if(l.tm === 'PA') tmTotales['PAULINA AGUILAR'] += l.cantidad;
-                if(l.tm === 'SA') tmTotales['CAMILA ARAVENA'] += l.cantidad; // Simulación de mapeo
-            });
-
-            let sumNeg = 0, sumPos = 0;
-            Object.values(patologosTotales).forEach(p => { sumNeg += p.neg; sumPos += p.pos; });
-            let sumTm = 0; Object.values(tmTotales).forEach(t => sumTm += t);
-
-            let html = `
-            <table class="w-full border-collapse border border-gray-800 text-center">
-                <thead>
-                    <tr class="bg-yellow-200"><th colspan="2" class="border border-gray-800 p-1">NEGATIVO POR PATOLOGO</th><th colspan="2" class="border border-gray-800 p-1">POSITIVO POR PATOLOGO</th><th colspan="2" class="border border-gray-800 p-1">PAP POR TECNOLOGO MEDICO</th></tr>
-                </thead>
-                <tbody>`;
-
-            let patKeys = Object.keys(patologosTotales);
-            let tmKeys = Object.keys(tmTechno = tmTotales);
-            let maxLen = Math.max(patKeys.length, tmKeys.length);
-
-            for(let i=0; i<maxLen; i++) {
-                let pName = patKeys[i] || '';
-                let pData = pName ? patologosTotales[pName] : {neg:'', pos:''};
-                let tName = tmKeys[i] || '';
-                let tVal = tName ? tmTotales[tName] : '';
-
-                html += `<tr>
-                    <td class="border border-gray-800 p-1 text-left font-bold">${pName}</td>
-                    <td class="border border-gray-800 p-1">${pData.neg}</td>
-                    <td class="border border-gray-800 p-1 text-left font-bold">${pName}</td>
-                    <td class="border border-gray-800 p-1">${pData.pos}</td>
-                    <td class="border border-gray-800 p-1 text-left font-bold">${tName}</td>
-                    <td class="border border-gray-800 p-1">${tVal}</td>
-                </tr>`;
-            }
-
-            html += `
-                <tr class="bg-yellow-100 font-bold">
-                    <td class="border border-gray-800 p-1 text-left">TOTAL NEGATIVOS</td><td class="border border-gray-800 p-1">${sumNeg}</td>
-                    <td class="border border-gray-800 p-1 text-left">TOTAL POSITIVO</td><td class="border border-gray-800 p-1">${sumPos}</td>
-                    <td class="border border-gray-800 p-1 text-left">TOTAL</td><td class="border border-gray-800 p-1">${sumTm}</td>
-                </tr>
-                </tbody>
-            </table>
-            <div class="mt-2 text-center bg-yellow-100 border border-gray-800 p-1 font-bold">TOTAL NEGATIVOS Y POSITIVOS: ${sumNeg + sumPos}</div>`;
-
-            container.innerHTML = html;
-        }
-
-        function exportarEstadisticasPDF() {
-            let elem = document.getElementById('contenedor-tabla-estadistica');
-            html2pdf().set({margin: 0.5, filename: `Estadisticas_Citopatologia.pdf`, html2canvas:{scale:2}}).from(elem).save();
-        }
-
-        // --- GESTOR DE RUTINA EXCEL ---
-        function calcRutina() {
-            let dias = ['l','m','x','j','v']; let inputs = ['fj','pa','sa','le'];
-            dias.forEach(d => {
-                let sum = 0; inputs.forEach(i => { let val = parseInt(document.getElementById(`r-${i}-${d}-c`).value) || 0; sum += val; });
-                document.getElementById(`tot-${d=== 'l'?'lun':d==='m'?'mar':d==='x'?'mie':d==='j'?'jue':'vie'}`).innerText = sum;
-            });
-        }
-
-        function guardarRutinaExcel() {
-            let fechas = document.getElementById('rut-fechas').value.trim(); let turno = document.getElementById('rut-turno').value.trim();
-            if(!fechas || !turno) { alert("Completa las Fechas y el nombre del Turno."); return; }
-            
-            let renderHtml = `<div class="overflow-x-auto"><table class="w-full text-center border-collapse border border-gray-800 text-[9px] bg-white"><thead class="bg-gray-100 font-bold"><tr><th colspan="6" class="border border-gray-800 p-1">CALENDARIO SEMANAL ${fechas.toUpperCase()}</th><th colspan="5" class="border border-gray-800 p-1">TURNO CITOLOGIA: ${turno.toUpperCase()}</th></tr><tr class="bg-gray-200"><th class="border border-gray-800 p-1 w-6"></th><th colspan="2" class="border border-gray-800 p-1">LUNES</th><th colspan="2" class="border border-gray-800 p-1">MARTES</th><th colspan="2" class="border border-gray-800 p-1">MIERCOLES</th><th colspan="2" class="border border-gray-800 p-1">JUEVES</th><th colspan="2" class="border border-gray-800 p-1">VIERNES</th></tr></thead><tbody>`;
-            
-            ['fj','pa','sa','le'].forEach(i => {
-                renderHtml += `<tr><td class="border border-gray-800 font-bold bg-gray-100">${i.toUpperCase()}</td>`;
-                ['l','m','x','j','v'].forEach(d => {
-                    let r = document.getElementById(`r-${i}-${d}-r`).value || '-'; let c = document.getElementById(`r-${i}-${d}-c`).value || '-';
-                    renderHtml += `<td class="border border-gray-800">${r}</td><td class="border border-gray-800">${c}</td>`;
-                });
-                renderHtml += `</tr>`;
-            });
-            
-            renderHtml += `</tbody><tfoot><tr class="font-bold bg-gray-100"><td class="border border-gray-800 text-right pr-1">TOTAL:</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-lun').innerText}</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-mar').innerText}</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-mie').innerText}</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-jue').innerText}</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-vie').innerText}</td></tr><tr class="bg-gray-200 font-bold"><td colspan="11" class="border border-gray-800 p-1">* RUTINA SUJETA A CAMBIOS</td></tr></tfoot></table></div>`;
-
-            let nueva = { id: Date.now(), fechaCarga: new Date().toLocaleString('es-CL'), autor: usuarioActual, html: renderHtml };
-            rutinasData.unshift(nueva); localStorage.setItem('mvrg_rutinas', JSON.stringify(rutinasData));
-            
-            generarNotificacion(`📢 Nueva Rutina Excel asignada por ${usuarioActual.n}`, 'secciones', '');
-            renderRutinas(); alert("Rutina difundida a TENS y Secretaría exitosamente.");
-        }
-
-        function renderRutinas() {
-            if(rutinasData.length > 0) {
-                let actualHtml = `<p class="text-[9px] text-gray-500 mb-1 text-right">Actualizada: ${rutinasData[0].fechaCarga}</p>${rutinasData[0].html}`;
-                document.getElementById('display-rutina-sec').innerHTML = actualHtml; 
-                document.getElementById('display-rutina-tens').innerHTML = actualHtml;
-                document.getElementById('resumen-mini-rutina').innerHTML = actualHtml;
-            } else {
-                let msg = '<p class="text-xs text-gray-400">Sin rutina vigente.</p>';
-                document.getElementById('display-rutina-sec').innerHTML = msg;
-                document.getElementById('display-rutina-tens').innerHTML = msg;
-                document.getElementById('resumen-mini-rutina').innerHTML = msg;
-            }
-        }
-
-        // --- TRASPASO DE TURNO E HISTORIALES Y EXPORTACIÓN POR FECHA ---
-        function guardarTraspaso(unidadFija, inputId) {
-            let txt = document.getElementById(inputId).value.trim(); if(!txt) { alert("Escribe alguna novedad."); return; }
-            const b = { id: Date.now(), fechaIso: new Date().toISOString().split('T')[0], fecha: new Date().toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}), autor: usuarioActual, unidad: unidadFija, tipo: 'Diario', nov: txt };
-            bitacoraData.unshift(b); localStorage.setItem('mvrg_bitacora', JSON.stringify(bitacoraData)); 
-            document.getElementById(inputId).value = ''; sumarStat('guardian'); alert(`Traspaso guardado en ${unidadFija}`);
-            renderHistorialTraspasos();
-        }
-
-        function renderHistorialTraspasos() {
-            const tsSec = bitacoraData.filter(b => b.unidad === 'Citopatología - Secretaría');
-            const wU = document.getElementById('widget-ultimo-traspaso-sec');
-            if(tsSec.length > 0) { wU.innerHTML = `<p class="text-[10px] text-pink-700 font-bold"><i class="fa-regular fa-clock"></i> ${tsSec[0].fecha} - ${tsSec[0].autor.n} ${tsSec[0].autor.a}</p><p class="text-xs text-gray-800 mt-1">${tsSec[0].nov}</p>`; } 
-            else { wU.innerHTML = `<p class="text-xs text-gray-400">Sin registros.</p>`; }
-
-            const lS = document.getElementById('historial-tras-sec'); lS.innerHTML = '';
-            tsSec.slice(0, 10).forEach(b => { lS.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-pink-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
-
-            const tsTens = bitacoraData.filter(b => b.unidad === 'Citopatología - TENS');
-            const lT = document.getElementById('historial-tras-tens'); lT.innerHTML = '';
-            tsTens.slice(0, 10).forEach(b => { lT.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-orange-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
-
-            const tsTm = bitacoraData.filter(b => b.unidad === 'Torre de Control - TM');
-            const lTM = document.getElementById('historial-tras-tm'); lTM.innerHTML = '';
-            tsTm.slice(0, 3).forEach(b => { lTM.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-teal-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
-        }
-
-        function exportarPDFRango(unidadFija, idDesde, idHasta) {
-            let dStr = document.getElementById(idDesde).value;
-            let hStr = document.getElementById(idHasta).value;
-            
-            let filtrados = bitacoraData.filter(b => {
-                if(b.unidad !== unidadFija) return false;
-                if(!b.fechaIso) return true;
-                if(dStr && b.fechaIso < dStr) return false;
-                if(hStr && b.fechaIso > hStr) return false;
-                return true;
-            });
-
-            if(filtrados.length === 0) { alert("No hay registros en el rango de fechas seleccionado."); return; }
-
-            let htmlPrint = `<div style="padding:20px; font-family:sans-serif;"><h2 style="text-align:center; color:#0f766e;">Informe de Traspasos: ${unidadFija}</h2><p style="text-align:center; font-size:12px; color:#666;">Rango: ${dStr||'Inicio'} al ${hStr||'Hoy'}</p><hr style="margin:15px 0;"/>`;
-            filtrados.forEach(b => {
-                htmlPrint += `<div style="margin-bottom:15px; border-bottom:1px solid #ddd; padding-bottom:10px;"><p style="font-size:11px; font-weight:bold; color:#333;">${b.fecha} - ${b.autor.n} ${b.autor.a} (${b.autor.rol})</p><p style="font-size:12px; white-space:pre-wrap; color:#111;">${b.nov}</p></div>`;
-            });
-            htmlPrint += `</div>`;
-
-            let elem = document.createElement('div'); elem.innerHTML = htmlPrint;
-            html2pdf().set({margin: 0.5, filename: `Traspasos_${unidadFija.replace(/\s/g,'')}.pdf`, html2canvas:{scale:2}}).from(elem).save();
-        }
-
-        // --- CALENDARIO INTERACTIVO ---
-        function generarCalendarioGrid() {
-            const grid = document.getElementById('grid-calendario'); 
-            if(!grid) return; 
-            let html = '';
-            ['L','M','M','J','V','S','D'].forEach(d => html += `<div class="font-bold text-orange-800 pb-1">${d}</div>`);
-            for(let i=0; i<5; i++) html += `<div></div>`; 
-            for(let i=1; i<=31; i++) {
-                let ev = calendarioData[`dia_${i}`]; let bg = 'bg-white border-gray-200 text-gray-600 hover:border-orange-400', icon = '';
-                if(ev) {
-                    let col = ev.tipo==='Eliminación'?'red':'orange';
-                    if(ev.estado==='completado') { bg=`bg-${col}-100 border-${col}-400 text-${col}-800 shadow-inner`; icon=`<i class="fa-solid fa-check-circle text-[8px] text-green-600 mt-1"></i>`; }
-                    else { bg=`bg-${col}-50 border-dashed border-${col}-300 text-${col}-600`; icon=`<i class="fa-solid fa-clock text-[8px] mt-1"></i>`; }
-                }
-                html += `<button onclick="abrirOpcionesCalendario(${i})" class="p-1 rounded flex flex-col items-center justify-center font-bold border transition ${bg}">${i}${icon}</button>`;
-            }
-            grid.innerHTML = html;
-        }
-        function abrirOpcionesCalendario(dia) {
-            diaSeleccionado = dia; document.getElementById('txt-fecha-accion').innerText = dia;
-            let ev = calendarioData[`dia_${dia}`]; let esJefe = ['Supervisión', 'Encargado Área', 'Tecnólogo Médico'].includes(usuarioActual.rol);
-            let divJefe = document.getElementById('opciones-jefe-cal'), divTens = document.getElementById('opciones-tens-cal'), infoTens = document.getElementById('info-evento-tens'), btnComp = document.getElementById('btn-completar-evento');
-            
-            divJefe.style.display='none'; divTens.style.display='none';
-            if(!ev) { if(esJefe) divJefe.style.display='block'; else { alert("No hay tareas asignadas este día."); return; } } 
-            else {
-                if(ev.estado === 'completado') { divTens.style.display='block'; infoTens.innerHTML = `✅ ${ev.tipo}<br><span class="text-[10px] font-normal">Por ${ev.autor} a las ${ev.hora}</span>`; btnComp.style.display='none'; if(esJefe) divJefe.style.display='block'; } 
-                else { divTens.style.display='block'; infoTens.innerHTML = `⏳ Tarea Pendiente: <b>${ev.tipo}</b>`; btnComp.style.display='flex'; if(esJefe) divJefe.style.display='block'; }
-                if(!esJefe) divJefe.style.display='none';
-            }
-            btnComp.onclick = () => { if(ev.tipo === 'Relleno') { cerrarModal('modal-accion-bateria'); abrirRellenoReactivos(); } else { completarEventoDirecto(); } };
-            abrirModal('modal-accion-bateria');
-        }
-        function asignarEventoCal(tipo) { calendarioData[`dia_${diaSeleccionado}`] = { tipo: tipo, estado: 'pendiente', autor: '', hora: '' }; localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData)); generarCalendarioGrid(); cerrarModal('modal-accion-bateria'); renderMonitorVivo(); }
-        function eliminarEventoCal() { delete calendarioData[`dia_${diaSeleccionado}`]; localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData)); generarCalendarioGrid(); cerrarModal('modal-accion-bateria'); renderMonitorVivo(); }
-        function completarEventoDirecto() {
-            calendarioData[`dia_${diaSeleccionado}`].estado = 'completado'; calendarioData[`dia_${diaSeleccionado}`].autor = usuarioActual.n + " " + usuarioActual.a; calendarioData[`dia_${diaSeleccionado}`].hora = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-            localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData)); generarCalendarioGrid(); cerrarModal('modal-accion-bateria'); sumarStat('limpieza'); renderMonitorVivo(); alert("¡Eliminación registrada!");
-        }
-
-        // --- STOCK REACTIVOS ---
-        function abrirRellenoReactivos() { const cont = document.getElementById('form-reactivos'); cont.innerHTML = ''; for(const [n, l] of Object.entries(reactivosStock)) cont.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded border"><label class="text-[10px] font-bold text-gray-700">${n}</label><div class="flex items-center gap-1"><input type="number" id="inp-r-${n.replace(/\s/g,'')}" value="${l}" class="w-14 border rounded text-xs text-center font-bold p-1 outline-none focus:border-orange-500"><span class="text-xs">%</span></div></div>`; abrirModal('modal-reactivos'); }
-        function guardarReactivosYCompletar() {
-            for(const k of Object.keys(reactivosStock)) reactivosStock[k] = Math.min(100, Math.max(0, parseInt(document.getElementById('inp-r-'+k.replace(/\s/g,'')).value)||0));
-            localStorage.setItem('mvrg_stock', JSON.stringify(reactivosStock)); cerrarModal('modal-reactivos');
-            if(calendarioData[`dia_${diaSeleccionado}`] && calendarioData[`dia_${diaSeleccionado}`].tipo === 'Relleno') {
-                calendarioData[`dia_${diaSeleccionado}`].estado = 'completado'; calendarioData[`dia_${diaSeleccionado}`].autor = usuarioActual.n + " " + usuarioActual.a; calendarioData[`dia_${diaSeleccionado}`].hora = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-                localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData)); generarCalendarioGrid(); sumarStat('alquimista'); renderMonitorVivo(); alert("¡Stock y Tarea actualizados!");
-            }
-        }
-
-        // --- MONITOR EN VIVO ---
-        function renderMonitorVivo() {
-            let g = document.getElementById('grid-monitor-vivo'); g.innerHTML = '';
-            let dHoy = new Date().getDate(); let evHoy = calendarioData[`dia_${dHoy}`];
-            let txtCal = evHoy ? (evHoy.estado==='completado'? `<span class="text-green-600 font-bold"><i class="fa-solid fa-check"></i> ${evHoy.tipo} (Por ${evHoy.autor})</span>` : `<span class="text-yellow-600 font-bold"><i class="fa-solid fa-clock"></i> Pendiente: ${evHoy.tipo}</span>`) : `<span class="text-gray-400">Sin tareas hoy.</span>`;
-            
-            let stockHtml = ''; for(const [n,l] of Object.entries(reactivosStock)) { let col = l<25?'text-red-500':'text-gray-600'; stockHtml += `<div class="flex justify-between text-[9px] font-bold border-b border-gray-100 py-1 ${col}"><span>${n}</span><span>${l}%</span></div>`; }
-            let bitHtml = ''; bitacoraData.slice(0,3).forEach(b => { bitHtml += `<div class="text-[9px] bg-gray-50 border p-1.5 rounded mb-1.5"><b class="text-teal-700">${b.autor.n} (${b.unidad.split('-')[1]||b.unidad}):</b> ${b.nov.substring(0,60)}...</div>`; });
-
-            g.innerHTML = `<div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Stock Actual (TENS)</p>${stockHtml}</div><div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Calendario TENS (Hoy ${dHoy})</p><div class="text-xs p-2 bg-gray-50 rounded border">${txtCal}</div></div><div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100 md:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Últimos Traspasos Globales</p>${bitHtml||'<p class="text-[10px] text-gray-400">No hay traspasos.</p>'}</div>`;
-        }
-
-        // --- EQUIPO ---
-        function renderEquipo() {
-            const c = document.getElementById('contenedor-equipo'); c.innerHTML = ''; const roles = ['Supervisión', 'Encargado Área', 'Tecnólogo Médico', 'Técnico (TENS)', 'Secretaría'];
-            roles.forEach(rolB => {
-                let usrs = Object.values(usuariosDB).filter(u => u.rol === rolB);
-                if(usrs.length > 0) {
-                    let html = `<div class="mb-6"><h3 class="font-bold text-gray-500 uppercase text-xs mb-3 border-b border-gray-300 pb-1">${rolB}</h3><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">`;
-                    usrs.forEach(u => {
-                        let lHtml = ''; 
-                        Object.keys(dbLogros).forEach(lKey => { 
-                            const lDef = dbLogros[lKey]; 
-                            const tiene = (u.logros || []).includes(lKey); 
-                            lHtml += `<div onclick="abrirDetalleLogro('${u.id}', '${lKey}')" class="p-1 rounded-full bg-gray-100 text-center ${tiene ? `medalla-on ${lDef.c}` : `medalla-off text-gray-400`}" title="${lDef.n}"><i class="fa-solid ${lDef.i} text-xs"></i></div>`; 
-                        });
-                        
-                        let av = u.foto ? `<img src="${u.foto}" class="w-full h-full object-cover">` : `<span class="text-sm font-bold text-teal-700">${(u.n.charAt(0)+u.a.charAt(0)).toUpperCase()}</span>`;
-                        
-                        html += `
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center relative overflow-hidden">
-                            <div class="w-14 h-14 rounded-full bg-teal-50 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden mb-2">${av}</div>
-                            <p class="text-[8px] font-bold text-teal-600 uppercase tracking-wider mb-0.5">${u.rol}</p>
-                            <h4 class="font-bold text-xs text-gray-800 mb-2 truncate w-full">${u.n} ${u.a}</h4>
-                            <div class="w-full bg-gray-50 p-1 rounded-xl flex justify-around border border-gray-100 mt-auto">${lHtml}</div>
-                        </div>`;
-                    }); c.innerHTML += html + '</div></div>';
-                }
-            });
-        }
-
-        function abrirDetalleLogro(userId, lKey) {
-            let u = usuariosDB[userId]; let lDef = dbLogros[lKey];
-            let tiene = (u.logros || []).includes(lKey);
-            let statsVal = (u.stats && u.stats[lDef.statKey]) ? u.stats[lDef.statKey] : (tiene ? lDef.meta : 0);
-            let pct = Math.min(100, Math.round((statsVal / lDef.meta) * 100));
-
-            document.getElementById('logro-modal-icono').innerHTML = `<i class="fa-solid ${lDef.i} ${lDef.c}"></i>`;
-            document.getElementById('logro-modal-titulo').innerText = lDef.n;
-            document.getElementById('logro-modal-desc').innerText = lDef.desc;
-            document.getElementById('logro-modal-barra').style.width = pct + '%';
-            document.getElementById('logro-modal-progreso').innerText = tiene ? `¡Completado (100%)! 🌟` : `Progreso: ${statsVal} / ${lDef.meta} (${pct}%)`;
-            abrirModal('modal-detalle-logro');
-        }
-
-        // --- ACTAS ---
-        function abrirModalNuevaActa() {
-            const c = document.getElementById('contenedor-asistentes-acta'); c.innerHTML = '';
-            for(const [id, u] of Object.entries(usuariosDB)) { c.innerHTML += `<label class="flex items-center gap-3 p-2 bg-gray-50 border rounded cursor-pointer hover:bg-teal-50"><input type="checkbox" value="${id}" class="chk-asistente w-4 h-4 text-teal-600 rounded"><div><p class="text-xs font-bold text-gray-800">${u.n} ${u.a}</p><p class="text-[9px] text-gray-500 uppercase">${u.rol}</p></div></label>`; }
-            document.getElementById('acta-titulo').value = ''; document.getElementById('acta-detalle').value = ''; abrirModal('modal-nueva-acta');
-        }
-        function guardarActa() {
-            const tit = document.getElementById('acta-titulo').value.trim(); const det = document.getElementById('acta-detalle').value.trim(); const chks = document.querySelectorAll('.chk-asistente:checked'); const asisIds = Array.from(chks).map(c => c.value);
-            if(!tit || !det) { alert("Completa el título y detalle."); return; } if(asisIds.length === 0) { alert("Selecciona al menos un asistente."); return; }
-            actasData.unshift({ id: Date.now(), fecha: new Date().toLocaleString('es-CL'), titulo: tit, detalle: det, autor: usuarioActual, asistentesIds: asisIds, firmas: {} });
-            localStorage.setItem('mvrg_actas', JSON.stringify(actasData)); generarNotificacion(`Nueva Acta: ${tit}`, 'actas', ''); cerrarModal('modal-nueva-acta'); renderActas();
-        }
-        function renderActas() {
-            const c = document.getElementById('contenedor-registro-actas'); c.innerHTML = '';
-            if(actasData.length === 0) { c.innerHTML = '<p class="text-xs text-gray-400 text-center mt-10"><i class="fa-solid fa-inbox block text-3xl mb-2 text-gray-200"></i> No hay actas.</p>'; return; }
-            actasData.forEach(a => {
-                const asisIds = a.asistentesIds || []; const firmas = a.firmas || {}; let pend = 0; let fHtml = '<div class="grid grid-cols-2 gap-2 mt-2">';
-                asisIds.forEach(id => { const u = usuariosDB[id]; if(!u) return; if(firmas[id]) { fHtml += `<div class="border border-teal-200 rounded p-2 text-center bg-white"><p class="text-[9px] font-bold mb-1">${u.n} ${u.a}</p><img src="${firmas[id]}" class="h-10 mx-auto object-contain"><p class="text-[8px] text-teal-600 mt-1 font-bold">Firmado</p></div>`; } else { pend++; fHtml += `<div class="border border-dashed rounded p-2 text-center bg-gray-50 opacity-70"><p class="text-[9px] font-bold mb-1">${u.n} ${u.a}</p><div class="h-10 flex items-center justify-center text-[10px] text-gray-400">Pendiente</div></div>`; } });
-                let bF = (asisIds.includes(usuarioActual.id) && !firmas[usuarioActual.id]) ? `<button onclick="abrirModalFirma(${a.id})" class="mt-4 w-full bg-yellow-400 text-yellow-900 font-bold py-2 rounded-lg text-sm shadow-sm hover:bg-yellow-500 animate-pulse"><i class="fa-solid fa-pen-nib mr-1"></i> Firmar Acta</button>` : '';
-                let bE = ['Supervisión', 'Encargado Área'].includes(usuarioActual.rol) ? `<button onclick="eliminarActa(${a.id})" class="w-full bg-red-50 text-red-600 font-bold py-2 rounded-lg text-xs border border-red-200 hover:bg-red-100"><i class="fa-solid fa-trash-can mr-1"></i> Eliminar</button>` : '';
-                let est = pend===0 ? '<span class="bg-teal-100 text-teal-800 text-[9px] px-2 py-1 rounded font-bold uppercase">Completada</span>' : `<span class="bg-yellow-100 text-yellow-800 text-[9px] px-2 py-1 rounded font-bold uppercase">Pendiente (${pend})</span>`;
-                c.innerHTML += `<div class="bg-white rounded-xl shadow-sm border mb-4"><div id="acta-imprimir-${a.id}" class="p-4 bg-white"><div class="flex justify-between border-b pb-3 mb-3"><div><h3 class="font-bold text-teal-800">${a.titulo}</h3><p class="text-[10px] text-gray-500">${a.fecha}</p></div><div>${est}</div></div><div class="text-sm whitespace-pre-wrap mb-4 bg-gray-50 p-3 rounded-lg border">${a.detalle}</div><div class="border-t pt-3"><p class="text-[10px] text-gray-400 font-bold">Firmas</p><div class="overflow-x-auto">${fHtml}</div></div></div><div class="bg-gray-50 p-3 border-t flex flex-col gap-2">${bF}<button onclick="exportarActaEspecificaPDF(${a.id})" class="w-full bg-white border text-gray-700 font-bold py-2 rounded-lg text-xs shadow-sm"><i class="fa-solid fa-file-pdf text-red-500"></i> Descargar PDF</button>${bE}</div></div>`;
-            });
-        }
-        function eliminarActa(id) { if(confirm("¿Eliminar acta irrevocablemente?")) { actasData = actasData.filter(a => a.id !== id); localStorage.setItem('mvrg_actas', JSON.stringify(actasData)); renderActas(); } }
-        
-        const cvsF = document.getElementById('canvas-firma'); const ctxF = cvsF.getContext('2d'); let isD = false; let actaFActual = null;
-        function initCanvasF() { const r = cvsF.parentElement.getBoundingClientRect(); if(r.width>0) { cvsF.width = r.width; cvsF.height = r.height; ctxF.lineWidth=3; ctxF.lineCap='round'; ctxF.strokeStyle='#0f766e'; } }
-        cvsF.addEventListener('mousedown', e=>{isD=true;drw(e);}); cvsF.addEventListener('mouseup', ()=>{isD=false;ctxF.beginPath();}); cvsF.addEventListener('mousemove', drw);
-        cvsF.addEventListener('touchstart', e=>{e.preventDefault();isD=true;drwT(e);}, {passive:false}); cvsF.addEventListener('touchend', e=>{e.preventDefault();isD=false;ctxF.beginPath();}, {passive:false}); cvsF.addEventListener('touchmove', e=>{e.preventDefault();drwT(e);}, {passive:false});
-        function drw(e) { if(!isD)return; const r=cvsF.getBoundingClientRect(); ctxF.lineTo(e.clientX-r.left, e.clientY-r.top); ctxF.stroke(); ctxF.beginPath(); ctxF.moveTo(e.clientX-r.left, e.clientY-r.top); }
-        function drwT(e) { if(!isD)return; const r=cvsF.getBoundingClientRect(); const t=e.touches[0]; ctxF.lineTo(t.clientX-r.left, t.clientY-r.top); ctxF.stroke(); ctxF.beginPath(); ctxF.moveTo(t.clientX-r.left, t.clientY-r.top); }
-        function limpiarFirmaCanvas() { ctxF.clearRect(0,0,cvsF.width,cvsF.height); }
-        function abrirModalFirma(id) { actaFActual=id; abrirModal('modal-firma-acta'); setTimeout(()=>{initCanvasF();limpiarFirmaCanvas();}, 150); }
-        function guardarMiFirma() { if(!actaFActual) return; const i = actasData.findIndex(a=>a.id===actaFActual); if(i !== -1) { if(!actasData[i].firmas) actasData[i].firmas = {}; actasData[i].firmas[usuarioActual.id] = cvsF.toDataURL("image/png"); localStorage.setItem('mvrg_actas', JSON.stringify(actasData)); cerrarModal('modal-firma-acta'); renderActas(); sumarStat('pluma'); if(Object.keys(actasData[i].firmas).length === actasData[i].asistentesIds.length) generarNotificacion(`¡Acta completada: ${actasData[i].titulo}!`, 'actas', ''); } }
-        function exportarActaEspecificaPDF(id) { html2pdf().set({margin: 0.5, filename: `Acta_${id}.pdf`, html2canvas: {scale: 2}}).from(document.getElementById('acta-imprimir-' + id)).save(); }
-
-        // --- ADMINISTRACIÓN DE USUARIOS ---
-        function renderAdminUsuarios() { const c = document.getElementById('contenedor-lista-usuarios'); c.innerHTML = ''; for(const [id, u] of Object.entries(usuariosDB)) { c.innerHTML += `<div class="bg-white p-3 rounded-lg border shadow-sm flex justify-between items-center"><div><p class="text-sm font-bold">${u.n} ${u.a}</p><p class="text-[10px] text-gray-500 font-mono">ID: ${id} | ${u.rol}</p></div><div class="flex gap-2"><button onclick="abrirModalAdminUsuario('${id}')" class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="eliminarAdminUsuario('${id}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs border border-red-100"><i class="fa-solid fa-trash-can"></i></button></div></div>`; } }
-        function abrirModalAdminUsuario(id) { if(id && usuariosDB[id]) { document.getElementById('admin-u-mode').value = id; document.getElementById('admin-u-id').value = id; document.getElementById('admin-u-id').disabled = true; document.getElementById('admin-u-pass').value = usuariosDB[id].pass; document.getElementById('admin-u-n').value = usuariosDB[id].n; document.getElementById('admin-u-a').value = usuariosDB[id].a; document.getElementById('admin-u-rol').value = usuariosDB[id].rol; document.getElementById('admin-u-file').value = ''; document.getElementById('tit-admin-user').innerText = 'Editar Usuario'; } else { document.getElementById('admin-u-mode').value = 'new'; document.getElementById('admin-u-id').value = ''; document.getElementById('admin-u-id').disabled = false; document.getElementById('admin-u-pass').value = ''; document.getElementById('admin-u-n').value = ''; document.getElementById('admin-u-a').value = ''; document.getElementById('admin-u-rol').selectedIndex = 0; document.getElementById('admin-u-file').value = ''; document.getElementById('tit-admin-user').innerText = 'Nuevo Usuario'; } abrirModal('modal-admin-user'); }
-        function guardarAdminUsuario() { 
-            const mode = document.getElementById('admin-u-mode').value; const id = document.getElementById('admin-u-id').value.toLowerCase().trim(); const pass = document.getElementById('admin-u-pass').value; const n = document.getElementById('admin-u-n').value; const a = document.getElementById('admin-u-a').value; const rol = document.getElementById('admin-u-rol').value; 
-            if(!id||!pass||!n||!a) { alert("Campos vacíos"); return; } if(mode==='new' && usuariosDB[id]) { alert("ID ya existe"); return; }
-            
-            let fileInput = document.getElementById('admin-u-file');
-            if(fileInput.files && fileInput.files[0]) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    finalizarGuardadoAdmin(mode, id, pass, n, a, rol, e.target.result);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                let fotoActual = (mode !== 'new' && usuariosDB[id]) ? usuariosDB[id].foto : '';
-                finalizarGuardadoAdmin(mode, id, pass, n, a, rol, fotoActual);
-            }
-        }
-        function finalizarGuardadoAdmin(mode, id, pass, n, a, rol, foto) {
-            if(mode==='new') { 
-                usuariosDB[id] = { pass: pass, n: n, a: a, rol: rol, logros: ['pionero'], stats: {login:0, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: foto }; 
-            } else { 
-                usuariosDB[id].pass = pass; usuariosDB[id].n = n; usuariosDB[id].a = a; usuariosDB[id].rol = rol; usuariosDB[id].foto = foto; 
-                if(id===usuarioActual.id) { usuarioActual.n=n; usuarioActual.a=a; usuarioActual.rol=rol; usuarioActual.foto=foto; localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual)); actualizarUI(); } 
-            } 
-            localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB)); renderAdminUsuarios(); renderEquipo(); cerrarModal('modal-admin-user');
-        }
-        function eliminarAdminUsuario(id) { if(id===usuarioActual.id) { alert("No puedes eliminar tu cuenta conectada."); return; } if(confirm(`¿Eliminar a ${usuariosDB[id].n}?`)) { delete usuariosDB[id]; localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB)); renderAdminUsuarios(); renderEquipo(); } }
-
-        // --- FOROS Y VENTAS (Con soporte de publicación garantizado) ---
-        function cambiarSubForo(f) { 
-            foroActual = f; 
-            ['Avisos', 'Offtopic', 'Ventas', 'Eventos'].forEach(x => { 
-                const t = document.getElementById('tab-'+x); 
-                if(x===f){if(x==='Eventos')t.classList.replace('border-transparent','border-purple-600');else{t.classList.replace('text-gray-500','text-teal-700');t.classList.replace('border-transparent','border-teal-700');}} 
-                else{if(x==='Eventos')t.classList.replace('border-purple-600','border-transparent');else{t.classList.replace('text-teal-700','text-gray-500');t.classList.replace('border-teal-700','border-transparent');}} 
-            }); 
-            document.getElementById('contenedor-posts').style.display = f==='Eventos'?'none':'block'; 
-            document.getElementById('contenedor-eventos').style.display = f==='Eventos'?'block':'none'; 
-            evaluarPermisosForo(); renderPosts(); 
-        }
-        function evaluarPermisosForo() { const b = document.getElementById('btn-abrir-modal-post'), txt = document.getElementById('txt-btn-publicar'); if(foroActual==='Avisos'){if(usuarioActual.rol==='Supervisión'||usuarioActual.rol==='Encargado Área'){b.style.display='flex';txt.innerText='Publicar Aviso';}else b.style.display='none';} else if(foroActual==='Eventos'){b.style.display='flex';txt.innerText='Agendar Evento';} else{b.style.display='flex';txt.innerText='Crear Publicación';} }
-        function abrirModalPost() { 
-            document.getElementById('post-titulo').value = ''; document.getElementById('post-cuerpo').value = ''; document.getElementById('post-wsp').value = ''; document.getElementById('post-file').value = '';
-            document.getElementById('campo-roles-destino').style.display = (foroActual==='Avisos'||foroActual==='Eventos')?'block':'none'; 
-            document.getElementById('campo-fecha-evento').style.display = foroActual==='Eventos'?'block':'none'; 
-            document.getElementById('campo-whatsapp').style.display = (foroActual==='Ventas')?'block':'none';
-            document.getElementById('div-img-post').style.display = foroActual==='Eventos'?'none':'block'; 
-            document.getElementById('tit-mod-post').innerText = foroActual==='Eventos'?'Agendar Evento':(foroActual==='Ventas'?'Publicar Venta':'Nueva Publicación'); 
-            abrirModal('modal-post'); 
-        }
-        function guardarPost() {
-            const tit = document.getElementById('post-titulo').value; if(!tit) { alert("Escribe un título."); return; }
-            let wsp = document.getElementById('post-wsp').value.trim();
-            let fileInput = document.getElementById('post-file');
-
-            if(fileInput.files && fileInput.files[0]) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    finalizarGuardarPost(tit, wsp, e.target.result);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                finalizarGuardarPost(tit, wsp, '');
-            }
-        }
-        function finalizarGuardarPost(tit, wsp, imgData) {
-            publicaciones.unshift({ id: Date.now(), foro: foroActual, titulo: tit, autor: usuarioActual, cuerpo: document.getElementById('post-cuerpo').value, audiencia: document.getElementById('post-audiencia').value, fechaEvento: foroActual==='Eventos'?document.getElementById('ev-fecha').value:null, whatsapp: wsp, img: imgData, likes: [], comentarios: [] }); 
-            localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); generarNotificacion(`Nuevo en ${foroActual}: ${tit}`, 'foros', foroActual); cerrarModal('modal-post'); renderPosts(); sumarStat('voz');
-        }
-        function renderPosts() { 
-            const cP = document.getElementById('contenedor-posts'), cE = document.getElementById('contenedor-eventos'); cP.innerHTML=''; cE.innerHTML=''; 
-            publicaciones.forEach(p => { 
-                if(p.foro === 'Eventos' && foroActual === 'Eventos') { 
-                    const fF = p.fechaEvento ? new Date(p.fechaEvento).toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''; 
-                    cE.innerHTML += `<div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-4"><div class="flex justify-between"><b>${p.titulo}</b><span class="text-[10px] bg-purple-50 text-purple-700 px-2 py-1 rounded font-bold">${fF}</span></div><p class="text-[9px] font-bold text-gray-400 mt-1">Para: ${p.audiencia}</p><p class="text-xs text-gray-600 mt-2">${p.cuerpo}</p></div>`; 
-                } else if(p.foro === foroActual && p.foro !== 'Eventos') { 
-                    const img = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : ''; 
-                    const aud = p.foro==='Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : ''; 
-                    const wspBtn = (p.foro==='Ventas' && p.whatsapp) ? `<a href="https://wa.me/${p.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" class="inline-flex items-center gap-1.5 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm hover:bg-green-600 mt-2"><i class="fa-brands fa-whatsapp text-sm"></i> Contactar por WhatsApp</a>` : '';
-                    const colCor = p.likes.includes(usuarioActual.id) ? 'text-pink-500' : 'text-gray-400'; 
-                    let coms = ''; p.comentarios.forEach(c => coms += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><b>${c.autor}:</b> ${c.txt}</div>`); 
-                    cP.innerHTML += `<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4" id="post-${p.id}"><div class="flex justify-between items-start mb-2"><div class="flex gap-2 items-center"><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs overflow-hidden">${p.autor.foto?`<img src="${p.autor.foto}" class="w-full h-full object-cover">`:p.autor.iniciales}</div><div><p class="text-xs font-bold">${p.autor.n} ${p.autor.a}</p><span class="text-[9px] bg-gray-100 px-1 rounded">${p.autor.rol}</span></div></div>${aud}</div><h4 class="font-bold text-sm">${p.titulo}</h4><p class="text-sm text-gray-600">${p.cuerpo}</p>${img}${wspBtn}<div class="border-t border-gray-100 mt-3 pt-2 flex gap-4"><button onclick="toggleLike(${p.id})" class="text-xs font-bold ${colCor}"><i class="fa-solid fa-heart"></i> ${p.likes.length}</button></div><div class="mt-2">${coms}<div class="flex gap-2 mt-2"><input type="text" id="inp-c-${p.id}" placeholder="Comentar..." class="flex-1 bg-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none"><button onclick="comentar(${p.id})" class="text-teal-600"><i class="fa-solid fa-paper-plane"></i></button></div></div></div>`; 
-                } 
-            }); 
-        }
-        function toggleLike(id) { const p = publicaciones.find(x=>x.id===id); if(p){ const idx = p.likes.indexOf(usuarioActual.id); if(idx===-1) p.likes.push(usuarioActual.id); else p.likes.splice(idx,1); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
-        function comentar(id) { const i = document.getElementById('inp-c-'+id); if(i.value){ publicaciones.find(x=>x.id===id).comentarios.push({ autor: usuarioActual.n, txt: i.value }); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
-
-        function generarNotificacion(t, vD, sD) { notificaciones.unshift({ id: Date.now(), txt: t, leida: false, targetV: vD, targetS: sD }); localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); actualizarCampana(); }
-        function actualizarCampana() { document.getElementById('badge-notif').style.display = notificaciones.some(n=>!n.leida) ? 'block' : 'none'; }
-        function abrirModalNotificaciones() { renderNotificaciones(); abrirModal('modal-notificaciones'); }
-        function cambiarTabNotif(t) { tabNotifActual = t; const n = document.getElementById('tab-notif-nuevas'), l = document.getElementById('tab-notif-leidas'); if(t==='nuevas'){n.classList.replace('text-gray-400','text-teal-700');n.classList.add('border-teal-700');l.classList.replace('text-teal-700','text-gray-400');l.classList.remove('border-teal-700');}else{l.classList.replace('text-gray-400','text-teal-700');l.classList.add('border-teal-700');n.classList.replace('text-teal-700','text-gray-400');n.classList.remove('border-teal-700');} renderNotificaciones(); }
-        function renderNotificaciones() { const c = document.getElementById('lista-notificaciones'); c.innerHTML=''; const f = notificaciones.filter(n => tabNotifActual==='nuevas'?!n.leida:n.leida); f.forEach(n => c.innerHTML += `<div onclick="irDestinoNotificacion(${n.id})" class="bg-gray-50 p-3 rounded border flex flex-col gap-1 cursor-pointer hover:bg-teal-50"><p class="text-xs font-bold text-gray-800">${n.txt}</p><span class="text-[9px] text-teal-600">Click para ver &rarr;</span></div>`); }
-        function irDestinoNotificacion(id) { const n = notificaciones.find(x=>x.id===id); if(n) { n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); if(n.targetV) cambiarVista(n.targetV); if(n.targetS) { cambiarSubForo(n.targetS); } actualizarCampana(); } }
-
-        window.onload = function() { initData(); renderAdminUsuarios(); let s = localStorage.getItem('mvrg_sesion'); if(s) { let st = JSON.parse(s); if(usuariosDB[st.id]) { usuarioActual = { ...st, ...usuariosDB[st.id] }; entrarApp(); } } };
+        renderTablero();
     </script>
 </body>
 </html>
