@@ -19,7 +19,6 @@
         #menu-lateral { transition: transform 0.3s ease-in-out; }
         .menu-abierto { transform: translateX(0%); }
         .menu-cerrado { transform: translateX(-100%); }
-        .barra-nivel { transition: width 0.5s ease-in-out, background-color 0.5s; }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         
@@ -73,15 +72,15 @@
                 <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-2">Personal</p>
                 <button onclick="abrirModalPerfil(); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700"><i class="fa-solid fa-user w-5 text-teal-600"></i> Mi Perfil</button>
                 <p class="text-xs font-bold text-gray-400 uppercase ml-2 mb-1 mt-4">Herramientas</p>
-                <button onclick="abrirModal('modal-protocolos'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 mb-2"><i class="fa-solid fa-book-medical w-5 text-teal-600"></i> Protocolos</button>
+                <button onclick="abrirModalProtocolos(); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-gray-700 mb-2"><i class="fa-solid fa-book-medical w-5 text-teal-600"></i> Protocolos</button>
                 <button onclick="cambiarVista('actas'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-teal-50 text-teal-700 font-bold border border-teal-100 mb-2"><i class="fa-solid fa-file-signature w-5 text-teal-600"></i> Actas de Reunión</button>
                 <div id="seccion-admin" class="hidden"><p class="text-xs font-bold text-red-400 uppercase ml-2 mb-1 mt-4"><i class="fa-solid fa-lock mr-1"></i> Administración</p><button onclick="cambiarVista('admin'); toggleMenu();" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-700 font-bold border border-red-100 mb-2"><i class="fa-solid fa-users-gear w-5"></i> Gestión Usuarios</button></div>
                 <div class="mt-auto border-t pt-4"><button onclick="cerrarSesion()" class="flex items-center gap-4 w-full p-3 rounded-lg hover:bg-red-50 text-red-600 font-medium"><i class="fa-solid fa-arrow-right-from-bracket w-5 text-center"></i> Cerrar Sesión</button></div>
             </div>
         </nav>
 
-        <!-- ÁREA CENTRAL -->
-        <main class="flex-1 overflow-y-auto bg-gray-100 pb-20 relative">
+        <!-- ÁREA CENTRAL (Con pb-32 para evitar que la barra inferior tape el contenido) -->
+        <main class="flex-1 overflow-y-auto bg-gray-100 pb-32 relative">
             
             <!-- 1. VISTA FOROS -->
             <div id="vista-foros" class="block h-full flex flex-col">
@@ -157,14 +156,10 @@
                                 <h3 class="font-bold text-orange-800 text-[10px] uppercase mb-2"><i class="fa-solid fa-table mr-1"></i> Rutina Asignada</h3>
                                 <div id="display-rutina-tens" class="bg-white border rounded"></div>
                             </div>
-                            <!-- Calendario TENS Visible Forzado -->
+                            <!-- Calendario TENS -->
                             <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
                                 <h3 class="font-bold text-gray-800 text-xs mb-2 border-b pb-1"><i class="fa-regular fa-calendar-check text-orange-500 mr-1"></i> Calendario de Tareas</h3>
                                 <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-[10px]"></div>
-                            </div>
-                            <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
-                                <h3 class="font-bold text-gray-800 text-xs mb-2 border-b pb-1"><i class="fa-solid fa-flask text-orange-500 mr-1"></i> Stock Reactivos (Último cambio)</h3>
-                                <div id="contenedor-reactivos" class="space-y-2"></div>
                             </div>
                         </div>
                         <div id="view-tens-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
@@ -193,11 +188,7 @@
                         </div>
                         
                         <div id="view-tm-rutina" class="p-4 flex-1 overflow-y-auto block space-y-4">
-                            <div class="bg-teal-50 border border-teal-200 p-3 rounded-xl shadow-sm">
-                                <h3 class="font-bold text-teal-800 text-xs mb-1"><i class="fa-solid fa-eye"></i> Resumen Rutina Actual (Miniatura)</h3>
-                                <div id="resumen-mini-rutina" class="bg-white p-2 rounded border text-[8px] overflow-x-auto max-h-32">Sin rutina vigente.</div>
-                            </div>
-
+                            <!-- Eliminada la mini ventana superior de rutina, ahora queda limpio el editor Excel -->
                             <div class="bg-white p-3 rounded-xl shadow-sm border overflow-x-auto">
                                 <h3 class="font-bold text-teal-800 text-xs mb-2"><i class="fa-solid fa-table-cells"></i> Editor Rutina Semanal</h3>
                                 <table class="excel-table w-full text-[9px] bg-white">
@@ -265,8 +256,21 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="grid-monitor-vivo"></div>
                         </div>
 
-                        <div id="view-tm-tras" class="p-4 flex-1 overflow-y-auto hidden">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center mb-4"><i class="fa-solid fa-clipboard-check text-4xl text-teal-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso Jefatura/TM</h3><textarea id="bit-nov-tm" rows="4" placeholder="Novedades del turno..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-teal-400"></textarea><button onclick="guardarTraspaso('Macroscopía', 'bit-nov-tm')" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Registrar Traspaso</button></div>
+                        <!-- Traspasos de Torre de Control (TM) ahora quedan archivados aquí correctamente -->
+                        <div id="view-tm-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-teal-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso Torre de Control (TM)</h3><textarea id="bit-nov-tm" rows="4" placeholder="Novedades del turno..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-teal-400"></textarea><button onclick="guardarTraspaso('Torre de Control - TM', 'bit-nov-tm')" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Registrar Traspaso</button></div>
+                            
+                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
+                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-tm" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-tm" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                                </div>
+                                <button onclick="exportarPDFRango('Torre de Control - TM', 'f-desde-tm', 'f-hasta-tm')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF Torre de Control</button>
+                            </div>
+
+                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (Últimos 3)</h3>
+                            <div id="historial-tras-tm" class="space-y-2"></div>
                         </div>
                     </div>
 
@@ -296,16 +300,94 @@
     <!-- MODALES -->
     <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-phone text-teal-600 mr-2"></i> Directorio</h2><button onclick="cerrarModal('modal-anexos')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Secretarías</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">VPH</span><span class="text-teal-700 font-bold">552826</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citología</span><span class="text-teal-700 font-bold">552543</span></div></div></div></div></div></div>
     <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
-    <div id="modal-admin-user" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-admin-user" class="font-bold text-lg text-red-700">Gestión de Usuario</h2><button onclick="cerrarModal('modal-admin-user')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-3"><input type="hidden" id="admin-u-mode"><div><label class="text-xs font-bold text-gray-500">ID Usuario</label><input type="text" id="admin-u-id" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div><div><label class="text-xs font-bold text-gray-500">Contraseña</label><input type="text" id="admin-u-pass" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="admin-u-n" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div><div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="admin-u-a" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div></div><div><label class="text-xs font-bold text-gray-500">Rol</label><select id="admin-u-rol" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50 font-bold"><option>Supervisión</option><option>Encargado Área</option><option>Tecnólogo Médico</option><option>Técnico (TENS)</option><option>Secretaría</option></select></div><button onclick="guardarAdminUsuario()" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-md mt-2">Guardar</button></div></div></div>
+    
+    <!-- MODAL GESTIÓN DE USUARIO (Con selector nativo de archivo para foto) -->
+    <div id="modal-admin-user" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 id="tit-admin-user" class="font-bold text-lg text-red-700">Gestión de Usuario</h2>
+                <button onclick="cerrarModal('modal-admin-user')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-3">
+                <input type="hidden" id="admin-u-mode">
+                <div><label class="text-xs font-bold text-gray-500">ID Usuario</label><input type="text" id="admin-u-id" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
+                <div><label class="text-xs font-bold text-gray-500">Contraseña</label><input type="text" id="admin-u-pass" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="admin-u-n" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
+                    <div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="admin-u-a" class="w-full border rounded bg-gray-50 p-2 text-sm focus:outline-none"></div>
+                </div>
+                <div><label class="text-xs font-bold text-gray-500">Rol</label>
+                    <select id="admin-u-rol" class="w-full border rounded p-2 text-sm mt-1 bg-gray-50 font-bold">
+                        <option>Supervisión</option><option>Encargado Área</option><option>Tecnólogo Médico</option><option>Técnico (TENS)</option><option>Secretaría</option>
+                    </select>
+                </div>
+                <div><label class="text-xs font-bold text-gray-500">Foto de Perfil</label><input type="file" id="admin-u-file" accept="image/*" class="w-full border rounded p-1 text-xs bg-gray-50 mt-1"></div>
+                <button onclick="guardarAdminUsuario()" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-md mt-2">Guardar</button>
+            </div>
+        </div>
+    </div>
     
     <div id="modal-accion-bateria" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center"><h2 class="font-bold text-lg text-gray-800 mb-2">Calendario Tareas</h2><p class="text-sm text-gray-500 mb-6">Día: <span id="txt-fecha-accion" class="font-bold text-orange-600"></span> Agosto 2026</p><div id="opciones-jefe-cal" class="space-y-2 hidden"><button onclick="asignarEventoCal('Eliminación')" class="w-full bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can text-lg"></i> Programar Eliminación</button><button onclick="asignarEventoCal('Relleno')" class="w-full bg-orange-50 text-orange-600 border border-orange-200 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-solid fa-fill-drip text-lg"></i> Programar Relleno</button><button onclick="eliminarEventoCal()" class="text-xs text-gray-400 mt-2 underline">Borrar evento asignado</button></div><div id="opciones-tens-cal" class="space-y-2 hidden"><div id="info-evento-tens" class="bg-gray-50 p-3 rounded border mb-3 font-bold text-sm text-gray-700"></div><button id="btn-completar-evento" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-teal-700"><i class="fa-solid fa-check text-lg"></i> Marcar Completado</button></div><button onclick="cerrarModal('modal-accion-bateria')" class="mt-4 text-gray-400 text-sm underline block w-full">Cerrar</button></div></div></div>
     <div id="modal-reactivos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Actualizar Stock</h2><button onclick="cerrarModal('modal-reactivos')" class="text-gray-400 text-2xl">&times;</button></div><p class="text-xs text-gray-500 mb-3">Indica el % restante de cada reactivo.</p><div id="form-reactivos" class="space-y-3"></div><button onclick="guardarReactivosYCompletar()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg mt-4 shadow-md">Guardar y Completar Tarea</button></div></div>
     
-    <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Mi Perfil</h2><button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="grid grid-cols-2 gap-3"><div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="perfil-nombre" class="w-full border-b border-gray-300 py-1 text-sm focus:outline-none"></div><div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="perfil-apellido" class="w-full border-b border-gray-300 py-1 text-sm focus:outline-none"></div></div><div><label class="text-xs font-bold text-gray-500">URL Foto</label><input type="text" id="perfil-foto" class="w-full border-b border-gray-300 py-1 text-xs focus:outline-none"></div><button onclick="guardarPerfil()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Guardar</button></div></div></div>
-    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2"><h2 id="tit-mod-post" class="font-bold text-lg">Publicación</h2><button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div id="campo-roles-destino" class="hidden"><select id="post-audiencia" class="w-full border rounded p-2 text-sm bg-gray-50"><option>Todos</option></select></div><div id="campo-fecha-evento" class="hidden"><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm bg-gray-50"></div><input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold"><textarea id="post-cuerpo" rows="4" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50"></textarea><div id="div-img-post"><input type="text" id="post-img" placeholder="URL Imagen" class="w-full border rounded p-2 text-xs bg-gray-50"></div><button onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button></div></div></div>
+    <!-- MODAL MI PERFIL (Con subida de archivo local) -->
+    <div id="modal-perfil" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b pb-2"><h2 class="font-bold text-lg text-gray-800">Mi Perfil</h2><button onclick="cerrarModal('modal-perfil')" class="text-gray-400 text-2xl">&times;</button></div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-xs font-bold text-gray-500">Nombre</label><input type="text" id="perfil-nombre" class="w-full border-b border-gray-300 py-1 text-sm focus:outline-none"></div>
+                    <div><label class="text-xs font-bold text-gray-500">Apellido</label><input type="text" id="perfil-apellido" class="w-full border-b border-gray-300 py-1 text-sm focus:outline-none"></div>
+                </div>
+                <div><label class="text-xs font-bold text-gray-500">Foto de Perfil</label><input type="file" id="perfil-file" accept="image/*" class="w-full border rounded p-1 text-xs bg-gray-50 mt-1"></div>
+                <button onclick="guardarPerfil()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POST (Con soporte de imagen nativa y WhatsApp para ventas) -->
+    <div id="modal-post" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end">
+        <div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 id="tit-mod-post" class="font-bold text-lg">Publicación</h2>
+                <button onclick="cerrarModal('modal-post')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div id="campo-roles-destino" class="hidden"><select id="post-audiencia" class="w-full border rounded p-2 text-sm bg-gray-50"><option>Todos</option></select></div>
+                <div id="campo-fecha-evento" class="hidden"><input type="datetime-local" id="ev-fecha" class="w-full border rounded p-2 text-sm bg-gray-50"></div>
+                <input type="text" id="post-titulo" placeholder="Título..." class="w-full border-b border-gray-300 py-2 font-bold">
+                <textarea id="post-cuerpo" rows="3" placeholder="Detalles..." class="w-full border rounded-lg p-2 text-sm bg-gray-50"></textarea>
+                <div id="campo-whatsapp" class="hidden"><input type="text" id="post-wsp" placeholder="Número de WhatsApp (Ej: +56912345678)" class="w-full border rounded p-2 text-xs bg-gray-50"></div>
+                <div id="div-img-post"><label class="text-[10px] font-bold text-gray-500 block mb-1">Adjuntar Imagen</label><input type="file" id="post-file" accept="image/*" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                <button onclick="guardarPost()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md">Publicar</button>
+            </div>
+        </div>
+    </div>
     
     <div id="modal-nueva-acta" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-end"><div class="bg-white rounded-t-2xl p-5 w-full max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white z-10"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-file-signature text-teal-600 mr-2"></i> Crear Nueva Acta</h2><button onclick="cerrarModal('modal-nueva-acta')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div class="bg-teal-50 border border-teal-200 p-3 rounded-xl"><input type="text" id="acta-titulo" placeholder="Título (Ej: Coord. Mensual)" class="w-full border rounded-lg p-2 text-sm bg-white font-bold mb-2 focus:outline-none"><textarea id="acta-detalle" rows="4" placeholder="Temas tratados y acuerdos..." class="w-full border rounded-lg p-2 text-sm bg-white focus:outline-none"></textarea></div><div class="bg-white border p-3 rounded-xl shadow-sm"><p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Seleccionar Asistentes</p><div id="contenedor-asistentes-acta" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1"></div></div><button onclick="guardarActa()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Publicar Acta para Firmas</button></div></div></div>
     <div id="modal-firma-acta" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl"><div class="flex justify-between items-center mb-2 border-b pb-2"><h2 class="font-bold text-lg"><i class="fa-solid fa-pen-nib text-teal-600 mr-2"></i> Dibujar Firma</h2><button onclick="cerrarModal('modal-firma-acta')" class="text-gray-400 text-2xl">&times;</button></div><p class="text-xs text-gray-500 mb-4">Usa tu dedo o ratón.</p><div class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 relative h-40 mb-3"><canvas id="canvas-firma" class="w-full h-full touch-none cursor-crosshair"></canvas></div><div class="flex gap-2"><button onclick="limpiarFirmaCanvas()" class="w-1/3 bg-red-50 text-red-600 font-bold py-3 rounded-lg text-xs"><i class="fa-solid fa-eraser"></i> Limpiar</button><button onclick="guardarMiFirma()" class="w-2/3 bg-teal-600 text-white font-bold py-3 rounded-lg shadow-sm text-sm"><i class="fa-solid fa-check"></i> Aceptar</button></div></div></div>
+
+    <!-- MODAL PROTOCOLOS (Con miniaturas de Google Drive) -->
+    <div id="modal-protocolos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 mx-auto shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-book-medical text-teal-600 mr-2"></i> Biblioteca de Protocolos</h2>
+                <button onclick="cerrarModal('modal-protocolos')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            
+            <div id="contenedor-lista-protocolos" class="space-y-3 mb-4">
+                <!-- Se renderiza dinámicamente -->
+            </div>
+
+            <!-- Botón exclusivo para encargados de agregar protocolos con enlace a Drive -->
+            <div id="seccion-agregar-protocolo" class="hidden border-t pt-3 mt-3">
+                <h3 class="text-xs font-bold text-teal-800 uppercase mb-2">Añadir Protocolo Google Drive</h3>
+                <input type="text" id="proto-titulo" placeholder="Título del protocolo..." class="w-full border rounded p-2 text-xs mb-2 bg-gray-50">
+                <input type="url" id="proto-link" placeholder="Enlace de Google Drive (https://...)" class="w-full border rounded p-2 text-xs mb-2 bg-gray-50">
+                <button onclick="guardarProtocoloDrive()" class="w-full bg-teal-600 text-white font-bold py-2 rounded-lg text-xs shadow-sm">Agregar Protocolo</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL DETALLE LOGROS -->
     <div id="modal-detalle-logro" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
@@ -335,7 +417,7 @@
         let usuariosDB = {}; const usuariosDefault = { 'super': { pass: '1234', n: 'Dra.', a: 'Silva', rol: 'Supervisión', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'encargado': { pass: '1234', n: 'Jefe', a: 'Citología', rol: 'Encargado Área', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'tm': { pass: '1234', n: 'TM', a: 'Central', rol: 'Tecnólogo Médico', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'tens': { pass: '1234', n: 'Carlos', a: 'P.', rol: 'Técnico (TENS)', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }, 'sec': { pass: '1234', n: 'Ana', a: 'Recepción', rol: 'Secretaría', logros: ['pionero'], stats: {login:1, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' } };
         
         let usuarioActual=null; let foroActual='Avisos'; let tabNotifActual='nuevas'; let diaSeleccionado=0;
-        let publicaciones=[], bitacoraData=[], actasData=[], notificaciones=[], calendarioData={}, reactivosStock={}, rutinasData=[];
+        let publicaciones=[], bitacoraData=[], actasData=[], notificaciones=[], calendarioData={}, reactivosStock={}, rutinasData=[], protocolosData=[];
 
         setInterval(() => { const d = new Date(); document.getElementById('topbar-reloj').innerText = d.toLocaleDateString('es-CL') + ' ' + d.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}); }, 1000);
 
@@ -348,6 +430,13 @@
             let ac = localStorage.getItem('mvrg_actas'); if(ac) actasData = JSON.parse(ac);
             let ru = localStorage.getItem('mvrg_rutinas'); if(ru) rutinasData = JSON.parse(ru);
             let no = localStorage.getItem('mvrg_notif'); if(no) notificaciones = JSON.parse(no);
+            let pr = localStorage.getItem('mvrg_protos'); if(pr) protocolosData = JSON.parse(pr); else {
+                protocolosData = [
+                    { id: 1, titulo: 'Criterios Rechazo PAP', link: 'https://drive.google.com' },
+                    { id: 2, titulo: 'Contingencia Citoweb', link: 'https://drive.google.com' }
+                ];
+                localStorage.setItem('mvrg_protos', JSON.stringify(protocolosData));
+            }
         }
 
         function iniciarSesion() {
@@ -394,6 +483,68 @@
         function abrirModal(id) { document.getElementById(id).classList.add('modal-abierto'); } function cerrarModal(id) { document.getElementById(id).classList.remove('modal-abierto'); }
         function cerrarSesion() { localStorage.removeItem('mvrg_sesion'); window.location.reload(true); }
 
+        // --- BIBLIOTECA DE PROTOCOLOS (Google Drive Miniaturas) ---
+        function abrirModalProtocolos() {
+            renderProtocolos();
+            let secEnc = document.getElementById('seccion-agregar-protocolo');
+            if(['Supervisión', 'Encargado Área', 'Tecnólogo Médico'].includes(usuarioActual.rol)) secEnc.style.display = 'block';
+            else secEnc.style.display = 'none';
+            abrirModal('modal-protocolos');
+        }
+        function renderProtocolos() {
+            const c = document.getElementById('contenedor-lista-protocolos'); c.innerHTML = '';
+            if(protocolosData.length === 0) { c.innerHTML = '<p class="text-xs text-gray-400 text-center">No hay protocolos.</p>'; return; }
+            protocolosData.forEach(p => {
+                c.innerHTML += `
+                <a href="${p.link}" target="_blank" class="flex items-center gap-3 p-3 bg-gray-50 border rounded-xl hover:bg-teal-50 transition shadow-sm group">
+                    <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition"><i class="fa-brands fa-google-drive"></i></div>
+                    <div class="flex-1 overflow-hidden"><p class="text-xs font-bold text-gray-800 truncate">${p.titulo}</p><p class="text-[9px] text-teal-600 font-medium">Google Drive Document &rarr;</p></div>
+                </a>`;
+            });
+        }
+        function guardarProtocoloDrive() {
+            let tit = document.getElementById('proto-titulo').value.trim();
+            let lnk = document.getElementById('proto-link').value.trim();
+            if(!tit || !lnk) { alert("Completa ambos campos."); return; }
+            protocolosData.push({ id: Date.now(), titulo: tit, link: lnk });
+            localStorage.setItem('mvrg_protos', JSON.stringify(protocolosData));
+            document.getElementById('proto-titulo').value = ''; document.getElementById('proto-link').value = '';
+            renderProtocolos(); alert("Protocolo agregado exitosamente.");
+        }
+
+        // --- MI PERFIL (Con subida local de imagen) ---
+        function abrirModalPerfil() {
+            document.getElementById('perfil-nombre').value = usuarioActual.n;
+            document.getElementById('perfil-apellido').value = usuarioActual.a;
+            document.getElementById('perfil-file').value = '';
+            abrirModal('modal-perfil');
+        }
+        function guardarPerfil() {
+            usuarioActual.n = document.getElementById('perfil-nombre').value;
+            usuarioActual.a = document.getElementById('perfil-apellido').value;
+            usuarioActual.iniciales = (usuarioActual.n.charAt(0) + usuarioActual.a.charAt(0)).toUpperCase();
+            
+            let fileInput = document.getElementById('perfil-file');
+            if(fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    usuarioActual.foto = e.target.result;
+                    finalizarGuardadoPerfil();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                finalizarGuardadoPerfil();
+            }
+        }
+        function finalizarGuardadoPerfil() {
+            usuariosDB[usuarioActual.id].n = usuarioActual.n;
+            usuariosDB[usuarioActual.id].a = usuarioActual.a;
+            usuariosDB[usuarioActual.id].foto = usuarioActual.foto || '';
+            localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB));
+            localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual));
+            actualizarUI(); renderEquipo(); cerrarModal('modal-perfil');
+        }
+
         // --- ESTRUCTURA CITODIAGNÓSTICO ---
         function abrirUnidad(u) { document.getElementById('secciones-lista-unidades').classList.replace('block', 'hidden'); document.getElementById('secciones-citodiagnostico').classList.replace('hidden', 'flex'); document.getElementById('cito-menu-areas').style.display='flex'; ['cito-area-sec','cito-area-tens','cito-area-tm'].forEach(id => document.getElementById(id).style.display='none'); }
         function cerrarUnidad() { document.getElementById('secciones-citodiagnostico').classList.replace('flex', 'hidden'); document.getElementById('secciones-lista-unidades').classList.replace('hidden', 'block'); }
@@ -401,10 +552,7 @@
         function entrarAreaCito(area) {
             document.getElementById('cito-menu-areas').style.display = 'none'; document.getElementById('cito-area-' + area).style.display = 'flex';
             if(area==='sec') switchTabCito('sec', 'reg'); 
-            if(area==='tens') { 
-                switchTabCito('tens', 'proc'); 
-                setTimeout(() => generarCalendarioGrid(), 50); // Forzar render al entrar a TENS
-            } 
+            if(area==='tens') { switchTabCito('tens', 'proc'); setTimeout(() => generarCalendarioGrid(), 50); } 
             if(area==='tm') { switchTabCito('tm', 'rutina'); renderMonitorVivo(); }
         }
         function switchTabCito(area, tab) {
@@ -465,7 +613,7 @@
             }
         }
 
-        // --- TRASPASO DE TURNO E HISTORIALES Y EXPORTACIÓN POR FECHA ---
+        // --- TRASPASO DE TURNO (Con etiquetas independientes para Secretaría, TENS y Torre de Control) ---
         function guardarTraspaso(unidadFija, inputId) {
             let txt = document.getElementById(inputId).value.trim(); if(!txt) { alert("Escribe alguna novedad."); return; }
             const b = { id: Date.now(), fechaIso: new Date().toISOString().split('T')[0], fecha: new Date().toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}), autor: usuarioActual, unidad: unidadFija, tipo: 'Diario', nov: txt };
@@ -475,6 +623,7 @@
         }
 
         function renderHistorialTraspasos() {
+            // Secretaría
             const tsSec = bitacoraData.filter(b => b.unidad === 'Citopatología - Secretaría');
             const wU = document.getElementById('widget-ultimo-traspaso-sec');
             if(tsSec.length > 0) { wU.innerHTML = `<p class="text-[10px] text-pink-700 font-bold"><i class="fa-regular fa-clock"></i> ${tsSec[0].fecha} - ${tsSec[0].autor.n} ${tsSec[0].autor.a}</p><p class="text-xs text-gray-800 mt-1">${tsSec[0].nov}</p>`; } 
@@ -483,9 +632,15 @@
             const lS = document.getElementById('historial-tras-sec'); lS.innerHTML = '';
             tsSec.slice(0, 10).forEach(b => { lS.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-pink-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
 
+            // TENS
             const tsTens = bitacoraData.filter(b => b.unidad === 'Citopatología - TENS');
             const lT = document.getElementById('historial-tras-tens'); lT.innerHTML = '';
             tsTens.slice(0, 10).forEach(b => { lT.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-orange-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
+
+            // Torre de Control (TM) - Muestra últimos 3
+            const tsTm = bitacoraData.filter(b => b.unidad === 'Torre de Control - TM');
+            const lTM = document.getElementById('historial-tras-tm'); lTM.innerHTML = '';
+            tsTm.slice(0, 3).forEach(b => { lTM.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-teal-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
         }
 
         function exportarPDFRango(unidadFija, idDesde, idHasta) {
@@ -515,7 +670,7 @@
         // --- CALENDARIO INTERACTIVO ---
         function generarCalendarioGrid() {
             const grid = document.getElementById('grid-calendario'); 
-            if(!grid) return; // Validación de existencia
+            if(!grid) return; 
             let html = '';
             ['L','M','M','J','V','S','D'].forEach(d => html += `<div class="font-bold text-orange-800 pb-1">${d}</div>`);
             for(let i=0; i<5; i++) html += `<div></div>`; 
@@ -553,17 +708,10 @@
         }
 
         // --- STOCK REACTIVOS ---
-        function renderReactivos() {
-            const c = document.getElementById('contenedor-reactivos'); c.innerHTML='';
-            for(const [n,l] of Object.entries(reactivosStock)) {
-                let bg = l<25?'bg-red-500':l<50?'bg-yellow-400':'bg-orange-500', txt = l<25?'text-red-600':l<50?'text-yellow-600':'text-orange-700';
-                c.innerHTML += `<div><div class="flex justify-between text-[10px] font-bold mb-1 ${txt}"><span>${n}</span><span>${l}%</span></div><div class="w-full bg-gray-200 rounded-full h-1.5"><div class="${bg} h-1.5 rounded-full barra-nivel" style="width:${l}%"></div></div></div>`;
-            }
-        }
         function abrirRellenoReactivos() { const cont = document.getElementById('form-reactivos'); cont.innerHTML = ''; for(const [n, l] of Object.entries(reactivosStock)) cont.innerHTML += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded border"><label class="text-[10px] font-bold text-gray-700">${n}</label><div class="flex items-center gap-1"><input type="number" id="inp-r-${n.replace(/\s/g,'')}" value="${l}" class="w-14 border rounded text-xs text-center font-bold p-1 outline-none focus:border-orange-500"><span class="text-xs">%</span></div></div>`; abrirModal('modal-reactivos'); }
         function guardarReactivosYCompletar() {
             for(const k of Object.keys(reactivosStock)) reactivosStock[k] = Math.min(100, Math.max(0, parseInt(document.getElementById('inp-r-'+k.replace(/\s/g,'')).value)||0));
-            localStorage.setItem('mvrg_stock', JSON.stringify(reactivosStock)); renderReactivos(); cerrarModal('modal-reactivos');
+            localStorage.setItem('mvrg_stock', JSON.stringify(reactivosStock)); cerrarModal('modal-reactivos');
             if(calendarioData[`dia_${diaSeleccionado}`] && calendarioData[`dia_${diaSeleccionado}`].tipo === 'Relleno') {
                 calendarioData[`dia_${diaSeleccionado}`].estado = 'completado'; calendarioData[`dia_${diaSeleccionado}`].autor = usuarioActual.n + " " + usuarioActual.a; calendarioData[`dia_${diaSeleccionado}`].hora = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
                 localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData)); generarCalendarioGrid(); sumarStat('alquimista'); renderMonitorVivo(); alert("¡Stock y Tarea actualizados!");
@@ -582,29 +730,29 @@
             g.innerHTML = `<div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Stock Actual (TENS)</p>${stockHtml}</div><div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Calendario TENS (Hoy ${dHoy})</p><div class="text-xs p-2 bg-gray-50 rounded border">${txtCal}</div></div><div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100 md:col-span-2"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Últimos Traspasos Globales</p>${bitHtml||'<p class="text-[10px] text-gray-400">No hay traspasos.</p>'}</div>`;
         }
 
-        // --- EQUIPO ---
+        // --- EQUIPO (Tarjetas compactas "Meet the Team") ---
         function renderEquipo() {
             const c = document.getElementById('contenedor-equipo'); c.innerHTML = ''; const roles = ['Supervisión', 'Encargado Área', 'Tecnólogo Médico', 'Técnico (TENS)', 'Secretaría'];
             roles.forEach(rolB => {
                 let usrs = Object.values(usuariosDB).filter(u => u.rol === rolB);
                 if(usrs.length > 0) {
-                    let html = `<div class="mb-6"><h3 class="font-bold text-gray-500 uppercase text-xs mb-3 border-b border-gray-300 pb-1">${rolB}</h3><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">`;
+                    let html = `<div class="mb-6"><h3 class="font-bold text-gray-500 uppercase text-xs mb-3 border-b border-gray-300 pb-1">${rolB}</h3><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">`;
                     usrs.forEach(u => {
                         let lHtml = ''; 
                         Object.keys(dbLogros).forEach(lKey => { 
                             const lDef = dbLogros[lKey]; 
                             const tiene = (u.logros || []).includes(lKey); 
-                            lHtml += `<div onclick="abrirDetalleLogro('${u.id}', '${lKey}')" class="p-1.5 rounded-full bg-gray-100 text-center ${tiene ? `medalla-on ${lDef.c}` : `medalla-off text-gray-400`}" title="${lDef.n}"><i class="fa-solid ${lDef.i} text-lg"></i></div>`; 
+                            lHtml += `<div onclick="abrirDetalleLogro('${u.id}', '${lKey}')" class="p-1 rounded-full bg-gray-100 text-center ${tiene ? `medalla-on ${lDef.c}` : `medalla-off text-gray-400`}" title="${lDef.n}"><i class="fa-solid ${lDef.i} text-xs"></i></div>`; 
                         });
                         
-                        let av = u.foto ? `<img src="${u.foto}" class="w-full h-full object-cover">` : `<span class="text-lg font-bold text-teal-700">${(u.n.charAt(0)+u.a.charAt(0)).toUpperCase()}</span>`;
+                        let av = u.foto ? `<img src="${u.foto}" class="w-full h-full object-cover">` : `<span class="text-sm font-bold text-teal-700">${(u.n.charAt(0)+u.a.charAt(0)).toUpperCase()}</span>`;
                         
                         html += `
-                        <div class="bg-white rounded-3xl shadow-md border border-gray-200 p-4 flex flex-col items-center text-center relative overflow-hidden">
-                            <div class="w-20 h-20 rounded-full bg-teal-50 flex items-center justify-center border-4 border-white shadow-md overflow-hidden mb-3">${av}</div>
-                            <p class="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-0.5">${u.rol}</p>
-                            <h4 class="font-bold text-base text-gray-800 mb-3">${u.n} ${u.a}</h4>
-                            <div class="w-full bg-gray-50 p-2 rounded-2xl flex justify-around border border-gray-100 mt-auto">${lHtml}</div>
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center relative overflow-hidden">
+                            <div class="w-14 h-14 rounded-full bg-teal-50 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden mb-2">${av}</div>
+                            <p class="text-[8px] font-bold text-teal-600 uppercase tracking-wider mb-0.5">${u.rol}</p>
+                            <h4 class="font-bold text-xs text-gray-800 mb-2 truncate w-full">${u.n} ${u.a}</h4>
+                            <div class="w-full bg-gray-50 p-1 rounded-xl flex justify-around border border-gray-100 mt-auto">${lHtml}</div>
                         </div>`;
                     }); c.innerHTML += html + '</div></div>';
                 }
@@ -662,18 +810,98 @@
         function guardarMiFirma() { if(!actaFActual) return; const i = actasData.findIndex(a=>a.id===actaFActual); if(i !== -1) { if(!actasData[i].firmas) actasData[i].firmas = {}; actasData[i].firmas[usuarioActual.id] = cvsF.toDataURL("image/png"); localStorage.setItem('mvrg_actas', JSON.stringify(actasData)); cerrarModal('modal-firma-acta'); renderActas(); sumarStat('pluma'); if(Object.keys(actasData[i].firmas).length === actasData[i].asistentesIds.length) generarNotificacion(`¡Acta completada: ${actasData[i].titulo}!`, 'actas', ''); } }
         function exportarActaEspecificaPDF(id) { html2pdf().set({margin: 0.5, filename: `Acta_${id}.pdf`, html2canvas: {scale: 2}}).from(document.getElementById('acta-imprimir-' + id)).save(); }
 
-        // --- ADMINISTRACIÓN DE USUARIOS ---
-        function renderAdminUsuarios() { const c = document.getElementById('contenedor-lista-usuarios'); c.innerHTML = ''; for(const [id, u] of Object.entries(usuariosDB)) { c.innerHTML += `<div class="bg-white p-3 rounded-lg border shadow-sm flex justify-between items-center"><div><p class="text-sm font-bold">${u.n} ${u.a}</p><p class="text-[10px] text-gray-500 font-mono">ID: ${id} | ${u.rol}</p></div><div class="flex gap-2"><button onclick="abrirModalAdminUsuario('${id}')" class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="eliminarAdminUsuario('${id}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs border border-red-100"><i class="fa-solid fa-trash-can"></i></button></div></div>`; } }
-        function abrirModalAdminUsuario(id) { if(id && usuariosDB[id]) { document.getElementById('admin-u-mode').value = id; document.getElementById('admin-u-id').value = id; document.getElementById('admin-u-id').disabled = true; document.getElementById('admin-u-pass').value = usuariosDB[id].pass; document.getElementById('admin-u-n').value = usuariosDB[id].n; document.getElementById('admin-u-a').value = usuariosDB[id].a; document.getElementById('admin-u-rol').value = usuariosDB[id].rol; document.getElementById('tit-admin-user').innerText = 'Editar Usuario'; } else { document.getElementById('admin-u-mode').value = 'new'; document.getElementById('admin-u-id').value = ''; document.getElementById('admin-u-id').disabled = false; document.getElementById('admin-u-pass').value = ''; document.getElementById('admin-u-n').value = ''; document.getElementById('admin-u-a').value = ''; document.getElementById('admin-u-rol').selectedIndex = 0; document.getElementById('tit-admin-user').innerText = 'Nuevo Usuario'; } abrirModal('modal-admin-user'); }
-        function guardarAdminUsuario() { const mode = document.getElementById('admin-u-mode').value; const id = document.getElementById('admin-u-id').value.toLowerCase().trim(); const pass = document.getElementById('admin-u-pass').value; const n = document.getElementById('admin-u-n').value; const a = document.getElementById('admin-u-a').value; const rol = document.getElementById('admin-u-rol').value; if(!id||!pass||!n||!a) { alert("Campos vacíos"); return; } if(mode==='new' && usuariosDB[id]) { alert("ID ya existe"); return; } if(mode==='new') { usuariosDB[id] = { pass: pass, n: n, a: a, rol: rol, logros: ['pionero'], stats: {login:0, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: '' }; } else { usuariosDB[id].pass = pass; usuariosDB[id].n = n; usuariosDB[id].a = a; usuariosDB[id].rol = rol; if(id===usuarioActual.id) { usuarioActual.n=n; usuarioActual.a=a; usuarioActual.rol=rol; localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual)); actualizarUI(); } } localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB)); renderAdminUsuarios(); renderEquipo(); cerrarModal('modal-admin-user'); }
+        // --- ADMINISTRACIÓN DE USUARIOS (Con render automático al abrir) ---
+        function renderAdminUsuarios() { 
+            const c = document.getElementById('contenedor-lista-usuarios'); c.innerHTML = ''; 
+            for(const [id, u] of Object.entries(usuariosDB)) { 
+                c.innerHTML += `<div class="bg-white p-3 rounded-lg border shadow-sm flex justify-between items-center"><div><p class="text-sm font-bold">${u.n} ${u.a}</p><p class="text-[10px] text-gray-500 font-mono">ID: ${id} | ${u.rol}</p></div><div class="flex gap-2"><button onclick="abrirModalAdminUsuario('${id}')" class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="eliminarAdminUsuario('${id}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs border border-red-100"><i class="fa-solid fa-trash-can"></i></button></div></div>`; 
+            } 
+        }
+        function abrirModalAdminUsuario(id) { if(id && usuariosDB[id]) { document.getElementById('admin-u-mode').value = id; document.getElementById('admin-u-id').value = id; document.getElementById('admin-u-id').disabled = true; document.getElementById('admin-u-pass').value = usuariosDB[id].pass; document.getElementById('admin-u-n').value = usuariosDB[id].n; document.getElementById('admin-u-a').value = usuariosDB[id].a; document.getElementById('admin-u-rol').value = usuariosDB[id].rol; document.getElementById('admin-u-file').value = ''; document.getElementById('tit-admin-user').innerText = 'Editar Usuario'; } else { document.getElementById('admin-u-mode').value = 'new'; document.getElementById('admin-u-id').value = ''; document.getElementById('admin-u-id').disabled = false; document.getElementById('admin-u-pass').value = ''; document.getElementById('admin-u-n').value = ''; document.getElementById('admin-u-a').value = ''; document.getElementById('admin-u-rol').selectedIndex = 0; document.getElementById('admin-u-file').value = ''; document.getElementById('tit-admin-user').innerText = 'Nuevo Usuario'; } abrirModal('modal-admin-user'); }
+        function guardarAdminUsuario() { 
+            const mode = document.getElementById('admin-u-mode').value; const id = document.getElementById('admin-u-id').value.toLowerCase().trim(); const pass = document.getElementById('admin-u-pass').value; const n = document.getElementById('admin-u-n').value; const a = document.getElementById('admin-u-a').value; const rol = document.getElementById('admin-u-rol').value; 
+            if(!id||!pass||!n||!a) { alert("Campos vacíos"); return; } if(mode==='new' && usuariosDB[id]) { alert("ID ya existe"); return; }
+            
+            let fileInput = document.getElementById('admin-u-file');
+            if(fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    finalizarGuardadoAdmin(mode, id, pass, n, a, rol, e.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                let fotoActual = (mode !== 'new' && usuariosDB[id]) ? usuariosDB[id].foto : '';
+                finalizarGuardadoAdmin(mode, id, pass, n, a, rol, fotoActual);
+            }
+        }
+        function finalizarGuardadoAdmin(mode, id, pass, n, a, rol, foto) {
+            if(mode==='new') { 
+                usuariosDB[id] = { pass: pass, n: n, a: a, rol: rol, logros: ['pionero'], stats: {login:0, pluma:0, guardian:0, alquimista:0, voz:0, limpieza:0}, foto: foto }; 
+            } else { 
+                usuariosDB[id].pass = pass; usuariosDB[id].n = n; usuariosDB[id].a = a; usuariosDB[id].rol = rol; usuariosDB[id].foto = foto; 
+                if(id===usuarioActual.id) { usuarioActual.n=n; usuarioActual.a=a; usuarioActual.rol=rol; usuarioActual.foto=foto; localStorage.setItem('mvrg_sesion', JSON.stringify(usuarioActual)); actualizarUI(); } 
+            } 
+            localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB)); renderAdminUsuarios(); renderEquipo(); cerrarModal('modal-admin-user');
+        }
         function eliminarAdminUsuario(id) { if(id===usuarioActual.id) { alert("No puedes eliminar tu cuenta conectada."); return; } if(confirm(`¿Eliminar a ${usuariosDB[id].n}?`)) { delete usuariosDB[id]; localStorage.setItem('mvrg_usuarios', JSON.stringify(usuariosDB)); renderAdminUsuarios(); renderEquipo(); } }
 
-        // --- FOROS Y UTILIDADES ---
-        function cambiarSubForo(f) { foroActual = f; ['Avisos', 'Offtopic', 'Ventas', 'Eventos'].forEach(x => { const t = document.getElementById('tab-'+x); if(x===f){if(x==='Eventos')t.classList.replace('border-transparent','border-purple-600');else{t.classList.replace('text-gray-500','text-teal-700');t.classList.replace('border-transparent','border-teal-700');}} else{if(x==='Eventos')t.classList.replace('border-purple-600','border-transparent');else{t.classList.replace('text-teal-700','text-gray-500');t.classList.replace('border-teal-700','border-transparent');}} }); document.getElementById('contenedor-posts').style.display = f==='Eventos'?'none':'block'; document.getElementById('contenedor-eventos').style.display = f==='Eventos'?'block':'none'; evaluarPermisosForo(); renderPosts(); }
+        // --- FOROS Y VENTAS (Con WhatsApp y subida de archivos) ---
+        function cambiarSubForo(f) { 
+            foroActual = f; 
+            ['Avisos', 'Offtopic', 'Ventas', 'Eventos'].forEach(x => { 
+                const t = document.getElementById('tab-'+x); 
+                if(x===f){if(x==='Eventos')t.classList.replace('border-transparent','border-purple-600');else{t.classList.replace('text-gray-500','text-teal-700');t.classList.replace('border-transparent','border-teal-700');}} 
+                else{if(x==='Eventos')t.classList.replace('border-purple-600','border-transparent');else{t.classList.replace('text-teal-700','text-gray-500');t.classList.replace('border-teal-700','border-transparent');}} 
+            }); 
+            document.getElementById('contenedor-posts').style.display = f==='Eventos'?'none':'block'; 
+            document.getElementById('contenedor-eventos').style.display = f==='Eventos'?'block':'none'; 
+            evaluarPermisosForo(); renderPosts(); 
+        }
         function evaluarPermisosForo() { const b = document.getElementById('btn-abrir-modal-post'), txt = document.getElementById('txt-btn-publicar'); if(foroActual==='Avisos'){if(usuarioActual.rol==='Supervisión'||usuarioActual.rol==='Encargado Área'){b.style.display='flex';txt.innerText='Publicar Aviso';}else b.style.display='none';} else if(foroActual==='Eventos'){b.style.display='flex';txt.innerText='Agendar Evento';} else{b.style.display='flex';txt.innerText='Crear Publicación';} }
-        function abrirModalPost() { document.getElementById('post-titulo').value = ''; document.getElementById('post-cuerpo').value = ''; document.getElementById('campo-roles-destino').style.display = (foroActual==='Avisos'||foroActual==='Eventos')?'block':'none'; document.getElementById('campo-fecha-evento').style.display = foroActual==='Eventos'?'block':'none'; document.getElementById('div-img-post').style.display = foroActual==='Eventos'?'none':'block'; document.getElementById('tit-mod-post').innerText = foroActual==='Eventos'?'Agendar Evento':'Nueva Publicación'; abrirModal('modal-post'); }
-        function guardarPost() { const tit = document.getElementById('post-titulo').value; if(!tit) return; publicaciones.unshift({ id: Date.now(), foro: foroActual, titulo: tit, autor: usuarioActual, cuerpo: document.getElementById('post-cuerpo').value, audiencia: document.getElementById('post-audiencia').value, fechaEvento: foroActual==='Eventos'?document.getElementById('ev-fecha').value:null, img: document.getElementById('post-img').value, likes: [], comentarios: [] }); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); generarNotificacion(`Nuevo en ${foroActual}: ${tit}`, 'foros', foroActual); cerrarModal('modal-post'); renderPosts(); sumarStat('voz'); }
-        function renderPosts() { const cP = document.getElementById('contenedor-posts'), cE = document.getElementById('contenedor-eventos'); cP.innerHTML=''; cE.innerHTML=''; publicaciones.forEach(p => { if(p.foro === 'Eventos' && foroActual === 'Eventos') { const fF = p.fechaEvento ? new Date(p.fechaEvento).toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''; cE.innerHTML += `<div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-4"><div class="flex justify-between"><b>${p.titulo}</b><span class="text-[10px] bg-purple-50 text-purple-700 px-2 py-1 rounded font-bold">${fF}</span></div><p class="text-[9px] font-bold text-gray-400 mt-1">Para: ${p.audiencia}</p><p class="text-xs text-gray-600 mt-2">${p.cuerpo}</p></div>`; } else if(p.foro === foroActual && p.foro !== 'Eventos') { const img = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : ''; const aud = p.foro==='Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : ''; const colCor = p.likes.includes(usuarioActual.id) ? 'text-pink-500' : 'text-gray-400'; let coms = ''; p.comentarios.forEach(c => coms += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><b>${c.autor}:</b> ${c.txt}</div>`); cP.innerHTML += `<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4" id="post-${p.id}"><div class="flex justify-between items-start mb-2"><div class="flex gap-2 items-center"><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs overflow-hidden">${p.autor.foto?`<img src="${p.autor.foto}" class="w-full h-full object-cover">`:p.autor.iniciales}</div><div><p class="text-xs font-bold">${p.autor.n} ${p.autor.a}</p><span class="text-[9px] bg-gray-100 px-1 rounded">${p.autor.rol}</span></div></div>${aud}</div><h4 class="font-bold text-sm">${p.titulo}</h4><p class="text-sm text-gray-600">${p.cuerpo}</p>${img}<div class="border-t border-gray-100 mt-3 pt-2 flex gap-4"><button onclick="toggleLike(${p.id})" class="text-xs font-bold ${colCor}"><i class="fa-solid fa-heart"></i> ${p.likes.length}</button></div><div class="mt-2">${coms}<div class="flex gap-2 mt-2"><input type="text" id="inp-c-${p.id}" placeholder="Comentar..." class="flex-1 bg-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none"><button onclick="comentar(${p.id})" class="text-teal-600"><i class="fa-solid fa-paper-plane"></i></button></div></div></div>`; } }); }
+        function abrirModalPost() { 
+            document.getElementById('post-titulo').value = ''; document.getElementById('post-cuerpo').value = ''; document.getElementById('post-wsp').value = ''; document.getElementById('post-file').value = '';
+            document.getElementById('campo-roles-destino').style.display = (foroActual==='Avisos'||foroActual==='Eventos')?'block':'none'; 
+            document.getElementById('campo-fecha-evento').style.display = foroActual==='Eventos'?'block':'none'; 
+            document.getElementById('campo-whatsapp').style.display = (foroActual==='Ventas')?'block':'none';
+            document.getElementById('div-img-post').style.display = foroActual==='Eventos'?'none':'block'; 
+            document.getElementById('tit-mod-post').innerText = foroActual==='Eventos'?'Agendar Evento':(foroActual==='Ventas'?'Publicar Venta':'Nueva Publicación'); 
+            abrirModal('modal-post'); 
+        }
+        function guardarPost() {
+            const tit = document.getElementById('post-titulo').value; if(!tit) return;
+            let wsp = document.getElementById('post-wsp').value.trim();
+            let fileInput = document.getElementById('post-file');
+
+            if(fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    finalizarGuardarPost(tit, wsp, e.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                finalizarGuardarPost(tit, wsp, '');
+            }
+        }
+        function finalizarGuardarPost(tit, wsp, imgData) {
+            publicaciones.unshift({ id: Date.now(), foro: foroActual, titulo: tit, autor: usuarioActual, cuerpo: document.getElementById('post-cuerpo').value, audiencia: document.getElementById('post-audiencia').value, fechaEvento: foroActual==='Eventos'?document.getElementById('ev-fecha').value:null, whatsapp: wsp, img: imgData, likes: [], comentarios: [] }); 
+            localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); generarNotificacion(`Nuevo en ${foroActual}: ${tit}`, 'foros', foroActual); cerrarModal('modal-post'); renderPosts(); sumarStat('voz');
+        }
+        function renderPosts() { 
+            const cP = document.getElementById('contenedor-posts'), cE = document.getElementById('contenedor-eventos'); cP.innerHTML=''; cE.innerHTML=''; 
+            publicaciones.forEach(p => { 
+                if(p.foro === 'Eventos' && foroActual === 'Eventos') { 
+                    const fF = p.fechaEvento ? new Date(p.fechaEvento).toLocaleString('es-CL',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''; 
+                    cE.innerHTML += `<div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-4"><div class="flex justify-between"><b>${p.titulo}</b><span class="text-[10px] bg-purple-50 text-purple-700 px-2 py-1 rounded font-bold">${fF}</span></div><p class="text-[9px] font-bold text-gray-400 mt-1">Para: ${p.audiencia}</p><p class="text-xs text-gray-600 mt-2">${p.cuerpo}</p></div>`; 
+                } else if(p.foro === foroActual && p.foro !== 'Eventos') { 
+                    const img = p.img ? `<img src="${p.img}" class="w-full h-32 object-cover rounded-lg mt-2 mb-2">` : ''; 
+                    const aud = p.foro==='Avisos' ? `<span class="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">Para: ${p.audiencia}</span>` : ''; 
+                    const wspBtn = (p.foro==='Ventas' && p.whatsapp) ? `<a href="https://wa.me/${p.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" class="inline-flex items-center gap-1.5 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm hover:bg-green-600 mt-2"><i class="fa-brands fa-whatsapp text-sm"></i> Contactar por WhatsApp</a>` : '';
+                    const colCor = p.likes.includes(usuarioActual.id) ? 'text-pink-500' : 'text-gray-400'; 
+                    let coms = ''; p.comentarios.forEach(c => coms += `<div class="bg-gray-50 p-2 rounded text-xs mb-1"><b>${c.autor}:</b> ${c.txt}</div>`); 
+                    cP.innerHTML += `<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4" id="post-${p.id}"><div class="flex justify-between items-start mb-2"><div class="flex gap-2 items-center"><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs overflow-hidden">${p.autor.foto?`<img src="${p.autor.foto}" class="w-full h-full object-cover">`:p.autor.iniciales}</div><div><p class="text-xs font-bold">${p.autor.n} ${p.autor.a}</p><span class="text-[9px] bg-gray-100 px-1 rounded">${p.autor.rol}</span></div></div>${aud}</div><h4 class="font-bold text-sm">${p.titulo}</h4><p class="text-sm text-gray-600">${p.cuerpo}</p>${img}${wspBtn}<div class="border-t border-gray-100 mt-3 pt-2 flex gap-4"><button onclick="toggleLike(${p.id})" class="text-xs font-bold ${colCor}"><i class="fa-solid fa-heart"></i> ${p.likes.length}</button></div><div class="mt-2">${coms}<div class="flex gap-2 mt-2"><input type="text" id="inp-c-${p.id}" placeholder="Comentar..." class="flex-1 bg-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none"><button onclick="comentar(${p.id})" class="text-teal-600"><i class="fa-solid fa-paper-plane"></i></button></div></div></div>`; 
+                } 
+            }); 
+        }
         function toggleLike(id) { const p = publicaciones.find(x=>x.id===id); if(p){ const idx = p.likes.indexOf(usuarioActual.id); if(idx===-1) p.likes.push(usuarioActual.id); else p.likes.splice(idx,1); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
         function comentar(id) { const i = document.getElementById('inp-c-'+id); if(i.value){ publicaciones.find(x=>x.id===id).comentarios.push({ autor: usuarioActual.n, txt: i.value }); localStorage.setItem('mvrg_posts', JSON.stringify(publicaciones)); renderPosts(); } }
 
@@ -684,7 +912,7 @@
         function renderNotificaciones() { const c = document.getElementById('lista-notificaciones'); c.innerHTML=''; const f = notificaciones.filter(n => tabNotifActual==='nuevas'?!n.leida:n.leida); f.forEach(n => c.innerHTML += `<div onclick="irDestinoNotificacion(${n.id})" class="bg-gray-50 p-3 rounded border flex flex-col gap-1 cursor-pointer hover:bg-teal-50"><p class="text-xs font-bold text-gray-800">${n.txt}</p><span class="text-[9px] text-teal-600">Click para ver &rarr;</span></div>`); }
         function irDestinoNotificacion(id) { const n = notificaciones.find(x=>x.id===id); if(n) { n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); if(n.targetV) cambiarVista(n.targetV); if(n.targetS) { cambiarSubForo(n.targetS); } actualizarCampana(); } }
 
-        window.onload = function() { initData(); let s = localStorage.getItem('mvrg_sesion'); if(s) { let st = JSON.parse(s); if(usuariosDB[st.id]) { usuarioActual = { ...st, ...usuariosDB[st.id] }; entrarApp(); } } };
+        window.onload = function() { initData(); renderAdminUsuarios(); let s = localStorage.getItem('mvrg_sesion'); if(s) { let st = JSON.parse(s); if(usuariosDB[st.id]) { usuarioActual = { ...st, ...usuariosDB[st.id] }; entrarApp(); } } };
     </script>
 </body>
 </html>
