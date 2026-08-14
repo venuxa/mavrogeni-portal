@@ -19,7 +19,6 @@
         #menu-lateral { transition: transform 0.3s ease-in-out; }
         .menu-abierto { transform: translateX(0%); }
         .menu-cerrado { transform: translateX(-100%); }
-        .barra-nivel { transition: width 0.5s ease-in-out, background-color 0.5s; }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         
@@ -103,200 +102,131 @@
 
                 <div id="secciones-citodiagnostico" class="hidden flex-col h-full">
                     <div class="bg-teal-800 flex text-sm font-bold shadow-md px-4 py-3 text-white items-center gap-3 sticky top-0 z-20">
-                        <button onclick="cerrarUnidad()" class="text-teal-200 hover:text-white text-lg"><i class="fa-solid fa-arrow-left"></i></button><span>Unidad Citodiagnóstico</span>
+                        <button onclick="cerrarUnidad()" class="text-teal-200 hover:text-white text-lg"><i class="fa-solid fa-arrow-left"></i></button><span>Unidad Citodiagnóstico - Panel Central</span>
                     </div>
 
-                    <!-- MENÚ DE 3 BOTONES -->
-                    <div id="cito-menu-areas" class="p-4 flex-1 flex flex-col justify-center space-y-4">
-                        <button onclick="entrarAreaCito('sec')" class="bg-white p-6 rounded-2xl shadow border-2 border-transparent hover:border-pink-300 flex flex-col items-center gap-2 group"><i class="fa-solid fa-keyboard text-4xl text-pink-500 group-hover:scale-110 transition"></i><span class="font-bold text-gray-700">Área Secretaría</span></button>
-                        <button onclick="entrarAreaCito('tens')" class="bg-white p-6 rounded-2xl shadow border-2 border-transparent hover:border-orange-300 flex flex-col items-center gap-2 group"><i class="fa-solid fa-flask-vial text-4xl text-orange-500 group-hover:scale-110 transition"></i><span class="font-bold text-gray-700">Área TENS</span></button>
-                        <button onclick="entrarAreaCito('tm')" id="btn-area-tm" class="bg-white p-6 rounded-2xl shadow border-2 border-transparent hover:border-teal-300 flex flex-col items-center gap-2 group"><i class="fa-solid fa-satellite-dish text-4xl text-teal-600 group-hover:scale-110 transition"></i><span class="font-bold text-gray-700">Torre de Control (TM)</span></button>
-                    </div>
-
-                    <!-- ================= AREA SECRETARÍA ================= -->
-                    <div id="cito-area-sec" class="hidden flex-col h-full">
-                        <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky z-10">
-                            <button onclick="switchTabCito('sec', 'reg')" id="tab-sec-reg" class="flex-1 py-3 px-2 border-b-2 border-pink-500 text-pink-600 font-bold"><i class="fa-solid fa-folder-open mr-1"></i> Registros y Flujo</button>
-                            <button onclick="switchTabCito('sec', 'tras')" id="tab-sec-tras" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list mr-1"></i> Traspaso</button>
-                        </div>
-                        <div id="view-sec-reg" class="p-4 flex-1 overflow-y-auto block space-y-4">
-                            <!-- FLUJO DE MUESTRAS KANBAN (ARRIBA) -->
-                            <div class="bg-white p-3 rounded-xl shadow-sm border">
-                                <div class="flex justify-between items-center mb-3">
-                                    <h3 class="font-bold text-gray-700 text-xs uppercase"><i class="fa-solid fa-diagram-project mr-1 text-teal-600"></i> Flujo de Muestras</h3>
-                                    <button onclick="abrirModal('modal-ingreso-rutina')" class="bg-teal-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow hover:bg-teal-700"><i class="fa-solid fa-plus mr-1"></i> Ingresar Nueva Rutina</button>
-                                </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
-                                    <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-pink-700 border-b pb-1 mb-1">Recepción</h4><div id="kanban-sec" class="space-y-1"></div></div>
-                                    <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-orange-700 border-b pb-1 mb-1">En Proceso</h4><div id="kanban-tens" class="space-y-1"></div></div>
-                                    <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-teal-700 border-b pb-1 mb-1">Validación</h4><div id="kanban-tm" class="space-y-1"></div></div>
-                                    <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-purple-700 border-b pb-1 mb-1">Patólogo</h4><div id="kanban-fin" class="space-y-1"></div></div>
-                                </div>
-                            </div>
-                            <div class="bg-white border border-gray-200 p-3 rounded-xl shadow-sm">
-                                <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1 mb-2"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Último Traspaso Registrado</h3>
-                                <div id="widget-ultimo-traspaso-sec" class="bg-gray-50 p-2 rounded">Cargando...</div>
-                            </div>
-                        </div>
-                        <div id="view-sec-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-pink-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-sec" rows="4" placeholder="Escribe las novedades de Secretaría..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-pink-400"></textarea><button onclick="guardarTraspaso('Citopatología - Secretaría', 'bit-nov-sec')" class="w-full bg-pink-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-pink-600">Registrar Traspaso</button></div>
-                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
-                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-sec" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-sec" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                </div>
-                                <button onclick="exportarPDFRango('Citopatología - Secretaría', 'f-desde-sec', 'f-hasta-sec')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF Secretaría</button>
-                            </div>
-                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (Secretaría)</h3>
-                            <div id="historial-tras-sec" class="space-y-2"></div>
-                        </div>
-                    </div>
-
-                    <!-- ================= AREA TENS ================= -->
-                    <div id="cito-area-tens" class="hidden flex-col h-full">
-                        <div class="bg-white border-b flex text-xs font-medium shadow-sm sticky z-10">
-                            <button onclick="switchTabCito('tens', 'proc')" id="tab-tens-proc" class="flex-1 py-3 px-2 border-b-2 border-orange-500 text-orange-600 font-bold"><i class="fa-solid fa-vial-circle-check mr-1"></i> Procesamiento y Trazabilidad</button>
-                            <button onclick="switchTabCito('tens', 'tras')" id="tab-tens-tras" class="flex-1 py-3 px-2 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list mr-1"></i> Traspaso</button>
-                        </div>
-                        <div id="view-tens-proc" class="p-4 flex-1 overflow-y-auto space-y-4 block">
-                            <!-- FLUJO KANBAN TENS -->
-                            <div class="bg-white p-3 rounded-xl shadow-sm border">
-                                <h3 class="font-bold text-gray-700 text-xs uppercase border-b pb-1 mb-2"><i class="fa-solid fa-diagram-project mr-1 text-orange-600"></i> Estado de Muestras</h3>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
-                                    <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-pink-700 border-b pb-1 mb-1">Recepción</h4><div id="kanban-sec-t" class="space-y-1"></div></div>
-                                    <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-orange-700 border-b pb-1 mb-1">En Proceso</h4><div id="kanban-tens-t" class="space-y-1"></div></div>
-                                    <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-teal-700 border-b pb-1 mb-1">Validación</h4><div id="kanban-tm-t" class="space-y-1"></div></div>
-                                    <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-purple-700 border-b pb-1 mb-1">Patólogo</h4><div id="kanban-fin-t" class="space-y-1"></div></div>
-                                </div>
-                            </div>
-                            <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-200">
-                                <h3 class="font-bold text-gray-800 text-xs mb-2 border-b pb-1"><i class="fa-regular fa-calendar-check text-orange-500 mr-1"></i> Calendario de Tareas</h3>
-                                <div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-[10px]"></div>
-                            </div>
-                        </div>
-                        <div id="view-tens-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-orange-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-tens" rows="4" placeholder="Novedades de Procesamiento..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-orange-400"></textarea><button onclick="guardarTraspaso('Citopatología - TENS', 'bit-nov-tens')" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-orange-600">Registrar Traspaso</button></div>
-                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
-                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-tens" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-tens" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                </div>
-                                <button onclick="exportarPDFRango('Citopatología - TENS', 'f-desde-tens', 'f-hasta-tens')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF TENS</button>
-                            </div>
-                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (TENS)</h3>
-                            <div id="historial-tras-tens" class="space-y-2"></div>
-                        </div>
-                    </div>
-
-                    <!-- ================= AREA TECNÓLOGOS (TORRE DE CONTROL Y ESTADÍSTICAS) ================= -->
-                    <div id="cito-area-tm" class="hidden flex-col h-full">
-                        <div class="bg-white border-b flex text-[10px] font-medium shadow-sm sticky z-10">
-                            <button onclick="switchTabCito('tm', 'rutina')" id="tab-tm-rutina" class="flex-1 py-3 px-1 border-b-2 border-teal-600 text-teal-700 font-bold"><i class="fa-solid fa-pen-to-square"></i> Asignar</button>
-                            <button onclick="switchTabCito('tm', 'monitor')" id="tab-tm-monitor" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-satellite-dish"></i> Monitor Vivo</button>
-                            <button onclick="switchTabCito('tm', 'estadisticas')" id="tab-tm-estadisticas" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
-                            <button onclick="switchTabCito('tm', 'tras')" id="tab-tm-tras" class="flex-1 py-3 px-1 border-b-2 border-transparent text-gray-500"><i class="fa-solid fa-clipboard-list"></i> Traspaso</button>
-                        </div>
+                    <!-- TABLERO KANBAN CENTRALIZADO (PÁGINA DE ENTRADA) -->
+                    <div class="p-4 flex-1 overflow-y-auto space-y-4 bg-gray-50">
                         
-                        <div id="view-tm-rutina" class="p-4 flex-1 overflow-y-auto block space-y-4">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-bold text-gray-700 text-xs uppercase"><i class="fa-solid fa-diagram-project mr-1 text-teal-600"></i> Flujo de Muestras en Tiempo Real</h3>
+                                <button onclick="abrirModal('modal-ingreso-rutina')" class="bg-teal-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow hover:bg-teal-700"><i class="fa-solid fa-plus mr-1"></i> Ingresar Nueva Rutina</button>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+                                <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-pink-700 border-b pb-1 mb-1">Recepción (Sec)</h4><div id="kanban-sec" class="space-y-1"></div></div>
+                                <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-orange-700 border-b pb-1 mb-1">En Proceso (TENS)</h4><div id="kanban-tens" class="space-y-1"></div></div>
+                                <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-teal-700 border-b pb-1 mb-1">Validación (TM)</h4><div id="kanban-tm" class="space-y-1"></div></div>
+                                <div class="bg-gray-50 p-2 rounded border"><h4 class="font-bold text-purple-700 border-b pb-1 mb-1">Patólogo</h4><div id="kanban-fin" class="space-y-1"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- ARCHIVO DE RUTINAS (Tarjetas pequeñas con trazabilidad) -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-bold text-gray-700 text-xs uppercase"><i class="fa-solid fa-box-archive mr-1"></i> Archivo e Historial de Rutinas</h3>
+                                <input type="date" id="filtro-fecha-tm" onchange="renderKanbanFlujo()" class="border rounded p-1 text-xs bg-gray-50">
+                            </div>
+                            <div id="historial-lotes-tm" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                        </div>
+
+                        <!-- ACCESOS DE TRABAJO (Áreas inferiores) -->
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="entrarAreaCito('sec')" class="bg-white p-3 rounded-xl shadow-sm border text-center hover:border-pink-300"><i class="fa-solid fa-keyboard text-lg text-pink-500 mb-1"></i><p class="text-[10px] font-bold text-gray-700">Área Secretaría</p></button>
+                            <button onclick="entrarAreaCito('tens')" class="bg-white p-3 rounded-xl shadow-sm border text-center hover:border-orange-300"><i class="fa-solid fa-flask-vial text-lg text-orange-500 mb-1"></i><p class="text-[10px] font-bold text-gray-700">Área TENS</p></button>
+                            <button onclick="entrarAreaCito('tm')" class="bg-white p-3 rounded-xl shadow-sm border text-center hover:border-teal-300"><i class="fa-solid fa-satellite-dish text-lg text-teal-600 mb-1"></i><p class="text-[10px] font-bold text-gray-700">Torre de Control</p></button>
+                        </div>
+                    </div>
+
+                    <!-- ================= AREA SECRETARÍA (Traspasos y Rutina Excel) ================= -->
+                    <div id="cito-area-sec" class="hidden flex-col h-full">
+                        <div class="bg-teal-700 text-white flex justify-between items-center px-4 py-2">
+                            <button onclick="cerrarAreaCito()" class="text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Volver al Tablero</button>
+                            <span class="text-xs font-bold uppercase">Área Secretaría</span>
+                        </div>
+                        <div class="p-4 flex-1 overflow-y-auto space-y-4">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-pink-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno</h3><textarea id="bit-nov-sec" rows="4" placeholder="Escribe las novedades de Secretaría..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-pink-400"></textarea><button onclick="guardarTraspaso('Citopatología - Secretaría', 'bit-nov-sec')" class="w-full bg-pink-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-pink-600">Registrar Traspaso</button></div>
+                            <div class="bg-pink-50 border border-pink-200 p-3 rounded-xl shadow-sm overflow-x-auto"><h3 class="font-bold text-pink-800 text-[10px] uppercase mb-2">Rutina Semanal Vigente</h3><div id="display-rutina-sec" class="bg-white border rounded"></div></div>
+                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos</h3><div id="historial-tras-sec" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- ================= AREA TENS (Calendario y Stock) ================= -->
+                    <div id="cito-area-tens" class="hidden flex-col h-full">
+                        <div class="bg-teal-700 text-white flex justify-between items-center px-4 py-2">
+                            <button onclick="cerrarAreaCito()" class="text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Volver al Tablero</button>
+                            <span class="text-xs font-bold uppercase">Área TENS</span>
+                        </div>
+                        <div class="p-4 flex-1 overflow-y-auto space-y-4">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-orange-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso de Turno TENS</h3><textarea id="bit-nov-tens" rows="4" placeholder="Novedades de Procesamiento..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-orange-400"></textarea><button onclick="guardarTraspaso('Citopatología - TENS', 'bit-nov-tens')" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg shadow-md hover:bg-orange-600">Registrar Traspaso</button></div>
+                            <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-200"><h3 class="font-bold text-gray-800 text-xs mb-2 border-b pb-1"><i class="fa-regular fa-calendar-check text-orange-500 mr-1"></i> Calendario de Tareas</h3><div id="grid-calendario" class="grid grid-cols-7 gap-1 text-center text-[10px]"></div></div>
+                            <div class="bg-orange-50 border border-orange-200 p-3 rounded-xl shadow-sm overflow-x-auto"><h3 class="font-bold text-orange-800 text-[10px] uppercase mb-2">Rutina Asignada</h3><div id="display-rutina-tens" class="bg-white border rounded"></div></div>
+                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos</h3><div id="historial-tras-tens" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- ================= TORRE DE CONTROL (TM) - CENTRALIZACIÓN TOTAL Y PDF ================= -->
+                    <div id="cito-area-tm" class="hidden flex-col h-full">
+                        <div class="bg-teal-700 text-white flex justify-between items-center px-4 py-2">
+                            <button onclick="cerrarAreaCito()" class="text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Volver al Tablero</button>
+                            <span class="text-xs font-bold uppercase">Torre de Control (TM) - Auditoría y PDF</span>
+                        </div>
+                        <div class="p-4 flex-1 overflow-y-auto space-y-4 bg-gray-50">
+                            
+                            <!-- Editor de Rutina Excel -->
                             <div class="bg-white p-3 rounded-xl shadow-sm border overflow-x-auto">
                                 <h3 class="font-bold text-teal-800 text-xs mb-2"><i class="fa-solid fa-table-cells"></i> Editor Rutina Semanal</h3>
                                 <table class="excel-table w-full text-[9px] bg-white">
                                     <thead>
-                                        <tr class="bg-gray-100 font-bold">
-                                            <th colspan="6">CALENDARIO SEMANAL <input type="text" id="rut-fechas" class="excel-input border-b border-gray-400 w-24" placeholder="DD/MM AL DD/MM"></th>
-                                            <th colspan="5">TURNO CITOLOGIA: <input type="text" id="rut-turno" class="excel-input border-b border-gray-400 w-24" placeholder="Nombre"></th>
-                                        </tr>
-                                        <tr class="bg-gray-200 font-bold">
-                                            <th style="width:30px;"></th>
-                                            <th colspan="2">LUNES</th><th colspan="2">MARTES</th><th colspan="2">MIERCOLES</th><th colspan="2">JUEVES</th><th colspan="2">VIERNES</th>
-                                        </tr>
+                                        <tr class="bg-gray-100 font-bold"><th colspan="6">CALENDARIO SEMANAL <input type="text" id="rut-fechas" class="excel-input border-b border-gray-400 w-24" placeholder="DD/MM"></th><th colspan="5">TURNO: <input type="text" id="rut-turno" class="excel-input border-b border-gray-400 w-24" placeholder="Nombre"></th></tr>
+                                        <tr class="bg-gray-200 font-bold"><th style="width:30px;"></th><th colspan="2">LUNES</th><th colspan="2">MARTES</th><th colspan="2">MIERCOLES</th><th colspan="2">JUEVES</th><th colspan="2">VIERNES</th></tr>
                                     </thead>
                                     <tbody id="rutina-tbody">
-                                        <tr>
-                                            <td class="font-bold bg-gray-100">FJ</td>
-                                            <td><input type="text" id="r-fj-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-fj-m-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-m-c" class="excel-input r-c-mar" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-fj-x-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-x-c" class="excel-input r-c-mie" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-fj-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-fj-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-fj-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-bold bg-gray-100">PA</td>
-                                            <td><input type="text" id="r-pa-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-pa-m-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-m-c" class="excel-input r-c-mar" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-pa-x-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-x-c" class="excel-input r-c-mie" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-pa-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-pa-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-pa-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-bold bg-gray-100">SA</td>
-                                            <td><input type="text" id="r-sa-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-sa-m-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-m-c" class="excel-input r-c-mar" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-sa-x-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-x-c" class="excel-input r-c-mie" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-sa-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-sa-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-sa-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-bold bg-gray-100">LE</td>
-                                            <td><input type="text" id="r-le-l-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-l-c" class="excel-input r-c-lun" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-le-m-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-m-c" class="excel-input r-c-mar" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-le-x-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-x-c" class="excel-input r-c-mie" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-le-j-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-j-c" class="excel-input r-c-jue" oninput="calcRutina()" placeholder="0"></td>
-                                            <td><input type="text" id="r-le-v-r" class="excel-input" placeholder="-"></td><td><input type="number" id="r-le-v-c" class="excel-input r-c-vie" oninput="calcRutina()" placeholder="0"></td>
-                                        </tr>
+                                        <tr><td class="font-bold bg-gray-100">FJ</td><td><input type="text" id="r-fj-l-r" class="excel-input"></td><td><input type="number" id="r-fj-l-c" class="excel-input r-c-lun" oninput="calcRutina()"></td><td><input type="text" id="r-fj-m-r" class="excel-input"></td><td><input type="number" id="r-fj-m-c" class="excel-input r-c-mar" oninput="calcRutina()"></td><td><input type="text" id="r-fj-x-r" class="excel-input"></td><td><input type="number" id="r-fj-x-c" class="excel-input r-c-mie" oninput="calcRutina()"></td><td><input type="text" id="r-fj-j-r" class="excel-input"></td><td><input type="number" id="r-fj-j-c" class="excel-input r-c-jue" oninput="calcRutina()"></td><td><input type="text" id="r-fj-v-r" class="excel-input"></td><td><input type="number" id="r-fj-v-c" class="excel-input r-c-vie" oninput="calcRutina()"></td></tr>
+                                        <tr><td class="font-bold bg-gray-100">PA</td><td><input type="text" id="r-pa-l-r" class="excel-input"></td><td><input type="number" id="r-pa-l-c" class="excel-input r-c-lun" oninput="calcRutina()"></td><td><input type="text" id="r-pa-m-r" class="excel-input"></td><td><input type="number" id="r-pa-m-c" class="excel-input r-c-mar" oninput="calcRutina()"></td><td><input type="text" id="r-pa-x-r" class="excel-input"></td><td><input type="number" id="r-pa-x-c" class="excel-input r-c-mie" oninput="calcRutina()"></td><td><input type="text" id="r-pa-j-r" class="excel-input"></td><td><input type="number" id="r-pa-j-c" class="excel-input r-c-jue" oninput="calcRutina()"></td><td><input type="text" id="r-pa-v-r" class="excel-input"></td><td><input type="number" id="r-pa-v-c" class="excel-input r-c-vie" oninput="calcRutina()"></td></tr>
+                                        <tr><td class="font-bold bg-gray-100">SA</td><td><input type="text" id="r-sa-l-r" class="excel-input"></td><td><input type="number" id="r-sa-l-c" class="excel-input r-c-lun" oninput="calcRutina()"></td><td><input type="text" id="r-sa-m-r" class="excel-input"></td><td><input type="number" id="r-sa-m-c" class="excel-input r-c-mar" oninput="calcRutina()"></td><td><input type="text" id="r-sa-x-r" class="excel-input"></td><td><input type="number" id="r-sa-x-c" class="excel-input r-c-mie" oninput="calcRutina()"></td><td><input type="text" id="r-sa-j-r" class="excel-input"></td><td><input type="number" id="r-sa-j-c" class="excel-input r-c-jue" oninput="calcRutina()"></td><td><input type="text" id="r-sa-v-r" class="excel-input"></td><td><input type="number" id="r-sa-v-c" class="excel-input r-c-vie" oninput="calcRutina()"></td></tr>
+                                        <tr><td class="font-bold bg-gray-100">LE</td><td><input type="text" id="r-le-l-r" class="excel-input"></td><td><input type="number" id="r-le-l-c" class="excel-input r-c-lun" oninput="calcRutina()"></td><td><input type="text" id="r-le-m-r" class="excel-input"></td><td><input type="number" id="r-le-m-c" class="excel-input r-c-mar" oninput="calcRutina()"></td><td><input type="text" id="r-le-x-r" class="excel-input"></td><td><input type="number" id="r-le-x-c" class="excel-input r-c-mie" oninput="calcRutina()"></td><td><input type="text" id="r-le-j-r" class="excel-input"></td><td><input type="number" id="r-le-j-c" class="excel-input r-c-jue" oninput="calcRutina()"></td><td><input type="text" id="r-le-v-r" class="excel-input"></td><td><input type="number" id="r-le-v-c" class="excel-input r-c-vie" oninput="calcRutina()"></td></tr>
                                     </tbody>
                                     <tfoot>
-                                        <tr class="font-bold bg-gray-100">
-                                            <td class="text-right pr-1">TOTAL:</td>
-                                            <td colspan="2" id="tot-lun">0</td>
-                                            <td colspan="2" id="tot-mar">0</td>
-                                            <td colspan="2" id="tot-mie">0</td>
-                                            <td colspan="2" id="tot-jue">0</td>
-                                            <td colspan="2" id="tot-vie">0</td>
-                                        </tr>
-                                        <tr class="bg-gray-200 font-bold"><td colspan="11" class="p-1">* RUTINA SUJETA A CAMBIOS</td></tr>
+                                        <tr class="font-bold bg-gray-100"><td class="text-right pr-1">TOTAL:</td><td colspan="2" id="tot-lun">0</td><td colspan="2" id="tot-mar">0</td><td colspan="2" id="tot-mie">0</td><td colspan="2" id="tot-jue">0</td><td colspan="2" id="tot-vie">0</td></tr>
                                     </tfoot>
                                 </table>
-                                <button onclick="guardarRutinaExcel()" class="w-full mt-3 bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Guardar y Publicar Rutina</button>
+                                <button onclick="guardarRutinaExcel()" class="w-full mt-3 bg-teal-600 text-white font-bold py-2 rounded-lg text-xs shadow-md">Guardar y Publicar Rutina</button>
                             </div>
-                        </div>
-                        
-                        <div id="view-tm-monitor" class="p-3 flex-1 overflow-y-auto hidden bg-gray-200 space-y-3">
-                            <!-- REGISTRO HISTÓRICO Y FILTRO POR FECHA EN TORRE DE CONTROL -->
-                            <div class="bg-white p-3 rounded-xl shadow-sm border">
-                                <div class="flex justify-between items-center mb-2">
-                                    <h3 class="font-bold text-teal-800 text-xs uppercase"><i class="fa-solid fa-calendar-days mr-1"></i> Consulta Diaria de Lotes</h3>
-                                    <input type="date" id="filtro-fecha-tm" onchange="renderBandejasTrazabilidad()" class="border rounded p-1 text-xs bg-gray-50">
-                                </div>
-                                <div id="historial-lotes-tm" class="space-y-2 max-h-48 overflow-y-auto"></div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="grid-monitor-vivo"></div>
-                        </div>
 
-                        <div id="view-tm-estadisticas" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border">
-                                <div class="flex justify-between items-center mb-3">
-                                    <h3 class="font-bold text-teal-800 text-sm">Estadística Laboratorio Citopatología</h3>
-                                    <button onclick="exportarEstadisticasPDF()" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> Exportar Reporte</button>
+                            <!-- 1. REPORTE ESTADÍSTICO MENSUAL -->
+                            <div class="bg-white p-4 rounded-xl shadow-sm border space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-bold text-teal-800 text-xs uppercase"><i class="fa-solid fa-chart-pie mr-1"></i> Estadísticas Mensuales y Productividad</h4>
+                                    <button onclick="exportarEstadisticasPDF()" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm hover:bg-red-100"><i class="fa-solid fa-file-pdf"></i> Descargar Reporte PDF</button>
                                 </div>
-                                <div id="contenedor-tabla-estadistica" class="overflow-x-auto text-[10px]"></div>
+                                <div id="contenedor-tabla-estadistica" class="overflow-x-auto text-[10px] border rounded p-2"></div>
                             </div>
-                        </div>
 
-                        <div id="view-tm-tras" class="p-4 flex-1 overflow-y-auto hidden space-y-4">
-                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><i class="fa-solid fa-clipboard-check text-4xl text-teal-200 mb-3"></i><h3 class="font-bold text-gray-700 mb-2">Traspaso Torre de Control (TM)</h3><textarea id="bit-nov-tm" rows="4" placeholder="Novedades del turno..." class="w-full border rounded-lg p-2 text-sm bg-gray-50 mb-3 focus:outline-none focus:border-teal-400"></textarea><button onclick="guardarTraspaso('Torre de Control - TM', 'bit-nov-tm')" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-md hover:bg-teal-700">Registrar Traspaso</button></div>
-                            <div class="bg-white p-3 rounded-xl shadow-sm border space-y-2">
-                                <h3 class="font-bold text-gray-600 text-[10px] uppercase">Exportar Traspasos por Fecha</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="text-[9px] font-bold text-gray-400">Desde:</label><input type="date" id="f-desde-tm" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
-                                    <div><label class="text-[9px] font-bold text-gray-400">Hasta:</label><input type="date" id="f-hasta-tm" class="w-full border rounded p-1 text-xs bg-gray-50"></div>
+                            <!-- 2. CENTRALIZACIÓN DE DESCARGA PDF DE TRASPASOS -->
+                            <div class="bg-white p-4 rounded-xl shadow-sm border space-y-3">
+                                <h4 class="font-bold text-gray-700 text-xs uppercase"><i class="fa-solid fa-clipboard-list mr-1"></i> Exportar Traspasos de Turno por Área</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div class="bg-pink-50 p-3 rounded-lg border border-pink-200 space-y-2">
+                                        <p class="text-[10px] font-bold text-pink-800 uppercase">Traspasos Secretaría</p>
+                                        <div class="grid grid-cols-2 gap-1 text-[9px]"><input type="date" id="f-desde-sec" class="border rounded p-1 bg-white"><input type="date" id="f-hasta-sec" class="border rounded p-1 bg-white"></div>
+                                        <button onclick="exportarPDFRango('Citopatología - Secretaría', 'f-desde-sec', 'f-hasta-sec')" class="w-full bg-gray-800 text-white font-bold py-1.5 rounded text-[10px] flex items-center justify-center gap-1"><i class="fa-solid fa-file-pdf text-red-400"></i> PDF Secretaría</button>
+                                    </div>
+                                    <div class="bg-orange-50 p-3 rounded-lg border border-orange-200 space-y-2">
+                                        <p class="text-[10px] font-bold text-orange-800 uppercase">Traspasos TENS</p>
+                                        <div class="grid grid-cols-2 gap-1 text-[9px]"><input type="date" id="f-desde-tens" class="border rounded p-1 bg-white"><input type="date" id="f-hasta-tens" class="border rounded p-1 bg-white"></div>
+                                        <button onclick="exportarPDFRango('Citopatología - TENS', 'f-desde-tens', 'f-hasta-tens')" class="w-full bg-gray-800 text-white font-bold py-1.5 rounded text-[10px] flex items-center justify-center gap-1"><i class="fa-solid fa-file-pdf text-red-400"></i> PDF TENS</button>
+                                    </div>
+                                    <div class="bg-teal-50 p-3 rounded-lg border border-teal-200 space-y-2">
+                                        <p class="text-[10px] font-bold text-teal-800 uppercase">Traspasos Control TM</p>
+                                        <div class="grid grid-cols-2 gap-1 text-[9px]"><input type="date" id="f-desde-tm" class="border rounded p-1 bg-white"><input type="date" id="f-hasta-tm" class="border rounded p-1 bg-white"></div>
+                                        <button onclick="exportarPDFRango('Torre de Control - TM', 'f-desde-tm', 'f-hasta-tm')" class="w-full bg-gray-800 text-white font-bold py-1.5 rounded text-[10px] flex items-center justify-center gap-1"><i class="fa-solid fa-file-pdf text-red-400"></i> PDF Control TM</button>
+                                    </div>
                                 </div>
-                                <button onclick="exportarPDFRango('Torre de Control - TM', 'f-desde-tm', 'f-hasta-tm')" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Descargar PDF Torre de Control</button>
                             </div>
-                            <h3 class="font-bold text-gray-500 text-[10px] uppercase border-b pb-1">Historial de Traspasos (Últimos 3)</h3>
-                            <div id="historial-tras-tm" class="space-y-2"></div>
+
+                            <!-- Registro de Traspaso TM local -->
+                            <div class="bg-white p-4 rounded-xl shadow-sm border text-center"><h3 class="font-bold text-gray-700 text-xs uppercase mb-2">Registrar Traspaso Torre de Control</h3><textarea id="bit-nov-tm" rows="3" placeholder="Novedades del turno..." class="w-full border rounded-lg p-2 text-xs bg-gray-50 mb-2 focus:outline-none focus:border-teal-400"></textarea><button onclick="guardarTraspaso('Torre de Control - TM', 'bit-nov-tm')" class="w-full bg-teal-600 text-white font-bold py-2 rounded-lg text-xs shadow-md">Registrar Traspaso TM</button></div>
                         </div>
                     </div>
 
@@ -327,7 +257,7 @@
     <div id="modal-anexos" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[85vh] overflow-y-auto"><div class="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white"><h2 class="font-bold text-lg text-gray-800"><i class="fa-solid fa-phone text-teal-600 mr-2"></i> Directorio</h2><button onclick="cerrarModal('modal-anexos')" class="text-gray-400 text-2xl">&times;</button></div><div class="space-y-4"><div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">Secretarías</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">VPH</span><span class="text-teal-700 font-bold">552826</span></div><div class="flex justify-between p-2 bg-gray-50 rounded border"><span class="font-bold text-sm">Citología</span><span class="text-teal-700 font-bold">552543</span></div></div></div></div></div></div>
     <div id="modal-notificaciones" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-start items-end p-4 pt-16"><div class="bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl max-h-[70vh] flex flex-col"><div class="flex justify-between items-center mb-3 border-b pb-2"><h2 class="font-bold"><i class="fa-regular fa-bell mr-1"></i> Notificaciones</h2><button onclick="cerrarModal('modal-notificaciones')" class="text-gray-400 text-xl">&times;</button></div><div class="flex text-xs font-bold mb-3 border-b"><button onclick="cambiarTabNotif('nuevas')" id="tab-notif-nuevas" class="flex-1 py-2 text-teal-700 border-b-2 border-teal-700">Pendientes</button><button onclick="cambiarTabNotif('leidas')" id="tab-notif-leidas" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent">Leídas</button></div><div id="lista-notificaciones" class="flex-1 overflow-y-auto space-y-2"></div></div></div>
     
-    <!-- MODAL INGRESO RUTINA MÚLTIPLE (4 Cuadros para Tecnólogos) -->
+    <!-- MODAL INGRESO RUTINA MÚLTIPLE -->
     <div id="modal-ingreso-rutina" class="fixed inset-0 bg-black/70 z-50 hidden flex-col justify-center items-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-2 mb-3"><h2 class="font-bold text-teal-800 text-base">Asignar Nueva Rutina Diaria</h2><button onclick="cerrarModal('modal-ingreso-rutina')" class="text-gray-400 text-xl">&times;</button></div>
@@ -338,7 +268,7 @@
                             <div class="bg-gray-50 p-2 rounded border">
                                 <label class="text-[10px] font-bold text-gray-600 uppercase mb-1 block">Tecnólogo: ${tm}</label>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" id="r-${tm}-r" placeholder="Rango Folios (Ej: 17068-17097)" class="border rounded p-1.5 text-xs bg-white">
+                                    <input type="text" id="r-${tm}-r" placeholder="Rango Folios (Ej: 1-30)" class="border rounded p-1.5 text-xs bg-white">
                                     <input type="number" id="r-${tm}-c" placeholder="Cantidad" class="border rounded p-1.5 text-xs bg-white r-calc" oninput="sumarTotalRutina()">
                                 </div>
                             </div>
@@ -444,7 +374,6 @@
         function entrarApp() {
             document.getElementById('vista-login').classList.replace('pantalla-activa', 'pantalla-oculta'); document.getElementById('app-principal').classList.replace('pantalla-oculta', 'pantalla-activa');
             if(['Supervisión', 'Encargado Área'].includes(usuarioActual.rol)) { document.getElementById('seccion-admin').style.display='block'; document.getElementById('btn-flotante-acta').style.display='flex'; }
-            if(!['Supervisión', 'Encargado Área', 'Tecnólogo Médico'].includes(usuarioActual.rol)) { document.getElementById('btn-area-tm').style.display='none'; }
             actualizarUI();
         }
 
@@ -540,25 +469,28 @@
         }
 
         // --- ESTRUCTURA CITODIAGNÓSTICO ---
-        function abrirUnidad(u) { document.getElementById('secciones-lista-unidades').classList.replace('block', 'hidden'); document.getElementById('secciones-citodiagnostico').classList.replace('hidden', 'flex'); document.getElementById('cito-menu-areas').style.display='flex'; ['cito-area-sec','cito-area-tens','cito-area-tm'].forEach(id => document.getElementById(id).style.display='none'); }
-        function cerrarUnidad() { document.getElementById('secciones-citodiagnostico').classList.replace('flex', 'hidden'); document.getElementById('secciones-lista-unidades').classList.replace('hidden', 'block'); }
+        function abrirUnidad(u) { 
+            document.getElementById('secciones-lista-unidades').classList.replace('block', 'hidden'); 
+            document.getElementById('secciones-citodiagnostico').classList.replace('hidden', 'flex'); 
+            cerrarAreaCito();
+        }
+        function cerrarUnidad() { 
+            document.getElementById('secciones-citodiagnostico').classList.replace('flex', 'hidden'); 
+            document.getElementById('secciones-lista-unidades').classList.replace('hidden', 'block'); 
+        }
         
         function entrarAreaCito(area) {
-            document.getElementById('cito-menu-areas').style.display = 'none'; document.getElementById('cito-area-' + area).style.display = 'flex';
-            if(area==='sec') switchTabCito('sec', 'reg'); 
-            if(area==='tens') { switchTabCito('tens', 'proc'); setTimeout(() => generarCalendarioGrid(), 50); } 
-            if(area==='tm') { switchTabCito('tm', 'rutina'); renderMonitorVivo(); renderEstadisticasMensuales(); }
+            // Ocultar tablero principal y mostrar el área seleccionada
+            document.querySelector('#secciones-citodiagnostico > div.p-4.flex-1').style.display = 'none';
+            ['cito-area-sec', 'cito-area-tens', 'cito-area-tm'].forEach(id => document.getElementById(id).style.display = 'none');
+            document.getElementById('cito-area-' + area).style.display = 'flex';
+            if(area === 'tm') { renderEstadisticasMensuales(); }
         }
-        function switchTabCito(area, tab) {
-            let tabsSec = ['reg','tras'], tabsTens = ['proc','tras'], tabsTm = ['rutina','monitor','estadisticas','tras']; let arr = area==='sec'?tabsSec:area==='tens'?tabsTens:tabsTm; let colores = { sec: 'pink', tens: 'orange', tm: 'teal' }; let col = colores[area];
-            arr.forEach(t => {
-                let btn = document.getElementById(`tab-${area}-${t}`); let view = document.getElementById(`view-${area}-${t}`);
-                if(t===tab) { btn.classList.add(`border-${col}-500`, `text-${col}-600`); btn.classList.remove('border-transparent', 'text-gray-500'); view.style.display='block'; }
-                else { btn.classList.remove(`border-${col}-500`, `text-${col}-600`); btn.classList.add('border-transparent', 'text-gray-500'); view.style.display='none'; }
-            });
-            if(area==='tens' && tab==='proc') { setTimeout(() => generarCalendarioGrid(), 50); }
-            if(area==='tm' && tab==='monitor') renderMonitorVivo();
-            if(area==='tm' && tab==='estadisticas') renderEstadisticasMensuales();
+
+        function cerrarAreaCito() {
+            // Mostrar tablero principal y ocultar áreas específicas
+            document.querySelector('#secciones-citodiagnostico > div.p-4.flex-1').style.display = 'block';
+            ['cito-area-sec', 'cito-area-tens', 'cito-area-tm'].forEach(id => document.getElementById(id).style.display = 'none');
         }
 
         // --- FLUJO KANBAN DE MUESTRAS (Múltiples Tecnólogos) ---
@@ -582,7 +514,7 @@
                         tm: tm,
                         rango: rango,
                         cantidad: cant,
-                        estado: 'secretaria', // secretaria -> tens -> tm -> final
+                        estado: 'secretaria',
                         trazabilidad: [`Creado por Secretaría (${usuarioActual.n}) el ${new Date().toLocaleTimeString('es-CL')}`],
                         negativos: 0,
                         positivos: 0,
@@ -596,7 +528,6 @@
 
             localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
             
-            // Limpiar inputs
             ['FJ', 'PA', 'SA', 'LE'].forEach(tm => {
                 document.getElementById(`r-${tm}-r`).value = '';
                 document.getElementById(`r-${tm}-c`).value = '';
@@ -650,13 +581,12 @@
         }
 
         function renderKanbanFlujo() {
-            ['kanban-sec', 'kanban-tens', 'kanban-tm', 'kanban-fin', 'kanban-sec-t', 'kanban-tens-t', 'kanban-tm-t', 'kanban-fin-t'].forEach(id => {
+            ['kanban-sec', 'kanban-tens', 'kanban-tm', 'kanban-fin'].forEach(id => {
                 let el = document.getElementById(id); if(el) el.innerHTML = '';
             });
 
             lotesTrazabilidad.forEach(l => {
                 let colTarget = l.estado === 'secretaria' ? 'kanban-sec' : (l.estado === 'tens' ? 'kanban-tens' : (l.estado === 'tm' ? 'kanban-tm' : 'kanban-fin'));
-                let colTargetT = l.estado === 'secretaria' ? 'kanban-sec-t' : (l.estado === 'tens' ? 'kanban-tens-t' : (l.estado === 'tm' ? 'kanban-tm-t' : 'kanban-fin-t'));
 
                 let btnAccion = '';
                 if(l.estado === 'secretaria') {
@@ -676,7 +606,6 @@
                 </div>`;
 
                 let el1 = document.getElementById(colTarget); if(el1) el1.innerHTML += cardHtml;
-                let el2 = document.getElementById(colTargetT); if(el2) el2.innerHTML += cardHtml;
             });
             renderHistorialLotesTM();
         }
@@ -772,7 +701,8 @@
             let dias = ['l','m','x','j','v']; let inputs = ['fj','pa','sa','le'];
             dias.forEach(d => {
                 let sum = 0; inputs.forEach(i => { let val = parseInt(document.getElementById(`r-${i}-${d}-c`).value) || 0; sum += val; });
-                document.getElementById(`tot-${d=== 'l'?'lun':d==='m'?'mar':d==='x'?'mie':d==='j'?'jue':'vie'}`).innerText = sum;
+                let elTot = document.getElementById(`tot-${d=== 'l'?'lun':d==='m'?'mar':d==='x'?'mie':d==='j'?'jue':'vie'}`);
+                if(elTot) elTot.innerText = sum;
             });
         }
 
@@ -791,7 +721,7 @@
                 renderHtml += `</tr>`;
             });
             
-            renderHtml += `</tbody><tfoot><tr class="font-bold bg-gray-100"><td class="border border-gray-800 text-right pr-1">TOTAL:</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-lun').innerText}</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-mar').innerText}</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-mie').innerText}</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-jue').innerText}</td><td colspan="2" class="border border-gray-800">${document.getElementById('tot-vie').innerText}</td></tr><tr class="bg-gray-200 font-bold"><td colspan="11" class="border border-gray-800 p-1">* RUTINA SUJETA A CAMBIOS</td></tr></tfoot></table></div>`;
+            renderHtml += `</tbody></table></div>`;
 
             let nueva = { id: Date.now(), fechaCarga: new Date().toLocaleString('es-CL'), autor: usuarioActual, html: renderHtml };
             rutinasData.unshift(nueva); localStorage.setItem('mvrg_rutinas', JSON.stringify(rutinasData));
@@ -803,12 +733,12 @@
         function renderRutinas() {
             if(rutinasData.length > 0) {
                 let actualHtml = `<p class="text-[9px] text-gray-500 mb-1 text-right">Actualizada: ${rutinasData[0].fechaCarga}</p>${rutinasData[0].html}`;
-                document.getElementById('display-rutina-sec').innerHTML = actualHtml; 
-                document.getElementById('display-rutina-tens').innerHTML = actualHtml;
+                let elSec = document.getElementById('display-rutina-sec'); if(elSec) elSec.innerHTML = actualHtml; 
+                let elTens = document.getElementById('display-rutina-tens'); if(elTens) elTens.innerHTML = actualHtml;
             } else {
                 let msg = '<p class="text-xs text-gray-400">Sin rutina vigente.</p>';
-                document.getElementById('display-rutina-sec').innerHTML = msg;
-                document.getElementById('display-rutina-tens').innerHTML = msg;
+                let elSec = document.getElementById('display-rutina-sec'); if(elSec) elSec.innerHTML = msg;
+                let elTens = document.getElementById('display-rutina-tens'); if(elTens) elTens.innerHTML = msg;
             }
         }
 
@@ -823,20 +753,18 @@
 
         function renderHistorialTraspasos() {
             const tsSec = bitacoraData.filter(b => b.unidad === 'Citopatología - Secretaría');
-            const wU = document.getElementById('widget-ultimo-traspaso-sec');
-            if(tsSec.length > 0) { wU.innerHTML = `<p class="text-[10px] text-pink-700 font-bold"><i class="fa-regular fa-clock"></i> ${tsSec[0].fecha} - ${tsSec[0].autor.n} ${tsSec[0].autor.a}</p><p class="text-xs text-gray-800 mt-1">${tsSec[0].nov}</p>`; } 
-            else { wU.innerHTML = `<p class="text-xs text-gray-400">Sin registros.</p>`; }
-
-            const lS = document.getElementById('historial-tras-sec'); lS.innerHTML = '';
-            tsSec.slice(0, 10).forEach(b => { lS.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-pink-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
+            const lS = document.getElementById('historial-tras-sec'); 
+            if(lS) {
+                lS.innerHTML = '';
+                tsSec.slice(0, 10).forEach(b => { lS.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-pink-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
+            }
 
             const tsTens = bitacoraData.filter(b => b.unidad === 'Citopatología - TENS');
-            const lT = document.getElementById('historial-tras-tens'); lT.innerHTML = '';
-            tsTens.slice(0, 10).forEach(b => { lT.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-orange-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
-
-            const tsTm = bitacoraData.filter(b => b.unidad === 'Torre de Control - TM');
-            const lTM = document.getElementById('historial-tras-tm'); lTM.innerHTML = '';
-            tsTm.slice(0, 3).forEach(b => { lTM.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-teal-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
+            const lT = document.getElementById('historial-tras-tens'); 
+            if(lT) {
+                lT.innerHTML = '';
+                tsTens.slice(0, 10).forEach(b => { lT.innerHTML += `<div class="bg-gray-50 p-2 border rounded text-xs"><b class="text-orange-700">${b.fecha} - ${b.autor.n}:</b> <span class="whitespace-pre-wrap">${b.nov}</span></div>`; });
+            }
         }
 
         function exportarPDFRango(unidadFija, idDesde, idHasta) {
@@ -911,16 +839,10 @@
                 localStorage.setItem('mvrg_cal', JSON.stringify(calendarioData)); generarCalendarioGrid(); sumarStat('alquimista'); alert("¡Stock y Tarea actualizados!");
             }
         }
-        function renderMonitorVivo() {
-            let g = document.getElementById('grid-monitor-vivo'); if(!g) return; g.innerHTML = '';
-            let dHoy = new Date().getDate(); let evHoy = calendarioData[`dia_${dHoy}`];
-            let txtCal = evHoy ? (evHoy.estado==='completado'? `<span class="text-green-600 font-bold"><i class="fa-solid fa-check"></i> ${evHoy.tipo} (Por ${evHoy.autor})</span>` : `<span class="text-yellow-600 font-bold"><i class="fa-solid fa-clock"></i> Pendiente: ${evHoy.tipo}</span>`) : `<span class="text-gray-400">Sin tareas hoy.</span>`;
-            g.innerHTML = `<div class="bg-white p-3 rounded-xl shadow-sm border border-teal-100"><p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Calendario TENS (Hoy ${dHoy})</p><div class="text-xs p-2 bg-gray-50 rounded border">${txtCal}</div></div>`;
-        }
 
         // --- EQUIPO ---
         function renderEquipo() {
-            const c = document.getElementById('contenedor-equipo'); c.innerHTML = ''; const roles = ['Supervisión', 'Encargado Área', 'Tecnólogo Médico', 'Técnico (TENS)', 'Secretaría'];
+            const c = document.getElementById('contenedor-equipo'); if(!c) return; c.innerHTML = ''; const roles = ['Supervisión', 'Encargado Área', 'Tecnólogo Médico', 'Técnico (TENS)', 'Secretaría'];
             roles.forEach(rolB => {
                 let usrs = Object.values(usuariosDB).filter(u => u.rol === rolB);
                 if(usrs.length > 0) {
@@ -953,7 +875,7 @@
 
         // --- ACTAS ---
         function abrirModalNuevaActa() {
-            const c = document.getElementById('contenedor-asistentes-acta'); c.innerHTML = '';
+            const c = document.getElementById('contenedor-asistentes-acta'); if(!c) return; c.innerHTML = '';
             for(const [id, u] of Object.entries(usuariosDB)) { c.innerHTML += `<label class="flex items-center gap-3 p-2 bg-gray-50 border rounded cursor-pointer hover:bg-teal-50"><input type="checkbox" value="${id}" class="chk-asistente w-4 h-4 text-teal-600 rounded"><div><p class="text-xs font-bold text-gray-800">${u.n} ${u.a}</p><p class="text-[9px] text-gray-500 uppercase">${u.rol}</p></div></label>`; }
             document.getElementById('acta-titulo').value = ''; document.getElementById('acta-detalle').value = ''; abrirModal('modal-nueva-acta');
         }
@@ -975,9 +897,7 @@
         }
         const cvsF = document.getElementById('canvas-firma'); const ctxF = cvsF ? cvsF.getContext('2d') : null; let isD = false; let actaFActual = null;
         function initCanvasF() { if(!cvsF) return; const r = cvsF.parentElement.getBoundingClientRect(); if(r.width>0) { cvsF.width = r.width; cvsF.height = r.height; ctxF.lineWidth=3; ctxF.lineCap='round'; ctxF.strokeStyle='#0f766e'; } }
-        if(cvsF) {
-            cvsF.addEventListener('mousedown', e=>{isD=true;drw(e);}); cvsF.addEventListener('mouseup', ()=>{isD=false;ctxF.beginPath();}); cvsF.addEventListener('mousemove', drw);
-        }
+        if(cvsF) { cvsF.addEventListener('mousedown', e=>{isD=true;drw(e);}); cvsF.addEventListener('mouseup', ()=>{isD=false;ctxF.beginPath();}); cvsF.addEventListener('mousemove', drw); }
         function drw(e) { if(!isD)return; const r=cvsF.getBoundingClientRect(); ctxF.lineTo(e.clientX-r.left, e.clientY-r.top); ctxF.stroke(); ctxF.beginPath(); ctxF.moveTo(e.clientX-r.left, e.clientY-r.top); }
         function limpiarFirmaCanvas() { if(ctxF && cvsF) ctxF.clearRect(0,0,cvsF.width,cvsF.height); }
         function abrirModalFirma(id) { actaFActual=id; abrirModal('modal-firma-acta'); setTimeout(()=>{initCanvasF();limpiarFirmaCanvas();}, 150); }
@@ -1010,14 +930,12 @@
         function cambiarSubForo(f) { 
             foroActual = f; 
             ['Avisos', 'Offtopic', 'Ventas', 'Eventos'].forEach(x => { 
-                const t = document.getElementById('tab-'+x); 
-                if(!t) return;
+                const t = document.getElementById('tab-'+x); if(!t) return;
                 if(x===f){if(x==='Eventos')t.classList.replace('border-transparent','border-purple-600');else{t.classList.replace('text-gray-500','text-teal-700');t.classList.replace('border-transparent','border-teal-700');}} 
                 else{if(x==='Eventos')t.classList.replace('border-purple-600','border-transparent');else{t.classList.replace('text-teal-700','text-gray-500');t.classList.replace('border-teal-700','border-transparent');}} 
             }); 
             let cP = document.getElementById('contenedor-posts'), cE = document.getElementById('contenedor-eventos');
-            if(cP) cP.style.display = f==='Eventos'?'none':'block'; 
-            if(cE) cE.style.display = f==='Eventos'?'block':'none'; 
+            if(cP) cP.style.display = f==='Eventos'?'none':'block'; if(cE) cE.style.display = f==='Eventos'?'block':'none'; 
             evaluarPermisosForo(); renderPosts(); 
         }
         function evaluarPermisosForo() { const b = document.getElementById('btn-abrir-modal-post'), txt = document.getElementById('txt-btn-publicar'); if(!b) return; if(foroActual==='Avisos'){if(usuarioActual.rol==='Supervisión'||usuarioActual.rol==='Encargado Área'){b.style.display='flex';txt.innerText='Publicar Aviso';}else b.style.display='none';} else if(foroActual==='Eventos'){b.style.display='flex';txt.innerText='Agendar Evento';} else{b.style.display='flex';txt.innerText='Crear Publicación';} }
