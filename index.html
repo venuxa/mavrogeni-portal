@@ -121,15 +121,6 @@
                             </div>
                         </div>
 
-                        <!-- ARCHIVO DE RUTINAS (Tarjetas pequeñas con trazabilidad) -->
-                        <div class="bg-white p-4 rounded-xl shadow-sm border">
-                            <div class="flex justify-between items-center mb-3">
-                                <h3 class="font-bold text-gray-700 text-xs uppercase"><i class="fa-solid fa-box-archive mr-1"></i> Archivo e Historial de Rutinas</h3>
-                                <input type="date" id="filtro-fecha-tm" onchange="renderHistorialLotesTM()" class="border rounded p-1 text-xs bg-gray-50">
-                            </div>
-                            <div id="historial-lotes-tm" class="space-y-2 max-h-48 overflow-y-auto"></div>
-                        </div>
-
                         <!-- ACCESOS DE TRABAJO (Áreas inferiores) -->
                         <div class="grid grid-cols-3 gap-3 mt-4">
                             <button onclick="entrarAreaCito('sec')" class="bg-white p-3 rounded-xl shadow-sm border text-center hover:border-pink-300"><i class="fa-solid fa-keyboard text-lg text-pink-500 mb-1"></i><p class="text-[10px] font-bold text-gray-700">Área Secretaría</p></button>
@@ -201,6 +192,15 @@
                                     <button onclick="exportarEstadisticasPDF()" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm hover:bg-red-100"><i class="fa-solid fa-file-pdf"></i> Descargar PDF</button>
                                 </div>
                                 <div id="contenedor-tabla-estadistica" class="overflow-x-auto text-[10px] border rounded p-2"></div>
+                            </div>
+
+                            <!-- ARCHIVO DE RUTINAS (Tarjetas pequeñas con trazabilidad movido aquí) -->
+                            <div class="bg-white p-4 rounded-xl shadow-sm border">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-bold text-gray-700 text-xs uppercase"><i class="fa-solid fa-box-archive mr-1"></i> Archivo e Historial de Rutinas</h3>
+                                    <input type="date" id="filtro-fecha-tm" onchange="renderHistorialLotesTM()" class="border rounded p-1 text-xs bg-gray-50">
+                                </div>
+                                <div id="historial-lotes-tm" class="space-y-2 max-h-48 overflow-y-auto"></div>
                             </div>
 
                             <!-- Centralización Descargas PDF Traspasos -->
@@ -504,7 +504,6 @@
             
             document.getElementById('tm-lote-info').innerText = `${infoTexto} | Total: ${total}`;
             
-            // Si ya tiene datos (es una edición), los cargamos. Si no, precargamos el total en negativos
             document.getElementById('tm-neg').value = l.negativos !== undefined && l.negativos !== 0 ? l.negativos : total;
             document.getElementById('tm-pos').value = l.positivos !== undefined ? l.positivos : 0;
             if(l.patologo) {
@@ -543,6 +542,19 @@
             }
         }
 
+        // CONFIRMAR TRASPASO EN CITOWEB Y ARCHIVAR LA TARJETA
+        function confirmarCitoweb(id) {
+            let l = lotesTrazabilidad.find(x => x.id === id);
+            if(l) {
+                if(confirm("¿Confirmar traspaso a Citoweb y archivar rutina?")) {
+                    l.estado = 'archivado';
+                    l.trazabilidad.push(`Traspaso a Citoweb confirmado por ${usuarioActual.n} el ${new Date().toLocaleTimeString('es-CL')}. Lote archivado.`);
+                    localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
+                    renderKanbanFlujo();
+                }
+            }
+        }
+
         // FUNCIÓN CENTRAL PARA ABRIR VENTANA EMERGENTE DE TRAZABILIDAD
         function abrirTrazabilidad(id) {
             let l = lotesTrazabilidad.find(x => x.id == id);
@@ -562,6 +574,8 @@
             });
 
             lotesTrazabilidad.forEach(l => {
+                if(l.estado === 'archivado') return; // SALTA LAS TARJETAS ARCHIVADAS (YA NO SE VEN EN EL TABLERO)
+
                 let colTarget = l.estado === 'secretaria' ? 'kanban-sec' : (l.estado === 'tens' ? 'kanban-tens' : (l.estado === 'tm' ? 'kanban-tm' : 'kanban-fin'));
 
                 let btnAccion = '';
@@ -576,7 +590,8 @@
                     <div class="bg-purple-50 p-1.5 rounded text-center border border-purple-100 mt-1">
                         <span class="text-[9px] text-purple-800 font-bold block"><i class="fa-solid fa-stethoscope"></i> ${l.patologo}</span>
                         <button onclick="abrirModalValidarTM(${l.id})" class="text-[8px] text-teal-600 underline mt-1 font-bold hover:text-teal-800 transition"><i class="fa-solid fa-pen"></i> Editar Datos</button>
-                    </div>`;
+                    </div>
+                    <button onclick="confirmarCitoweb(${l.id})" class="mt-1 bg-blue-600 text-white px-2 py-1.5 rounded text-[10px] font-bold w-full shadow-sm hover:bg-blue-700 transition"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Confirmar traspaso Citoweb</button>`;
                 }
 
                 let infoHtml = '';
@@ -616,13 +631,14 @@
             filtrados.forEach(l => {
                 let infoTexto = l.detalle ? l.detalle.map(d => `${d.tm} (${d.rango})`).join(' | ') : `${l.tm} (${l.rango})`;
                 let total = l.detalle ? l.cantidadTotal : l.cantidad;
+                let colorEstado = l.estado === 'archivado' ? 'text-gray-500' : 'text-teal-600';
 
                 container.innerHTML += `
                 <div class="bg-gray-50 p-2 rounded border text-xs flex justify-between items-center mb-1 hover:bg-teal-50 transition">
                     <div>
                         <b>${l.fecha} | Rutina Diaria Centralizada</b><br>
                         <span class="text-[9px] text-gray-600">${infoTexto} <b class="text-teal-700">(Total: ${total})</b></span><br>
-                        <span class="text-[9px] text-gray-500">Estado: <span class="uppercase font-bold text-teal-600">${l.estado}</span></span>
+                        <span class="text-[9px] text-gray-500">Estado: <span class="uppercase font-bold ${colorEstado}">${l.estado}</span></span>
                     </div>
                     <button onclick="abrirTrazabilidad(${l.id})" class="bg-white text-teal-700 border border-teal-200 px-3 py-2 rounded-lg text-[10px] font-bold hover:bg-teal-100 shadow-sm transition"><i class="fa-solid fa-clock mr-1"></i> Trazabilidad</button>
                 </div>`;
@@ -637,7 +653,7 @@
             let patologosTotales = { 'DR BENITEZ': {neg:0, pos:0}, 'DRA GARCIA': {neg:0, pos:0}, 'DR VIDAL': {neg:0, pos:0}, 'DR CERON': {neg:0, pos:0}, 'DRA BELTRAN': {neg:0, pos:0}, 'DRA ALFARO': {neg:0, pos:0}, 'DR ROJAS': {neg:0, pos:0} };
             let tmTotales = { 'FERNANDA JARA': 0, 'PAULINA AGUILAR': 0, 'CAMILA ARAVENA': 0, 'STEPHANIE ACEVEDO': 0 };
 
-            lotesTrazabilidad.filter(l => l.estado === 'final').forEach(l => {
+            lotesTrazabilidad.filter(l => l.estado === 'final' || l.estado === 'archivado').forEach(l => {
                 if(patologosTotales[l.patologo]) {
                     patologosTotales[l.patologo].neg += parseInt(l.negativos) || 0;
                     patologosTotales[l.patologo].pos += parseInt(l.positivos) || 0;
