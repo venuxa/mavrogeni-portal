@@ -991,6 +991,209 @@
         function irDestinoNotificacion(id) { const n = notificaciones.find(x=>x.id===id); if(n) { n.leida = true; localStorage.setItem('mvrg_notif', JSON.stringify(notificaciones)); cerrarModal('modal-notificaciones'); if(n.targetV) cambiarVista(n.targetV); if(n.targetS) { cambiarSubForo(n.targetS); } actualizarCampana(); } }
 
         window.onload = function() { initData(); renderAdminUsuarios(); let s = localStorage.getItem('mvrg_sesion'); if(s) { let st = JSON.parse(s); if(usuariosDB[st.id]) { usuarioActual = { ...st, ...usuariosDB[st.id] }; entrarApp(); } } };
+    // 1. MODIFICAMOS LA CREACIÓN PARA GUARDAR TODO EN UN SOLO LOTE
+function guardarRutinaMultiple() {
+    let fechaHoy = new Date().toISOString().split('T')[0];
+    let detalleRutina = [];
+    let totalDia = 0;
+
+    // Agrupamos todos los inputs llenos
+    ['FJ', 'PA', 'SA', 'LE'].forEach(tm => {
+        let rango = document.getElementById(`r-${tm}-r`).value.trim();
+        let cant = parseInt(document.getElementById(`r-${tm}-c`).value) || 0;
+        if(cant > 0 && rango) {
+            detalleRutina.push({ tm: tm, rango: rango, cant: cant });
+            totalDia += cant;
+        }
+    });
+
+    if(detalleRutina.length === 0) { alert("Ingresa al menos un rango y cantidad para un tecnólogo."); return; }
+
+    // Creamos una única tarjeta con el detalle agrupado
+    lotesTrazabilidad.unshift({
+        id: Date.now() + Math.random(),
+        fecha: fechaHoy,
+        detalle: detalleRutina, // Guardamos el array agrupado
+        cantidadTotal: totalDia,
+        estado: 'secretaria',
+        trazabilidad: [`Rutina consolidada creada por Secretaría (${usuarioActual.n}) el ${new Date().toLocaleTimeString('es-CL')}`],
+        negativos: 0,
+        positivos: 0,
+        patologo: ''
+    });
+
+    localStorage.setItem('mvrg_lotes', JSON.stringify(lotesTrazabilidad));
+    
+    // Limpiamos los inputs
+    ['FJ', 'PA', 'SA', 'LE'].forEach(tm => {
+        document.getElementById(`r-${tm}-r`).value = '';
+        document.getElementById(`r-${tm}-c`).value = '';
+    });
+    document.getElementById('rutina-total').innerText = '0';
+
+    cerrarModal('modal-ingreso-rutina');
+    renderKanbanFlujo();
+    alert("Rutina diaria agrupada y enviada a TENS.");
+}
+
+// 2. MODIFICAMOS EL DIBUJO DEL KANBAN PARA MOSTRAR LA TARJETA AGRUPADA
+function renderKanbanFlujo() {
+    ['kanban-sec', 'kanban-tens', 'kanban-tm', 'kanban-fin'].forEach(id => {
+        let el = document.getElementById(id); if(el) el.innerHTML = '';
+    });
+
+    lotesTrazabilidad.forEach(l => {
+        let colTarget = l.estado === 'secretaria' ? 'kanban-sec' : (l.estado === 'tens' ? 'kanban-tens' : (l.estado === 'tm' ? 'kanban-tm' : 'kanban-fin'));
+
+        let btnAccion = '';
+        if(l.estado === 'secretaria') {
+            btnAccion = `<button onclick="tensAceptarLote(${l.id})" class="mt-1 bg-orange-500 text-white px-2 py-1 rounded text-[9px] font-bold w-full shadow-sm hover:bg-orange-600">Aceptar TENS</button>`;
+        } else if(l.estado === 'tens') {
+            btnAccion = `<button onclick="abrirModalValidarTM(${l.id})" class="mt-1 bg-teal-600 text-white px-2 py-1 rounded text-[9px] font-bold w-full shadow-sm hover:bg-teal-700">Validar TM</button>`;
+        } else if(l.estado === 'final') {
+            btnAccion = `<span class="text-[9px] text-purple-700 font-bold block mt-1 text-center bg-purple-50 py-1 rounded"><i class="fa-solid fa-stethoscope"></i> ${l.patologo}</span>`;
+        }
+
+        // Compatibilidad entre lotes nuevos (agrupados) y lotes antiguos
+        let infoHtml = '';
+        let totalMuestras = 0;
+        
+        if (l.detalle) {
+            infoHtml = l.detalle.map(d => `<div class="flex justify-between border-b border-gray-100 pb-0.5 mb-0.5"><b>${d.tm}</b> <span>${d.rango} <span class="text-gray-400">(${d.cant})</span></span></div>`).join('');
+            totalMuestras = l.cantidadTotal;
+        } else {
+            infoHtml = `<div class="flex justify-between border-b border-gray-100 pb-0.5 mb-0.5"><b>${l.tm}</b> <span>${l.rango} <span class="text-gray-400">(${l.cantidad})</span></span></div>`;
+            totalMuestras = l.cantidad;
+        }
+
+        let cardHtml = `
+        <div class="bg-white p-2.5 rounded-xl border border-gray-200 shadow-sm mb-2">
+            <p class="font-bold text-gray-800 text-[10px] mb-1">Rutina: ${l.fecha}</p>
+            <div class="text-[9px] text-gray-600 mb-1">${infoHtml}</div>
+            <p class="text-gray-800 text-[9px] font-bold mb-2">Total Día: ${totalMuestras} muestras</p>
+            ${btnAccion}
+            <button onclick="alert('TRAZABILIDAD DEL LOTE:\\n\\n- ' + ${JSON.stringify(l.trazabilidad)}.join('\\n- '))" class="text-[9px] text-teal-600 font-bold underline block mt-2 text-center w-full">Ver trazabilidad &rarr;</button>
+        </div>`;
+
+        let el1 = document.getElementById(colTarget); if(el1) el1.innerHTML += cardHtml;
+    });
+    renderHistorialLotesTM();
+}
+
+// 3. MODIFICAMOS EL MODAL DE VALIDACIÓN TM PARA QUE RECONOZCA EL TOTAL
+function abrirModalValidarTM(id) {
+    document.getElementById('tm-lote-id').value = id;
+    let l = lotesTrazabilidad.find(x => x.id === id);
+    
+    let infoTexto = l.detalle ? `Rutina Agrupada | Fecha: ${l.fecha}` : `TM: ${l.tm} | Rango: ${l.rango}`;
+    let total = l.detalle ? l.cantidadTotal : l.cantidad;
+    
+    document.getElementById('tm-lote-info').innerText = `${infoTexto} | Total: ${total}`;
+    document.getElementById('tm-neg').value = total;
+    document.getElementById('tm-pos').value = 0;
+    abrirModal('modal-tm-validacion');
+}
+
+// 4. MODIFICAMOS EL ARCHIVO HISTÓRICO PARA MOSTRAR EL RESUMEN AGRUPADO
+function renderHistorialLotesTM() {
+    let container = document.getElementById('historial-lotes-tm');
+    if(!container) return;
+    let fechaFiltro = document.getElementById('filtro-fecha-tm').value;
+    container.innerHTML = '';
+    
+    let filtrados = lotesTrazabilidad.filter(l => !fechaFiltro || l.fecha === fechaFiltro);
+    if(filtrados.length === 0) { container.innerHTML = '<p class="text-[10px] text-gray-400 text-center py-2">No hay lotes para esta fecha.</p>'; return; }
+
+    filtrados.forEach(l => {
+        let infoTexto = l.detalle ? l.detalle.map(d => `${d.tm} (${d.rango})`).join(' | ') : `${l.tm} (${l.rango})`;
+        let total = l.detalle ? l.cantidadTotal : l.cantidad;
+
+        container.innerHTML += `
+        <div class="bg-gray-50 p-2 rounded border text-xs flex justify-between items-center mb-1">
+            <div>
+                <b>${l.fecha} | Rutina Diaria Centralizada</b><br>
+                <span class="text-[9px] text-gray-600">${infoTexto} <b class="text-teal-700">(Total: ${total})</b></span><br>
+                <span class="text-[9px] text-gray-500">Estado: <span class="uppercase font-bold">${l.estado}</span></span>
+            </div>
+            <button onclick="alert('TRAZABILIDAD:\\n\\n- ' + ${JSON.stringify(l.trazabilidad)}.join('\\n- '))" class="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-2 rounded text-[10px] font-bold hover:bg-teal-100"><i class="fa-solid fa-clock"></i></button>
+        </div>`;
+    });
+}
+
+// 5. MODIFICAMOS LA LÓGICA DE ESTADÍSTICAS PARA SUMAR DESDE EL ARRAY
+function renderEstadisticasMensuales() {
+    let container = document.getElementById('contenedor-tabla-estadistica');
+    if(!container) return;
+
+    let patologosTotales = { 'DR BENITEZ': {neg:0, pos:0}, 'DRA GARCIA': {neg:0, pos:0}, 'DR VIDAL': {neg:0, pos:0}, 'DR CERON': {neg:0, pos:0}, 'DRA BELTRAN': {neg:0, pos:0}, 'DRA ALFARO': {neg:0, pos:0}, 'DR ROJAS': {neg:0, pos:0} };
+    let tmTotales = { 'FERNANDA JARA': 0, 'PAULINA AGUILAR': 0, 'CAMILA ARAVENA': 0, 'STEPHANIE ACEVEDO': 0 };
+
+    lotesTrazabilidad.filter(l => l.estado === 'final').forEach(l => {
+        if(patologosTotales[l.patologo]) {
+            patologosTotales[l.patologo].neg += parseInt(l.negativos) || 0;
+            patologosTotales[l.patologo].pos += parseInt(l.positivos) || 0;
+        }
+        
+        // Sumamos correctamente los subtotales de la rutina agrupada
+        if (l.detalle) {
+            l.detalle.forEach(d => {
+                if(d.tm === 'FJ') tmTotales['FERNANDA JARA'] += d.cant;
+                if(d.tm === 'PA') tmTotales['PAULINA AGUILAR'] += d.cant;
+                if(d.tm === 'SA') tmTotales['CAMILA ARAVENA'] += d.cant;
+                if(d.tm === 'LE') tmTotales['STEPHANIE ACEVEDO'] += d.cant;
+            });
+        } else {
+            // Compatibilidad para lotes antiguos
+            if(l.tm === 'FJ') tmTotales['FERNANDA JARA'] += l.cantidad;
+            if(l.tm === 'PA') tmTotales['PAULINA AGUILAR'] += l.cantidad;
+            if(l.tm === 'SA') tmTotales['CAMILA ARAVENA'] += l.cantidad;
+            if(l.tm === 'LE') tmTotales['STEPHANIE ACEVEDO'] += l.cantidad;
+        }
+    });
+
+    let sumNeg = 0, sumPos = 0;
+    Object.values(patologosTotales).forEach(p => { sumNeg += p.neg; sumPos += p.pos; });
+    let sumTm = 0; Object.values(tmTotales).forEach(t => sumTm += t);
+
+    let html = `
+    <table class="w-full border-collapse border border-gray-800 text-center bg-white">
+        <thead>
+            <tr class="bg-yellow-200"><th colspan="2" class="border border-gray-800 p-1">NEGATIVO POR PATOLOGO</th><th colspan="2" class="border border-gray-800 p-1">POSITIVO POR PATOLOGO</th><th colspan="2" class="border border-gray-800 p-1">PAP POR TECNOLOGO MEDICO</th></tr>
+        </thead>
+        <tbody>`;
+
+    let patKeys = Object.keys(patologosTotales);
+    let tmKeys = Object.keys(tmTotales);
+    let maxLen = Math.max(patKeys.length, tmKeys.length);
+
+    for(let i=0; i<maxLen; i++) {
+        let pName = patKeys[i] || '';
+        let pData = pName ? patologosTotales[pName] : {neg:'', pos:''};
+        let tName = tmKeys[i] || '';
+        let tVal = tName ? tmTotales[tName] : '';
+
+        html += `<tr>
+            <td class="border border-gray-800 p-1 text-left font-bold">${pName}</td>
+            <td class="border border-gray-800 p-1">${pData.neg}</td>
+            <td class="border border-gray-800 p-1 text-left font-bold">${pName}</td>
+            <td class="border border-gray-800 p-1">${pData.pos}</td>
+            <td class="border border-gray-800 p-1 text-left font-bold">${tName}</td>
+            <td class="border border-gray-800 p-1">${tVal}</td>
+        </tr>`;
+    }
+
+    html += `
+        <tr class="bg-yellow-100 font-bold">
+            <td class="border border-gray-800 p-1 text-left">TOTAL NEGATIVOS</td><td class="border border-gray-800 p-1">${sumNeg}</td>
+            <td class="border border-gray-800 p-1 text-left">TOTAL POSITIVO</td><td class="border border-gray-800 p-1">${sumPos}</td>
+            <td class="border border-gray-800 p-1 text-left">TOTAL</td><td class="border border-gray-800 p-1">${sumTm}</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="mt-2 text-center bg-yellow-100 border border-gray-800 p-1 font-bold">TOTAL NEGATIVOS Y POSITIVOS: ${sumNeg + sumPos}</div>`;
+
+    container.innerHTML = html;
+}
     </script>
 </body>
 </html>
